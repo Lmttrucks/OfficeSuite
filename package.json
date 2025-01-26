@@ -1,0 +1,56 @@
+{
+  "name": "mlogofficesuite",
+  "version": "1.0.0",
+  "description": "Mlog Office suite. Backend server and frontend app together.",
+  "main": "main.js",
+  "scripts": {
+    "start": "concurrently \"npm run start-backend\" \"npm run start-react\" \"npm run start-electron\"",
+    "build": "npm run build-react && electron-builder",
+    "dev": "SET ELECTRON_ENV=development && electron .",
+    "start-react": "cd frontend && npm start",
+    "build-react": "cd frontend && npm run build",
+    "start-electron": "wait-on http://localhost:3000 && electron .",
+    "start-backend": "cd backend && npm start"
+  },
+  "keywords": [],
+  "author": "Shane M",
+  "license": "ISC",
+  "devDependencies": {
+    "concurrently": "^7.0.0",
+    "electron": "^34.0.1",
+    "electron-builder": "^25.1.8",
+    "wait-on": "^8.0.2"
+  },
+  "dependencies": {
+    "electron-is-dev": "^2.0.0"
+  },
+  "build": {
+    "appId": "com.mlogofficesuite.app",
+    "productName": "Mlog Office Suite",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "build/**/*",
+      "main.js",
+      "backend/**/*"
+    ],
+    "extraResources": [
+      {
+        "from": "backend/",
+        "to": "backend/",
+        "filter": [
+          "**/*"
+        ]
+      }
+    ],
+    "win": {
+      "target": "nsis",
+      "icon": "build/icon.ico"
+    },
+    "mac": {
+      "target": "dmg",
+      "icon": "build/icon.icns"
+    }
+  }
+}

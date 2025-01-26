@@ -1,0 +1,90 @@
+const sql = require('mssql');
+require('dotenv').config();
+
+const dbConfig = {
+    user: process.env.DB_USER,
+    password: process.env.DB_PASSWORD,
+    server: process.env.DB_SERVER,
+    database: process.env.DB_NAME,
+    options: { encrypt: true },
+};
+
+exports.getAllCompanies = async (req, res) => {
+    try {
+        await sql.connect(dbConfig);
+        const result = await sql.query`SELECT * FROM tblCompanies`;
+        res.json(result.recordset);
+    } catch (err) {
+        res.status(500).json({ message: err.message });
+    }
+};
+
+exports.getCompanyById = async (req, res) => {
+    const { id } = req.params;
+    try {
+        await sql.connect(dbConfig);
+        const result = await sql.query`SELECT * FROM tblCompanies WHERE CompanyID = ${id}`;
+        if (result.recordset.length === 0) {
+            return res.status(404).json({ message: 'Company not found' });
+        }
+        res.json(result.recordset[0]);
+    } catch (err) {
+        res.status(500).json({ message: err.message });
+    }
+};
+
+exports.createCompany = async (req, res) => {
+    const { CompanyName, CompanyAddress, CompanyPhone, CompanyEmail } = req.body;
+    try {
+        await sql.connect(dbConfig);
+        await sql.query`
+            INSERT INTO tblCompanies (CompanyName, CompanyAddress, CompanyPhone, CompanyEmail, DateAdded)
+            VALUES (${CompanyName}, ${CompanyAddress}, ${CompanyPhone}, ${CompanyEmail}, GETDATE())
+        `;
+        res.status(201).json({ message: 'Company created successfully' });
+    } catch (err) {
+        res.status(500).json({ message: err.message });
+    }
+};
+
+exports.updateCompany = async (req, res) => {
+    const { id } = req.params;
+    const { CompanyName, CompanyAddress, CompanyPhone, CompanyEmail } = req.body;
+
+    try {
+        await sql.connect(dbConfig);
+        const result = await sql.query`SELECT * FROM tblCompanies WHERE CompanyID = ${id}`;
+        if (result.recordset.length === 0) {
+            return res.status(404).json({ message: 'Company not found' });
+        }
+
+        await sql.query`
+            UPDATE tblCompanies
+            SET CompanyName = ${CompanyName},
+                CompanyAddress = ${CompanyAddress},
+                CompanyPhone = ${CompanyPhone},
+                CompanyEmail = ${CompanyEmail}
+            WHERE CompanyID = ${id}
+        `;
+        res.json({ message: 'Company updated successfully' });
+    } catch (err) {
+        res.status(500).json({ message: err.message });
+    }
+};
+
+exports.deleteCompany = async (req, res) => {
+    const { id } = req.params;
+
+    try {
+        await sql.connect(dbConfig);
+        const result = await sql.query`SELECT * FROM tblCompanies WHERE CompanyID = ${id}`;
+        if (result.recordset.length === 0) {
+            return res.status(404).json({ message: 'Company not found' });
+        }
+
+        await sql.query`DELETE FROM tblCompanies WHERE CompanyID = ${id}`;
+        res.json({ message: 'Company deleted successfully' });
+    } catch (err) {
+        res.status(500).json({ message: err.message });
+    }
+};
