@@ -174,7 +174,7 @@ const InvoiceDetails = ({ invoiceData }) => {
         ['Start Date:', invoiceData.startDate],
         ['End Date:', invoiceData.endDate],
         ['VAT Rate:', `${invoiceData.vatRate}%`],
-        ['Payment Amount:', `$${invoiceData.paymentAmount.toFixed(2)}`],
+        ['Payment Amount:', `Eur${invoiceData.paymentAmount.toFixed(2)}`],
         ['Load Count:', invoiceData.loadCount]
       ].map(([label, value], idx) => (
         <View style={styles.detailRow} key={idx}>
@@ -262,16 +262,16 @@ const Footer = ({ netTotal, vatAmount, grossTotal }) => (
       <Text>Payment should be made within 30 days.</Text>
     </View>
     <View style={styles.summaryBox}>
-      {[
-        ['Net Total:', `$${netTotal.toFixed(2)}`],
-        ['VAT:', `$${vatAmount.toFixed(2)}`],
-        ['Gross Total:', `$${grossTotal.toFixed(2)}`]
-      ].map(([label, value], idx) => (
-        <View style={styles.summaryRow} key={idx}>
-          <Text style={styles.summaryLabel}>{label}</Text>
-          <Text style={styles.summaryValue}>{value}</Text>
-        </View>
-      ))}
+            {[
+                ['Net Total:', `Eur${netTotal.toFixed(2)}`],
+                ['VAT:', `Eur${vatAmount.toFixed(2)}`],
+                ['Gross Total:', `Eur${grossTotal.toFixed(2)}`]
+            ].map(([label, value], idx) => (
+                <View style={styles.summaryRow} key={idx}>
+                    <Text style={styles.summaryLabel}>{label}</Text>
+                    <Text style={styles.summaryValue}>{value}</Text>
+                </View>
+            ))}
     </View>
   </View>
 );
