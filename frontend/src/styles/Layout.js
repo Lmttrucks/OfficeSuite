@@ -1,8 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Outlet, useLocation } from 'react-router-dom';
-import AdminMenu from './AdminMenu'; // Ensure this path is correct
-import Header from './Header'; // Import the Header component
+import AdminMenu from '../components/menus/AdminMenu'; // Corrected path
+import Header from '../components/menus/Header'; // Corrected path
 import './layout.css'; // Import the new CSS file
 
 const Layout = ({ children }) => {

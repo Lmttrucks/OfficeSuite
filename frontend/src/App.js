@@ -1,27 +1,26 @@
 import React from 'react';
 import { HashRouter as Router, Route, Routes } from 'react-router-dom';
-import Layout from './components/Layout';
+import Layout from './styles/Layout';
 import Login from './pages/Login';
-import DriverDashboard from './pages/DriverDashboard';
-import ManagerDashboard from './pages/ManagerDashboard';
-import AdminDashboard from './pages/AdminDashboard';
-import PrivateRoute from './components/PrivateRoute';
+import AdminDashboard from './pages/admin/AdminDashboard';
+import PrivateRoute from './services/PrivateRoute';
 import NotFound from './pages/NotFound';
 import './styles/index.css';
 import AddLoadPage from './pages/admin/loads/AddLoadPage';
 import Loading from './pages/Loading'; // Import the Loading component
 import InvoicePreviewPage from './pages/admin/invoicing/InvoicePreviewPage';
-import InvoiceGenFrm from './components/InvoiceGenFrm'; // Import InvoiceGenFrm component
-import InvoicePreviewForm from './components/InvoicePreviewForm'; // Import InvoicePreviewForm component
-import InvoicePreviewTable from './components/InvoicePreviewTable'; // Import InvoicePreviewTable component
-import AddCompanyPage from './pages/companies/addCompanyPage';
-import EditCompanyPage from './pages/companies/editCompanyPage';
-import AddJobPage from './pages/jobs/AddJobPage';
-import EditJobPage from './pages/jobs/EditJobPage';
-import DeleteJobPage from './pages/jobs/DeleteJobPage';
+import InvoiceGenFrm from './components/outinvoice/InvoiceGenFrm'; // Import InvoiceGenFrm component
+import InvoicePreviewForm from './components/outinvoice/InvoicePreviewForm'; // Import InvoicePreviewForm component
+import InvoicePreviewTable from './components/outinvoice/InvoicePreviewTable'; // Import InvoicePreviewTable component
+import AddCompanyPage from './pages/admin/companies/addCompanyPage';
+import EditCompanyPage from './pages/admin/companies/editCompanyPage';
+import AddJobPage from './pages/admin/jobs/AddJobPage';
+import EditJobPage from './pages/admin/jobs/EditJobPage';
+import DeleteJobPage from './pages/admin/jobs/DeleteJobPage';
 import AddUserPage from './pages/admin/appusers/addUserPage';
 import EditUserPage from './pages/admin/appusers/editUserPage';
 import DeleteUserPage from './pages/admin/appusers/deleteUserPage';
+import EditLoadPage from './pages/admin/loads/EditLoadPage';
 
 function App() {
   return (
@@ -152,24 +151,16 @@ function App() {
                     </PrivateRoute>
                   }
                 />
+                <Route
+                  path="/admin/loads/editloadpage"
+                  element={
+                    <PrivateRoute allowedRoles={['admin']}>
+                      <EditLoadPage />
+                    </PrivateRoute>
+                  }
+                />
 
                 {/* Other Routes */}
-                <Route
-                  path="/driver/dashboard"
-                  element={
-                    <PrivateRoute allowedRoles={['driver']}>
-                      <DriverDashboard />
-                    </PrivateRoute>
-                  }
-                />
-                <Route
-                  path="/manager/dashboard"
-                  element={
-                    <PrivateRoute allowedRoles={['manager']}>
-                      <ManagerDashboard />
-                    </PrivateRoute>
-                  }
-                />
                 {/* 404 Page */}
                 <Route path="*" element={<NotFound />} />
               </Routes>

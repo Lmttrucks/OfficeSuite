@@ -1,5 +1,5 @@
 import React from 'react';
-import AddCompanyFrm from '../../components/companies/addCompanyFrm';
+import AddCompanyFrm from '../../../components/companies/addCompanyFrm';
 
 function AddCompanyPage() {
   return (

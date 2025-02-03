@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import AddLoadForm from '../../../components/AddLoadForm';
-import Last100Table from '../../../components/Last100Table';
+import AddLoadForm from '../../../components/loads/AddLoadForm';
+import Last100Table from '../../../components/loads/Last100Table';
 
 const AddLoadPage = () => {
   const [refreshTable, setRefreshTable] = useState(false);

@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { PDFDownloadLink, PDFViewer } from '@react-pdf/renderer';
-import InvoiceStructure, { getFileName } from '../pdf/InvoiceStructure';
+import InvoiceStructure, { getFileName } from './InvoiceStructure';
 
 const InvoicePDFViewer = ({ invoiceData }) => {
   return (

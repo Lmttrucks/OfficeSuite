@@ -1,5 +1,5 @@
 import React from 'react';
-import EditCompanyFrm from '../../components/companies/editCompanyFrm';
+import EditCompanyFrm from '../../../components/companies/editCompanyFrm';
 
 function EditCompanyPage() {
   return (

@@ -6,9 +6,9 @@ import {
   syncVehicles,
   syncLocations,
   syncJobs
-} from '../components/lookupSync';
-import config from '../config';
-import LMHLogo from '../assets/img/LMH.jpg'; // Import the image
+} from '../../services/lookupSync';
+import config from '../../config';
+import LMHLogo from '../../assets/img/LMH.jpg'; // Import the image
 
 const Header = () => {
   const username = localStorage.getItem('username');

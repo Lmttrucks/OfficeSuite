@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { Box, Button, TextField, Autocomplete, Grid } from '@mui/material';
-import config from '../config';
+import config from '../../config';
 
 const AddLoadForm = ({ onLoadAdded }) => {
   const [formData, setFormData] = useState({

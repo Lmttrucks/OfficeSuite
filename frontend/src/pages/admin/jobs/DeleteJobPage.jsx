@@ -1,5 +1,5 @@
 import React from 'react';
-import DeleteJobForm from '../../components/jobs/deleteJobForm';
+import DeleteJobForm from '../../../components/jobs/deleteJobForm';
 
 function DeleteJobPage() {
   return (

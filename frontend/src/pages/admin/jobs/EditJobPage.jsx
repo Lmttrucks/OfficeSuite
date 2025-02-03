@@ -1,5 +1,5 @@
 import React from 'react';
-import EditJobForm from '../../components/jobs/editJobForm';
+import EditJobForm from '../../../components/jobs/editJobForm';
 
 function EditJobPage() {
   return (

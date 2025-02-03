@@ -170,27 +170,149 @@ ORDER BY l.ID DESC;`;
 
 exports.updateLoadById = async (req, res) => {
     const { id } = req.params;
-    const { employeeID, vehicleID, companyID, jobID, permitNo, weightDocNo, deliveryDate, rate, gross, tare, origin, destination, archived, outgoingInvoiceNo } = req.body;
+    const { employeeName, vehicleReg, companyName, jobID, permitNo, weightDocNo, deliveryDate, rate, gross, tare, origin, destination, archived, outgoingInvoiceNo, unitType, unitQuantity, paid, checked, permitURL, weightDocURL, paperDocFiled, mobileUL } = req.body;
+
+    console.log('Request body:', req.body); // Log the request body
 
     try {
-        const result = await sql.query`
+        let employeeID, vehicleID, companyID;
+
+        if (employeeName) {
+            const employeeResult = await sql.query`SELECT EmployeeID FROM tblEmployee WHERE EmployeeName = ${employeeName}`;
+            if (employeeResult.recordset.length === 0) {
+                return res.status(404).json({ message: 'Employee not found.' });
+            }
+            employeeID = employeeResult.recordset[0].EmployeeID;
+        }
+
+        if (vehicleReg) {
+            const vehicleResult = await sql.query`SELECT VehicleID FROM tblVehicle WHERE VehicleReg = ${vehicleReg}`;
+            if (vehicleResult.recordset.length === 0) {
+                return res.status(404).json({ message: 'Vehicle not found.' });
+            }
+            vehicleID = vehicleResult.recordset[0].VehicleID;
+        }
+
+        if (companyName) {
+            const companyResult = await sql.query`SELECT CompanyID FROM tblCompanies WHERE CompanyName = ${companyName}`;
+            if (companyResult.recordset.length === 0) {
+                return res.status(404).json({ message: 'Company not found.' });
+            }
+            companyID = companyResult.recordset[0].CompanyID;
+        }
+
+        const updateFields = [];
+        const updateValues = {};
+
+        if (employeeID) {
+            updateFields.push('EmployeeID = @employeeID');
+            updateValues.employeeID = employeeID;
+        }
+        if (vehicleID) {
+            updateFields.push('VehicleID = @vehicleID');
+            updateValues.vehicleID = vehicleID;
+        }
+        if (companyID) {
+            updateFields.push('CompanyID = @companyID');
+            updateValues.companyID = companyID;
+        }
+        if (jobID) {
+            updateFields.push('JobID = @jobID');
+            updateValues.jobID = jobID;
+        }
+        if (permitNo) {
+            updateFields.push('PermitNo = @permitNo');
+            updateValues.permitNo = permitNo;
+        }
+        if (weightDocNo) {
+            updateFields.push('WeightDocNo = @weightDocNo');
+            updateValues.weightDocNo = weightDocNo;
+        }
+        if (deliveryDate) {
+            updateFields.push('DeliveryDate = @deliveryDate');
+            updateValues.deliveryDate = deliveryDate;
+        }
+        if (rate) {
+            updateFields.push('Rate = @rate');
+            updateValues.rate = rate;
+        }
+        if (gross) {
+            updateFields.push('Gross = @gross');
+            updateValues.gross = gross;
+        }
+        if (tare) {
+            updateFields.push('Tare = @tare');
+            updateValues.tare = tare;
+        }
+        if (origin) {
+            updateFields.push('Origin = @origin');
+            updateValues.origin = origin;
+        }
+        if (destination) {
+            updateFields.push('Destination = @destination');
+            updateValues.destination = destination;
+        }
+        if (archived !== undefined) {
+            updateFields.push('Archived = @archived');
+            updateValues.archived = archived;
+        }
+        if (outgoingInvoiceNo) {
+            updateFields.push('OutgoingInvoiceNo = @outgoingInvoiceNo');
+            updateValues.outgoingInvoiceNo = outgoingInvoiceNo;
+        }
+        if (unitType) {
+            updateFields.push('UnitType = @unitType');
+            updateValues.unitType = unitType;
+        }
+        if (unitQuantity) {
+            updateFields.push('UnitQuantity = @unitQuantity');
+            updateValues.unitQuantity = unitQuantity;
+        }
+        if (paid !== undefined) {
+            updateFields.push('Paid = @paid');
+            updateValues.paid = paid;
+        }
+        if (checked !== undefined) {
+            updateFields.push('Checked = @checked');
+            updateValues.checked = checked;
+        }
+        if (permitURL) {
+            updateFields.push('PermitURL = @permitURL');
+            updateValues.permitURL = permitURL;
+        }
+        if (weightDocURL) {
+            updateFields.push('WeightDocURL = @weightDocURL');
+            updateValues.weightDocURL = weightDocURL;
+        }
+        if (paperDocFiled !== undefined) {
+            updateFields.push('PaperDocFiled = @paperDocFiled');
+            updateValues.paperDocFiled = paperDocFiled;
+        }
+        if (mobileUL) {
+            updateFields.push('MobileUL = @mobileUL');
+            updateValues.mobileUL = mobileUL;
+        }
+
+        console.log('Update fields:', updateFields); // Log the update fields
+
+        if (updateFields.length === 0) {
+            return res.status(400).json({ message: 'No fields to update.' });
+        }
+
+        const updateQuery = `
             UPDATE tblLoads
-            SET 
-                EmployeeID = ${employeeID},
-                VehicleID = ${vehicleID},
-                CompanyID = ${companyID},
-                JobID = ${jobID},
-                PermitNo = ${permitNo},
-                WeightDocNo = ${weightDocNo},
-                DeliveryDate = ${deliveryDate},
-                Rate = ${rate},
-                Gross = ${gross},
-                Tare = ${tare},
-                Origin = ${origin},
-                Destination = ${destination},
-                Archived = ${archived},
-                OutgoingInvoiceNo = ${outgoingInvoiceNo}
-            WHERE ID = ${id}`;
+            SET ${updateFields.join(', ')}
+            WHERE ID = @id`;
+
+        console.log('Update Query:', updateQuery); // Log the update query
+
+        const request = new sql.Request();
+        Object.keys(updateValues).forEach(key => {
+            request.input(key, updateValues[key]);
+        });
+        request.input('id', id);
+
+        const result = await request.query(updateQuery);
 
         if (result.rowsAffected[0] === 0) {
             return res.status(404).json({ message: "Load not found." });
@@ -198,6 +320,7 @@ exports.updateLoadById = async (req, res) => {
 
         res.json({ message: "Load updated successfully." });
     } catch (err) {
+        console.error('Error updating load:', err); // Log the error
         res.status(500).json({ message: 'Failed to update load', error: err.message });
     }
 };
@@ -235,5 +358,47 @@ exports.deleteLoadById = async (req, res) => {
         res.json({ message: "Load deleted successfully." });
     } catch (err) {
         res.status(500).json({ message: 'Failed to delete load', error: err.message });
+    }
+};
+
+exports.getAllNonArchivedLoads = async (req, res) => {
+    try {
+        const result = await sql.query`
+            SELECT 
+                l.ID,
+                l.SubmissionID,
+                l.OutgoingInvoiceNo,
+                l.JobID,
+                c.CompanyName AS CompanyName,
+                e.EmployeeName AS EmployeeName,
+                v.VehicleReg AS VehicleReg,
+                l.PermitNo,
+                l.WeightDocNo,
+                l.DeliveryDate,
+                l.Rate,
+                l.UnitType,
+                l.UnitQuantity,
+                l.Origin,
+                l.Destination,
+                l.Gross,
+                l.Tare,
+                l.Paid,
+                l.Checked,
+                l.PermitURL,
+                l.WeightDocURL,
+                l.PaperDocFiled,
+                l.MobileUL,
+                l.UserID,
+                l.DateAdded,
+                l.Archived
+            FROM tblLoads l
+            LEFT JOIN tblCompanies c ON l.CompanyID = c.CompanyID
+            LEFT JOIN tblEmployee e ON l.EmployeeID = e.EmployeeID
+            LEFT JOIN tblVehicle v ON l.VehicleID = v.VehicleID
+            WHERE l.Archived = 0
+            ORDER BY l.ID DESC;`;
+        res.json(result.recordset);
+    } catch (err) {
+        res.status(500).json({ message: 'Failed to fetch records', error: err.message });
     }
 };
