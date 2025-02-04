@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { Box, CircularProgress, Typography, Button } from '@mui/material';
 import { DataGrid } from '@mui/x-data-grid';
-import config from '../config';
+import config from '../../config';
 
 const Last100Table = ({ refresh }) => {
   const [records, setRecords] = useState([]);

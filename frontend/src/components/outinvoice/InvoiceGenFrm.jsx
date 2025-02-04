@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Box, Button, TextField, Autocomplete, Grid } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
-import config from '../config';
+import config from '../../config';
 import InvoicePreviewTable from './InvoicePreviewTable'; // Correct import path
 import axios from 'axios'; // Import axios
 import PropTypes from 'prop-types';

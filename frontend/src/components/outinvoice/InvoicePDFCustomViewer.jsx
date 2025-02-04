@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { PDFDownloadLink, BlobProvider } from '@react-pdf/renderer';
-import InvoiceStructure, { getFileName } from '../pdf/InvoiceStructure';
+import InvoiceStructure, { getFileName } from './InvoiceStructure';
 
 const InvoicePDFCustomViewer = ({ invoiceData }) => {
   const [pdfUrl, setPdfUrl] = useState('');

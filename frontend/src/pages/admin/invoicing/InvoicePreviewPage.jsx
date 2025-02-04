@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { useLocation } from 'react-router-dom';
-import InvoiceGenFrm from '../../../components/InvoiceGenFrm';
-import InvoicePreviewTable from '../../../components/InvoicePreviewTable';
-import InvoicePreviewForm from '../../../components/InvoicePreviewForm';
-import InvoicePDFViewer from '../../../components/viewer/InvoicePDFViewer';
+import InvoiceGenFrm from '../../../components/outinvoice/InvoiceGenFrm';
+import InvoicePreviewTable from '../../../components/outinvoice/InvoicePreviewTable';
+import InvoicePreviewForm from '../../../components/outinvoice/InvoicePreviewForm';
+import InvoicePDFViewer from '../../../components/outinvoice/InvoicePDFViewer';
 import axios from 'axios';
 import config from '../../../config';
 

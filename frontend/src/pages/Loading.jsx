@@ -9,7 +9,7 @@ import {
   syncJobs,
   clearTable,
   encryptTables
-} from '../components/lookupSync';
+} from '../services/lookupSync';
 
 function Loading() {
   const navigate = useNavigate();
