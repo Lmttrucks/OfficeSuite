@@ -1,19 +1,34 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { Box, Button, TextField, Grid } from '@mui/material';
 import config from '../../config';
 
-const EditLoadForm = ({ editingLoad, setEditingLoad }) => {
+const EditLoadForm = ({ editingLoad, setEditingLoad, handleRefreshTable }) => {
+  const [originalLoad, setOriginalLoad] = useState({});
+
+  useEffect(() => {
+    if (editingLoad && !originalLoad.ID) {
+      setOriginalLoad(editingLoad);
+    }
+  }, [editingLoad, originalLoad]);
+
   const handleSaveClick = async (e) => {
     e.preventDefault();
-    console.log('Submitting data:', editingLoad); // Log the data being submitted
 
     // Filter out null values and exclude userID and dateAdded
     const filteredData = Object.fromEntries(
       Object.entries(editingLoad).filter(([key, value]) => value !== null && key !== 'UserID' && key !== 'DateAdded')
     );
 
-    console.log('Filtered data:', filteredData); // Log the filtered data
+    // Include only changed fields
+    const changedData = Object.fromEntries(
+      Object.entries(filteredData).filter(([key, value]) => originalLoad[key] !== value)
+    );
+
+    if (Object.keys(changedData).length === 0) {
+      alert('No changes to save.');
+      return;
+    }
 
     try {
       const response = await fetch(`${config.apiBaseUrl}/loads/${editingLoad.ID}`, {
@@ -22,18 +37,17 @@ const EditLoadForm = ({ editingLoad, setEditingLoad }) => {
           'Content-Type': 'application/json',
           ...config.getAuthHeaders().headers
         },
-        body: JSON.stringify(filteredData)
+        body: JSON.stringify(changedData)
       });
 
       if (response.ok) {
         setEditingLoad(null);
+        handleRefreshTable(); // Refresh the table after a successful update
       } else {
         const errorData = await response.json();
-        console.error('Failed to update load:', errorData);
         alert(`Failed to update load: ${errorData.message}`);
       }
     } catch (error) {
-      console.error('Error updating load:', error);
       alert('Error updating load');
     }
   };
@@ -258,7 +272,8 @@ EditLoadForm.propTypes = {
     PaperDocFiled: PropTypes.bool,
     MobileUL: PropTypes.string
   }),
-  setEditingLoad: PropTypes.func.isRequired
+  setEditingLoad: PropTypes.func.isRequired,
+  handleRefreshTable: PropTypes.func.isRequired
 };
 
 export default EditLoadForm;

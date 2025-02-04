@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { Box, Button, Table, TableBody, TableCell, TableHead, TableRow } from '@mui/material';
 import config from '../../config';
 
-const EditLoadTable = ({ setEditingLoad }) => {
+const EditLoadTable = ({ setEditingLoad, refreshTable }) => {
   const [loads, setLoads] = useState([]);
 
   useEffect(() => {
@@ -22,7 +22,7 @@ const EditLoadTable = ({ setEditingLoad }) => {
     };
 
     fetchLoads();
-  }, []);
+  }, [refreshTable]);
 
   const handleEditClick = (load) => {
     setEditingLoad(load);
@@ -95,7 +95,8 @@ const EditLoadTable = ({ setEditingLoad }) => {
 };
 
 EditLoadTable.propTypes = {
-  setEditingLoad: PropTypes.func.isRequired
+  setEditingLoad: PropTypes.func.isRequired,
+  refreshTable: PropTypes.bool.isRequired
 };
 
 export default EditLoadTable;

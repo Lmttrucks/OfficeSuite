@@ -170,130 +170,126 @@ ORDER BY l.ID DESC;`;
 
 exports.updateLoadById = async (req, res) => {
     const { id } = req.params;
-    const { employeeName, vehicleReg, companyName, jobID, permitNo, weightDocNo, deliveryDate, rate, gross, tare, origin, destination, archived, outgoingInvoiceNo, unitType, unitQuantity, paid, checked, permitURL, weightDocURL, paperDocFiled, mobileUL } = req.body;
-
-    console.log('Request body:', req.body); // Log the request body
+    const { EmployeeName, VehicleReg, CompanyName, JobID, PermitNo, WeightDocNo, DeliveryDate, Rate, Gross, Tare, Origin, Destination, Archived, OutgoingInvoiceNo, UnitType, UnitQuantity, Paid, Checked, PermitURL, WeightDocURL, PaperDocFiled, MobileUL } = req.body;
 
     try {
-        let employeeID, vehicleID, companyID;
+        let EmployeeID, VehicleID, CompanyID;
 
-        if (employeeName) {
-            const employeeResult = await sql.query`SELECT EmployeeID FROM tblEmployee WHERE EmployeeName = ${employeeName}`;
+        if (EmployeeName) {
+            const employeeResult = await sql.query`SELECT EmployeeID FROM tblEmployee WHERE EmployeeName = ${EmployeeName}`;
             if (employeeResult.recordset.length === 0) {
                 return res.status(404).json({ message: 'Employee not found.' });
             }
-            employeeID = employeeResult.recordset[0].EmployeeID;
+            EmployeeID = employeeResult.recordset[0].EmployeeID;
         }
 
-        if (vehicleReg) {
-            const vehicleResult = await sql.query`SELECT VehicleID FROM tblVehicle WHERE VehicleReg = ${vehicleReg}`;
+        if (VehicleReg) {
+            const vehicleResult = await sql.query`SELECT VehicleID FROM tblVehicle WHERE VehicleReg = ${VehicleReg}`;
             if (vehicleResult.recordset.length === 0) {
                 return res.status(404).json({ message: 'Vehicle not found.' });
             }
-            vehicleID = vehicleResult.recordset[0].VehicleID;
+            VehicleID = vehicleResult.recordset[0].VehicleID;
         }
 
-        if (companyName) {
-            const companyResult = await sql.query`SELECT CompanyID FROM tblCompanies WHERE CompanyName = ${companyName}`;
+        if (CompanyName) {
+            const companyResult = await sql.query`SELECT CompanyID FROM tblCompanies WHERE CompanyName = ${CompanyName}`;
             if (companyResult.recordset.length === 0) {
                 return res.status(404).json({ message: 'Company not found.' });
             }
-            companyID = companyResult.recordset[0].CompanyID;
+            CompanyID = companyResult.recordset[0].CompanyID;
         }
 
         const updateFields = [];
         const updateValues = {};
 
-        if (employeeID) {
-            updateFields.push('EmployeeID = @employeeID');
-            updateValues.employeeID = employeeID;
+        if (EmployeeID) {
+            updateFields.push('EmployeeID = @EmployeeID');
+            updateValues.EmployeeID = EmployeeID;
         }
-        if (vehicleID) {
-            updateFields.push('VehicleID = @vehicleID');
-            updateValues.vehicleID = vehicleID;
+        if (VehicleID) {
+            updateFields.push('VehicleID = @VehicleID');
+            updateValues.VehicleID = VehicleID;
         }
-        if (companyID) {
-            updateFields.push('CompanyID = @companyID');
-            updateValues.companyID = companyID;
+        if (CompanyID) {
+            updateFields.push('CompanyID = @CompanyID');
+            updateValues.CompanyID = CompanyID;
         }
-        if (jobID) {
-            updateFields.push('JobID = @jobID');
-            updateValues.jobID = jobID;
+        if (JobID) {
+            updateFields.push('JobID = @JobID');
+            updateValues.JobID = JobID;
         }
-        if (permitNo) {
-            updateFields.push('PermitNo = @permitNo');
-            updateValues.permitNo = permitNo;
+        if (PermitNo) {
+            updateFields.push('PermitNo = @PermitNo');
+            updateValues.PermitNo = PermitNo;
         }
-        if (weightDocNo) {
-            updateFields.push('WeightDocNo = @weightDocNo');
-            updateValues.weightDocNo = weightDocNo;
+        if (WeightDocNo) {
+            updateFields.push('WeightDocNo = @WeightDocNo');
+            updateValues.WeightDocNo = WeightDocNo;
         }
-        if (deliveryDate) {
-            updateFields.push('DeliveryDate = @deliveryDate');
-            updateValues.deliveryDate = deliveryDate;
+        if (DeliveryDate) {
+            updateFields.push('DeliveryDate = @DeliveryDate');
+            updateValues.DeliveryDate = DeliveryDate;
         }
-        if (rate) {
-            updateFields.push('Rate = @rate');
-            updateValues.rate = rate;
+        if (Rate) {
+            updateFields.push('Rate = @Rate');
+            updateValues.Rate = Rate;
         }
-        if (gross) {
-            updateFields.push('Gross = @gross');
-            updateValues.gross = gross;
+        if (Gross) {
+            updateFields.push('Gross = @Gross');
+            updateValues.Gross = Gross;
         }
-        if (tare) {
-            updateFields.push('Tare = @tare');
-            updateValues.tare = tare;
+        if (Tare) {
+            updateFields.push('Tare = @Tare');
+            updateValues.Tare = Tare;
         }
-        if (origin) {
-            updateFields.push('Origin = @origin');
-            updateValues.origin = origin;
+        if (Origin) {
+            updateFields.push('Origin = @Origin');
+            updateValues.Origin = Origin;
         }
-        if (destination) {
-            updateFields.push('Destination = @destination');
-            updateValues.destination = destination;
+        if (Destination) {
+            updateFields.push('Destination = @Destination');
+            updateValues.Destination = Destination;
         }
-        if (archived !== undefined) {
-            updateFields.push('Archived = @archived');
-            updateValues.archived = archived;
+        if (Archived !== undefined) {
+            updateFields.push('Archived = @Archived');
+            updateValues.Archived = Archived;
         }
-        if (outgoingInvoiceNo) {
-            updateFields.push('OutgoingInvoiceNo = @outgoingInvoiceNo');
-            updateValues.outgoingInvoiceNo = outgoingInvoiceNo;
+        if (OutgoingInvoiceNo) {
+            updateFields.push('OutgoingInvoiceNo = @OutgoingInvoiceNo');
+            updateValues.OutgoingInvoiceNo = OutgoingInvoiceNo;
         }
-        if (unitType) {
-            updateFields.push('UnitType = @unitType');
-            updateValues.unitType = unitType;
+        if (UnitType) {
+            updateFields.push('UnitType = @UnitType');
+            updateValues.UnitType = UnitType;
         }
-        if (unitQuantity) {
-            updateFields.push('UnitQuantity = @unitQuantity');
-            updateValues.unitQuantity = unitQuantity;
+        if (UnitQuantity) {
+            updateFields.push('UnitQuantity = @UnitQuantity');
+            updateValues.UnitQuantity = UnitQuantity;
         }
-        if (paid !== undefined) {
-            updateFields.push('Paid = @paid');
-            updateValues.paid = paid;
+        if (Paid !== undefined) {
+            updateFields.push('Paid = @Paid');
+            updateValues.Paid = Paid;
         }
-        if (checked !== undefined) {
-            updateFields.push('Checked = @checked');
-            updateValues.checked = checked;
+        if (Checked !== undefined) {
+            updateFields.push('Checked = @Checked');
+            updateValues.Checked = Checked;
         }
-        if (permitURL) {
-            updateFields.push('PermitURL = @permitURL');
-            updateValues.permitURL = permitURL;
+        if (PermitURL) {
+            updateFields.push('PermitURL = @PermitURL');
+            updateValues.PermitURL = PermitURL;
         }
-        if (weightDocURL) {
-            updateFields.push('WeightDocURL = @weightDocURL');
-            updateValues.weightDocURL = weightDocURL;
+        if (WeightDocURL) {
+            updateFields.push('WeightDocURL = @WeightDocURL');
+            updateValues.WeightDocURL = WeightDocURL;
         }
-        if (paperDocFiled !== undefined) {
-            updateFields.push('PaperDocFiled = @paperDocFiled');
-            updateValues.paperDocFiled = paperDocFiled;
+        if (PaperDocFiled !== undefined) {
+            updateFields.push('PaperDocFiled = @PaperDocFiled');
+            updateValues.PaperDocFiled = PaperDocFiled;
         }
-        if (mobileUL) {
-            updateFields.push('MobileUL = @mobileUL');
-            updateValues.mobileUL = mobileUL;
+        if (MobileUL) {
+            updateFields.push('MobileUL = @MobileUL');
+            updateValues.MobileUL = MobileUL;
         }
-
-        console.log('Update fields:', updateFields); // Log the update fields
 
         if (updateFields.length === 0) {
             return res.status(400).json({ message: 'No fields to update.' });
@@ -303,8 +299,6 @@ exports.updateLoadById = async (req, res) => {
             UPDATE tblLoads
             SET ${updateFields.join(', ')}
             WHERE ID = @id`;
-
-        console.log('Update Query:', updateQuery); // Log the update query
 
         const request = new sql.Request();
         Object.keys(updateValues).forEach(key => {
@@ -320,7 +314,6 @@ exports.updateLoadById = async (req, res) => {
 
         res.json({ message: "Load updated successfully." });
     } catch (err) {
-        console.error('Error updating load:', err); // Log the error
         res.status(500).json({ message: 'Failed to update load', error: err.message });
     }
 };

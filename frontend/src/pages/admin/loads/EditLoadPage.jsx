@@ -1,15 +1,20 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Modal, Box } from '@mui/material';
 import EditLoadTable from '../../../components/loads/EditLoadTable';
 import EditLoadForm from '../../../components/loads/EditLoadForm';
 
 const EditLoadPage = () => {
   const [editingLoad, setEditingLoad] = useState(null);
+  const [refreshTable, setRefreshTable] = useState(false);
+
+  const handleRefreshTable = () => {
+    setRefreshTable(!refreshTable);
+  };
 
   return (
     <div>
       <h1>Edit Load</h1>
-      <EditLoadTable setEditingLoad={setEditingLoad} />
+      <EditLoadTable setEditingLoad={setEditingLoad} refreshTable={refreshTable} />
       <Modal
         open={!!editingLoad}
         onClose={() => setEditingLoad(null)}
@@ -30,6 +35,7 @@ const EditLoadPage = () => {
             <EditLoadForm
               editingLoad={editingLoad}
               setEditingLoad={setEditingLoad}
+              handleRefreshTable={handleRefreshTable}
             />
           )}
         </Box>
