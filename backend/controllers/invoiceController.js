@@ -99,3 +99,75 @@ exports.uploadInvoiceToBlob = async (req, res) => {
         res.status(500).json({ message: 'Server error', error: err.message });
     }
 };
+
+exports.getInvoicesByCompanyName = async (req, res) => {
+    const { CompanyName } = req.query;
+
+    try {
+        await sql.connect(dbConfig);
+
+        const result = await sql.query`
+        SELECT *
+        FROM tblOutvoice o
+        INNER JOIN tblCompanies c ON o.CompanyID = c.CompanyID
+        WHERE c.CompanyName = ${CompanyName}`;
+
+        if (result.recordset.length === 0) {
+            return res.status(404).json({ message: 'No invoices found for the specified company' });
+        }
+
+        res.json(result.recordset);
+    } catch (err) {
+        res.status(500).json({ message: 'Server error', error: err.message });
+    }
+};
+
+exports.getLoadsByOutgoingInvoiceNo = async (req, res) => {
+    const { outvoiceNo } = req.query;
+
+    try {
+        await sql.connect(dbConfig);
+
+        const result = await sql.query`
+        SELECT 
+            l.ID,
+            l.JobID,
+            l.PermitNo,
+            l.WeightDocNo,
+            l.Origin,
+            l.Destination,
+            l.Rate,
+            l.UnitQuantity
+        FROM tblLoads l
+        WHERE l.OutgoingInvoiceNo = ${outvoiceNo}
+        AND l.Archived = 0`;
+
+        if (result.recordset.length === 0) {
+            return res.status(404).json({ message: 'No loads found for the specified outgoing invoice number' });
+        }
+
+        res.json(result.recordset);
+    } catch (err) {
+        res.status(500).json({ message: 'Server error', error: err.message });
+    }
+};
+
+exports.deleteInvoiceByOutgoingInvoiceNo = async (req, res) => {
+    const { outvoiceNo } = req.query;
+
+    try {
+        await sql.connect(dbConfig);
+
+        const result = await sql.query`
+        DELETE FROM tblOutvoice
+        WHERE OutvoiceNo = ${outvoiceNo}`;
+
+        if (result.rowsAffected[0] === 0) {
+            return res.status(404).json({ message: 'No invoice found for the specified outgoing invoice number' });
+        }
+
+        res.status(200).json({ message: 'Invoice deleted successfully' });
+    } catch (err) {
+        res.status(500).json({ message: 'Server error', error: err.message });
+    }
+};
