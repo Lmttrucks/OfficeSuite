@@ -337,6 +337,25 @@ exports.updateOutgoingInvoiceNo = async (req, res) => {
     }
 };
 
+exports.clearOutgoingInvoiceNo = async (req, res) => {
+    const { outgoingInvoiceNo } = req.body;
+
+    try {
+        const result = await sql.query`
+            UPDATE tblLoads
+            SET OutgoingInvoiceNo = NULL
+            WHERE OutgoingInvoiceNo = ${outvoiceNo}`;
+
+        if (result.rowsAffected[0] === 0) {
+            return res.status(404).json({ message: "No loads found with the specified outgoing invoice number." });
+        }
+
+        res.json({ message: "Outgoing Invoice No cleared successfully." });
+    } catch (err) {
+        res.status(500).json({ message: 'Failed to clear Outgoing Invoice No', error: err.message });
+    }
+};
+
 exports.deleteLoadById = async (req, res) => {
     const { id } = req.params;
 
@@ -390,6 +409,106 @@ exports.getAllNonArchivedLoads = async (req, res) => {
             LEFT JOIN tblVehicle v ON l.VehicleID = v.VehicleID
             WHERE l.Archived = 0
             ORDER BY l.ID DESC;`;
+        res.json(result.recordset);
+    } catch (err) {
+        res.status(500).json({ message: 'Failed to fetch records', error: err.message });
+    }
+};
+
+exports.addLinkLoad = async (req, res) => {
+    const { loadID, companyName, rate, jobID, permitNo, weightDocNo, deliveryDate, unitQuantity, origin, destination } = req.body;
+
+    try {
+        // Get CompanyID from companyName
+        const companyResult = await sql.query`SELECT CompanyID FROM tblCompanies WHERE CompanyName = ${companyName}`;
+        
+        if (companyResult.recordset.length === 0) {
+            return res.status(404).json({ message: 'Company not found.' });
+        }
+
+        const companyID = companyResult.recordset[0].CompanyID;
+
+        // Insert into tblLinkLoads
+        await sql.query`
+            INSERT INTO tblLinkLoads (LoadID, CompanyID, Rate, JobID, PermitNo, WeightDocNo, DeliveryDate, UnitQuantity, Origin, Destination)
+            VALUES (${loadID}, ${companyID}, ${rate}, ${jobID}, ${permitNo}, ${weightDocNo}, ${deliveryDate}, ${unitQuantity}, ${origin}, ${destination})`;
+
+        res.status(201).json({ message: 'Link load added successfully' });
+    } catch (err) {
+        res.status(500).json({ message: 'Failed to add link load', error: err.message });
+    }
+};
+
+exports.updateLinkLoad = async (req, res) => {
+    const { loadID } = req.params;
+    const { invoiceNo, paid, deleted } = req.body;
+
+    try {
+        const updateFields = [];
+        const updateValues = {};
+
+        if (invoiceNo !== undefined) {
+            updateFields.push('InvoiceNo = @InvoiceNo');
+            updateValues.InvoiceNo = invoiceNo;
+        }
+        if (paid !== undefined) {
+            updateFields.push('Paid = @Paid');
+            updateValues.Paid = paid;
+        }
+        if (deleted !== undefined) {
+            updateFields.push('Deleted = @Deleted');
+            updateValues.Deleted = deleted;
+        }
+
+        if (updateFields.length === 0) {
+            return res.status(400).json({ message: 'No fields to update.' });
+        }
+
+        const updateQuery = `
+            UPDATE tblLinkLoads
+            SET ${updateFields.join(', ')}
+            WHERE LoadID = @LoadID`;
+
+        const request = new sql.Request();
+        Object.keys(updateValues).forEach(key => {
+            request.input(key, updateValues[key]);
+        });
+        request.input('LoadID', loadID);
+
+        const result = await request.query(updateQuery);
+
+        if (result.rowsAffected[0] === 0) {
+            return res.status(404).json({ message: "Link load not found." });
+        }
+
+        res.json({ message: "Link load updated successfully." });
+    } catch (err) {
+        res.status(500).json({ message: 'Failed to update link load', error: err.message });
+    }
+};
+
+exports.getExternalLoads = async (req, res) => {
+    try {
+        const result = await sql.query`
+            SELECT 
+                l.ID,
+                l.JobID,
+                l.PermitNo,
+                l.WeightDocNo,
+                l.DeliveryDate,
+                l.UnitQuantity,
+                l.Origin,
+                l.Destination,
+                l.Archived
+            FROM tblLoads l
+            JOIN tblEmployee e ON l.EmployeeID = e.EmployeeID
+            WHERE e.EmployeeName = 'External'
+            WHERE l.Archived = 0`;
+
+        if (result.recordset.length === 0) {
+            return res.status(404).json({ message: "No loads found for the specified criteria." });
+        }
+
         res.json(result.recordset);
     } catch (err) {
         res.status(500).json({ message: 'Failed to fetch records', error: err.message });

@@ -42,7 +42,8 @@ function AdminMenu() {
   const loadsSubmenuItems = [
     { text: 'Load Search', path: '/admin/loads/search' },
     { text: 'Add Load', path: '/admin/loads/addloadpage' }, // Updated path to AddLoadPage.jsx
-    { text: 'Edit Load', path: '/admin/loads/editloadpage' } // New submenu item
+    { text: 'Edit Load', path: '/admin/loads/editloadpage' }, // New submenu item
+    { text: 'Link Load', path: '/admin/loads/link-load' } // New submenu item for Link Load
   ];
 
   const invoicingSubmenuItems = [

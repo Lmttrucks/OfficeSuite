@@ -21,6 +21,11 @@ import AddUserPage from './pages/admin/appusers/addUserPage';
 import EditUserPage from './pages/admin/appusers/editUserPage';
 import DeleteUserPage from './pages/admin/appusers/deleteUserPage';
 import EditLoadPage from './pages/admin/loads/EditLoadPage';
+import LinkLoadPage from './pages/admin/loads/LinkLoadPage'; // Import LinkLoadPage component
+import OtherInvoicePage from './pages/admin/invoicing/OtherInvoicePage'; // Import OtherInvoicePage component
+import OtherInvoiceGenFrm from './components/outinvoice/otherinvoices/OtherInvoiceGenFrm'; // Import OtherInvoiceGenFrm component
+import OtherInvoicePreviewForm from './components/outinvoice/otherinvoices/OtherInvoicePreviewForm'; // Import OtherInvoicePreviewForm component
+import OtherInvoicePreviewTable from './components/outinvoice/otherinvoices/OtherInvoicePreviewTable'; // Import OtherInvoicePreviewTable component
 
 function App() {
   return (
@@ -156,6 +161,46 @@ function App() {
                   element={
                     <PrivateRoute allowedRoles={['admin']}>
                       <EditLoadPage />
+                    </PrivateRoute>
+                  }
+                />
+                <Route
+                  path="/admin/loads/link-load"
+                  element={
+                    <PrivateRoute allowedRoles={['admin']}>
+                      <LinkLoadPage />
+                    </PrivateRoute>
+                  }
+                />
+                <Route
+                  path="/admin/invoicing/other"
+                  element={
+                    <PrivateRoute allowedRoles={['admin']}>
+                      <OtherInvoicePage />
+                    </PrivateRoute>
+                  }
+                />
+                <Route
+                  path="/admin/invoicing/other/generate"
+                  element={
+                    <PrivateRoute allowedRoles={['admin']}>
+                      <OtherInvoiceGenFrm />
+                    </PrivateRoute>
+                  }
+                />
+                <Route
+                  path="/admin/invoicing/other/preview"
+                  element={
+                    <PrivateRoute allowedRoles={['admin']}>
+                      <OtherInvoicePreviewForm />
+                    </PrivateRoute>
+                  }
+                />
+                <Route
+                  path="/admin/invoicing/other/preview-table"
+                  element={
+                    <PrivateRoute allowedRoles={['admin']}>
+                      <OtherInvoicePreviewTable />
                     </PrivateRoute>
                   }
                 />

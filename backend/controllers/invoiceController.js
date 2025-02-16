@@ -171,3 +171,35 @@ exports.deleteInvoiceByOutgoingInvoiceNo = async (req, res) => {
         res.status(500).json({ message: 'Server error', error: err.message });
     }
 };
+
+exports.previewLinkedLoadsInvoice = async (req, res) => {
+    const { CompanyName, StartDate, EndDate } = req.body;
+
+    try {
+        await sql.connect(dbConfig);
+
+        const loadsResult = await sql.query`
+        SELECT 
+            l.ID,
+            l.JobID,
+            l.PermitNo,
+            l.WeightDocNo,
+            l.Origin,
+            l.Destination,
+            l.Rate,
+            l.UnitQuantity
+        FROM tblLinkLoads l
+        INNER JOIN tblCompanies c ON l.CompanyID = c.CompanyID
+        WHERE c.CompanyName = ${CompanyName}
+          AND l.DeliveryDate BETWEEN ${StartDate} AND ${EndDate}
+          AND l.OutgoingInvoiceNo IS NULL`;
+
+        if (loadsResult.recordset.length === 0) {
+            return res.status(404).json({ message: 'No linked loads found for the specified company and date range' });
+        }
+
+        res.json(loadsResult.recordset);
+    } catch (err) {
+        res.status(500).json({ message: 'Server error', error: err.message });
+    }
+};

@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const { authenticateToken, authorizeRoles } = require('../middleware/authMiddleware');
-const { previewOutInvoice, insertOutInvoice, uploadInvoiceToBlob, getInvoicesByCompanyName, getLoadsByOutgoingInvoiceNo, deleteInvoiceByOutgoingInvoiceNo } = require('../controllers/invoiceController');
+const { previewOutInvoice, insertOutInvoice, uploadInvoiceToBlob, getInvoicesByCompanyName, getLoadsByOutgoingInvoiceNo, deleteInvoiceByOutgoingInvoiceNo, previewLinkedLoadsInvoice } = require('../controllers/invoiceController');
 const multer = require('multer');
 const upload = multer();
 
@@ -11,5 +11,6 @@ router.post('/uploadInvoiceToBlob', authenticateToken, authorizeRoles(['admin', 
 router.get('/getInvoicesByCompanyName', authenticateToken, authorizeRoles(['admin', 'manager']), getInvoicesByCompanyName);
 router.get('/getLoadsByOutgoingInvoiceNo', authenticateToken, authorizeRoles(['admin', 'manager']), getLoadsByOutgoingInvoiceNo);
 router.delete('/deleteInvoiceByOutgoingInvoiceNo', authenticateToken, authorizeRoles(['admin', 'manager']), deleteInvoiceByOutgoingInvoiceNo);
+router.post('/previewLinkedLoadsInvoice', authenticateToken, authorizeRoles(['admin', 'manager']), previewLinkedLoadsInvoice);
 
 module.exports = router;

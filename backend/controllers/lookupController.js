@@ -84,3 +84,23 @@ exports.getCompanyInfo = async (req, res) => {
         res.status(500).json({ message: 'Server error', error: err.message });
     }
 };
+
+exports.getDistinctOrigins = async (req, res) => {
+    try {
+        await sql.connect(dbConfig);
+        const result = await sql.query`SELECT DISTINCT Origin FROM tblLoads ORDER BY Origin`;
+        res.json(result.recordset);
+    } catch (err) {
+        res.status(500).json({ message: 'Server error', error: err.message });
+    }
+};
+
+exports.getDistinctDestinations = async (req, res) => {
+    try {
+        await sql.connect(dbConfig);
+        const result = await sql.query`SELECT DISTINCT Destination FROM tblLoads ORDER BY Destination`;
+        res.json(result.recordset);
+    } catch (err) {
+        res.status(500).json({ message: 'Server error', error: err.message });
+    }
+};
