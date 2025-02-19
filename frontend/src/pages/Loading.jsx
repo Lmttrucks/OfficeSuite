@@ -7,6 +7,8 @@ import {
   syncVehicles,
   syncLocations,
   syncJobs,
+  syncOrigins, // Import syncOrigins
+  syncDestinations, // Import syncDestinations
   clearTable,
   encryptTables
 } from '../services/lookupSync';
@@ -29,6 +31,8 @@ function Loading() {
         clearTable('localVehicles');
         clearTable('localLocations');
         clearTable('localJobs');
+        clearTable('localOrigins'); // Clear localOrigins
+        clearTable('localDestinations'); // Clear localDestinations
 
         setProgress('Syncing companies...');
         console.log('Syncing companies...');
@@ -49,6 +53,14 @@ function Loading() {
         setProgress('Syncing jobs...');
         console.log('Syncing jobs...');
         await syncJobs();
+
+        setProgress('Syncing origins...');
+        console.log('Syncing origins...');
+        await syncOrigins(); // Sync origins
+
+        setProgress('Syncing destinations...');
+        console.log('Syncing destinations...');
+        await syncDestinations(); // Sync destinations
 
         setProgress('All data synchronized. Encrypting tables...');
         await encryptTables();

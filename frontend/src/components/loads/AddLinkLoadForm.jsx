@@ -1,13 +1,28 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
-import { Box, Button, TextField, Grid } from '@mui/material';
+import { Box, Button, TextField, Grid, Autocomplete } from '@mui/material';
 import config from '../../config';
 
 const AddLinkLoadForm = ({ loadID, jobID, permitNo, weightDocNo, deliveryDate, unitQuantity, origin, destination, handleCloseModal }) => {
   const [companyName, setCompanyName] = useState('');
+  const [linkNo, setLinkNo] = useState('');
   const [rate, setRate] = useState('');
-  const [editablePermitNo, setEditablePermitNo] = useState(permitNo || '');
-  const [editableWeightDocNo, setEditableWeightDocNo] = useState(weightDocNo || '');
+  const [localCompanies, setLocalCompanies] = useState([]);
+
+  useEffect(() => {
+    const loadLocalData = (key) => {
+      const data = localStorage.getItem(key);
+      if (!data) return [];
+      try {
+        return JSON.parse(data); // Directly parse JSON without decryption
+      } catch (error) {
+        console.error(`Error parsing data for ${key}:`, error);
+        return [];
+      }
+    };
+
+    setLocalCompanies(loadLocalData('localCompanies'));
+  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -22,14 +37,8 @@ const AddLinkLoadForm = ({ loadID, jobID, permitNo, weightDocNo, deliveryDate, u
         body: JSON.stringify({
           loadID,
           companyName,
-          rate,
-          jobID,
-          permitNo: editablePermitNo,
-          weightDocNo: editableWeightDocNo,
-          deliveryDate,
-          unitQuantity,
-          origin,
-          destination
+          linkNo,
+          rate
         })
       });
 
@@ -57,12 +66,29 @@ const AddLinkLoadForm = ({ loadID, jobID, permitNo, weightDocNo, deliveryDate, u
           />
         </Grid>
         <Grid item xs={12}>
+          <Autocomplete
+            options={localCompanies}
+            getOptionLabel={(option) => option?.CompanyName || ''}
+            value={localCompanies.find((c) => c.CompanyName === companyName) || null}
+            onChange={(event, newValue) => {
+              setCompanyName(newValue ? newValue.CompanyName : '');
+            }}
+            renderInput={(params) => (
+              <TextField
+                {...params}
+                label="Company Name"
+                fullWidth
+                required
+              />
+            )}
+          />
+        </Grid>
+        <Grid item xs={12}>
           <TextField
-            label="Company Name"
-            value={companyName}
-            onChange={(e) => setCompanyName(e.target.value)}
+            label="Link No"
+            value={linkNo}
+            onChange={(e) => setLinkNo(e.target.value)}
             fullWidth
-            required
           />
         </Grid>
         <Grid item xs={12}>
@@ -72,62 +98,6 @@ const AddLinkLoadForm = ({ loadID, jobID, permitNo, weightDocNo, deliveryDate, u
             onChange={(e) => setRate(e.target.value)}
             fullWidth
             required
-          />
-        </Grid>
-        <Grid item xs={12}>
-          <TextField
-            label="Job ID"
-            value={jobID}
-            fullWidth
-            disabled
-          />
-        </Grid>
-        <Grid item xs={12}>
-          <TextField
-            label="Permit No"
-            value={editablePermitNo}
-            onChange={(e) => setEditablePermitNo(e.target.value)}
-            fullWidth
-          />
-        </Grid>
-        <Grid item xs={12}>
-          <TextField
-            label="Weight Doc No"
-            value={editableWeightDocNo}
-            onChange={(e) => setEditableWeightDocNo(e.target.value)}
-            fullWidth
-          />
-        </Grid>
-        <Grid item xs={12}>
-          <TextField
-            label="Delivery Date"
-            value={deliveryDate}
-            fullWidth
-            disabled
-          />
-        </Grid>
-        <Grid item xs={12}>
-          <TextField
-            label="Unit Quantity"
-            value={unitQuantity}
-            fullWidth
-            disabled
-          />
-        </Grid>
-        <Grid item xs={12}>
-          <TextField
-            label="Origin"
-            value={origin}
-            fullWidth
-            disabled
-          />
-        </Grid>
-        <Grid item xs={12}>
-          <TextField
-            label="Destination"
-            value={destination}
-            fullWidth
-            disabled
           />
         </Grid>
         <Grid item xs={12} sx={{ display: 'flex', justifyContent: 'flex-end' }}>

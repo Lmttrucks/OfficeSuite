@@ -39,6 +39,7 @@ const AddLinkLoadTable = ({ refreshTable }) => {
       <Table>
         <TableHead>
           <TableRow>
+            <TableCell>Load ID</TableCell>
             <TableCell>Job ID</TableCell>
             <TableCell>Permit No</TableCell>
             <TableCell>Weight Doc No</TableCell>
@@ -52,6 +53,7 @@ const AddLinkLoadTable = ({ refreshTable }) => {
         <TableBody>
           {loads.map((load) => (
             <TableRow key={load.ID}>
+              <TableCell>{load.ID}</TableCell>
               <TableCell>{load.JobID}</TableCell>
               <TableCell>{load.PermitNo}</TableCell>
               <TableCell>{load.WeightDocNo}</TableCell>

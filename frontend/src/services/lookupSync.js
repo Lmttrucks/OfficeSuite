@@ -101,17 +101,18 @@ export const encryptTables = () => {
 };
 
 // Exported functions for each table
-export const syncCompanies = () =>
-  syncTable('/lookups/companies', 'localCompanies');
-export const syncEmployees = () =>
-  syncTable('/lookups/employees', 'localEmployees');
-export const syncVehicles = () =>
-  syncTable('/lookups/vehicles', 'localVehicles');
-export const syncLocations = () =>
-  syncTable('/lookups/locations', 'localLocations');
+export const syncCompanies = () => syncTable('/lookups/companies', 'localCompanies');
+export const syncEmployees = () => syncTable('/lookups/employees', 'localEmployees');
+export const syncVehicles = () => syncTable('/lookups/vehicles', 'localVehicles');
+export const syncLocations = () => syncTable('/lookups/locations', 'localLocations');
 export const syncJobs = () => syncTable('/lookups/jobs', 'localJobs');
+export const syncOrigins = () => syncTable('/lookups/origins', 'localOrigins'); // New function for syncing origins
+export const syncDestinations = () => syncTable('/lookups/destinations', 'localDestinations'); // New function for syncing destinations
+
 export const accessCompanies = () => accessTable('localCompanies');
 export const accessEmployees = () => accessTable('localEmployees');
 export const accessVehicles = () => accessTable('localVehicles');
 export const accessLocations = () => accessTable('localLocations');
 export const accessJobs = () => accessTable('localJobs');
+export const accessOrigins = () => accessTable('localOrigins'); // New function for accessing origins
+export const accessDestinations = () => accessTable('localDestinations'); // New function for accessing destinations

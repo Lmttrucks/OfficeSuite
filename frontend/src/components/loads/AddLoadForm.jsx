@@ -23,8 +23,8 @@ const AddLoadForm = ({ onLoadAdded }) => {
   const [localEmployees, setLocalEmployees] = useState([]);
   const [localVehicles, setLocalVehicles] = useState([]);
   const [localJobs, setLocalJobs] = useState([]);
-  const [origins, setOrigins] = useState([]);
-  const [destinations, setDestinations] = useState([]);
+  const [localOrigins, setLocalOrigins] = useState([]);
+  const [localDestinations, setLocalDestinations] = useState([]);
 
   const loadLocalData = (key) => {
     const data = localStorage.getItem(key);
@@ -42,37 +42,8 @@ const AddLoadForm = ({ onLoadAdded }) => {
     setLocalEmployees(loadLocalData('localEmployees'));
     setLocalVehicles(loadLocalData('localVehicles'));
     setLocalJobs(loadLocalData('localJobs'));
-
-    const fetchOrigins = async () => {
-      try {
-        const response = await fetch(`${config.apiBaseUrl}/lookups/origins`, {
-          headers: {
-            ...config.getAuthHeaders().headers
-          }
-        });
-        const data = await response.json();
-        setOrigins(data);
-      } catch (error) {
-        console.error('Error fetching origins:', error);
-      }
-    };
-
-    const fetchDestinations = async () => {
-      try {
-        const response = await fetch(`${config.apiBaseUrl}/lookups/destinations`, {
-          headers: {
-            ...config.getAuthHeaders().headers
-          }
-        });
-        const data = await response.json();
-        setDestinations(data);
-      } catch (error) {
-        console.error('Error fetching destinations:', error);
-      }
-    };
-
-    fetchOrigins();
-    fetchDestinations();
+    setLocalOrigins(loadLocalData('localOrigins'));
+    setLocalDestinations(loadLocalData('localDestinations'));
   }, []);
 
   const handleChange = (e) => {
@@ -232,7 +203,7 @@ const AddLoadForm = ({ onLoadAdded }) => {
           />
           <Autocomplete
             freeSolo
-            options={origins.map((o) => o.Origin)}
+            options={localOrigins.map((o) => o.Origin)}
             getOptionLabel={(option) => option || ''}
             value={formData.origin || ''}
             onInputChange={(event, newInputValue) => {
@@ -247,7 +218,7 @@ const AddLoadForm = ({ onLoadAdded }) => {
           />
           <Autocomplete
             freeSolo
-            options={destinations.map((d) => d.Destination)}
+            options={localDestinations.map((d) => d.Destination)}
             getOptionLabel={(option) => option || ''}
             value={formData.destination || ''}
             onInputChange={(event, newInputValue) => {

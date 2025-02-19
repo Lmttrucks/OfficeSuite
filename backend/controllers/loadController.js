@@ -416,7 +416,7 @@ exports.getAllNonArchivedLoads = async (req, res) => {
 };
 
 exports.addLinkLoad = async (req, res) => {
-    const { loadID, companyName, rate, jobID, permitNo, weightDocNo, deliveryDate, unitQuantity, origin, destination } = req.body;
+    const { loadID, companyName, linkNo, rate, invoiceNo, paid, deleted } = req.body;
 
     try {
         // Get CompanyID from companyName
@@ -430,8 +430,8 @@ exports.addLinkLoad = async (req, res) => {
 
         // Insert into tblLinkLoads
         await sql.query`
-            INSERT INTO tblLinkLoads (LoadID, CompanyID, Rate, JobID, PermitNo, WeightDocNo, DeliveryDate, UnitQuantity, Origin, Destination)
-            VALUES (${loadID}, ${companyID}, ${rate}, ${jobID}, ${permitNo}, ${weightDocNo}, ${deliveryDate}, ${unitQuantity}, ${origin}, ${destination})`;
+            INSERT INTO tblLinkLoads (LoadID, CompanyID, LinkNo, Rate, InvoiceNo, Paid, Deleted)
+            VALUES (${loadID}, ${companyID}, ${linkNo}, ${rate}, ${invoiceNo}, ${paid}, ${deleted})`;
 
         res.status(201).json({ message: 'Link load added successfully' });
     } catch (err) {
@@ -441,12 +441,20 @@ exports.addLinkLoad = async (req, res) => {
 
 exports.updateLinkLoad = async (req, res) => {
     const { loadID } = req.params;
-    const { invoiceNo, paid, deleted } = req.body;
+    const { linkNo, rate, invoiceNo, paid, deleted } = req.body;
 
     try {
         const updateFields = [];
         const updateValues = {};
 
+        if (linkNo !== undefined) {
+            updateFields.push('LinkNo = @LinkNo');
+            updateValues.LinkNo = linkNo;
+        }
+        if (rate !== undefined) {
+            updateFields.push('Rate = @Rate');
+            updateValues.Rate = rate;
+        }
         if (invoiceNo !== undefined) {
             updateFields.push('InvoiceNo = @InvoiceNo');
             updateValues.InvoiceNo = invoiceNo;
@@ -503,7 +511,7 @@ exports.getExternalLoads = async (req, res) => {
             FROM tblLoads l
             JOIN tblEmployee e ON l.EmployeeID = e.EmployeeID
             WHERE e.EmployeeName = 'External'
-            WHERE l.Archived = 0`;
+            AND l.Archived = 0`;
 
         if (result.recordset.length === 0) {
             return res.status(404).json({ message: "No loads found for the specified criteria." });
