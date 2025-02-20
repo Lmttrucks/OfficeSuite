@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import OtherInvoiceGenFrm from '../../../components/outinvoice/otherinvoices/OtherInvoiceGenFrm';
 import OtherInvoicePreviewTable from '../../../components/outinvoice/otherinvoices/OtherInvoicePreviewTable';
@@ -15,6 +15,10 @@ const OtherInvoicePage = () => {
   };
   const [invoiceData, setInvoiceData] = useState({ ...formData, previewData });
   const [step, setStep] = useState(1);
+
+  useEffect(() => {
+    console.log('Invoice Data:', invoiceData); // Log the invoice data
+  }, [invoiceData]);
 
   const handleFormUpdate = (newData) => {
     setInvoiceData((prevData) => ({ ...prevData, ...newData }));
@@ -57,20 +61,18 @@ const OtherInvoicePage = () => {
         config.getAuthHeaders()
       );
 
-      console.log('API response:', response);
       const invoiceNo = response.data.outvoiceNo;
-      console.log('invoiceNo:', invoiceNo, typeof invoiceNo);
 
       setInvoiceData((prevData) => ({ ...prevData, invoiceNo }));
 
       await Promise.all(
         (updatedInvoiceData.loads || []).map((load) => {
-          const loadId = parseInt(load.ID, 10);
+          const id = parseInt(load.ID, 10); // Use ID instead of LoadID
           const invoiceNoInt = parseInt(invoiceNo, 10);
 
           return axios.put(
             `${config.apiBaseUrl}/loads/update-link-load`,
-            { loadId, invoiceNo: invoiceNoInt },
+            { id, invoiceNo: invoiceNoInt },
             config.getAuthHeaders()
           );
         })
@@ -81,7 +83,6 @@ const OtherInvoicePage = () => {
         loads: updatedInvoiceData.loads,
         invoiceNo
       };
-      console.log('Final Invoice Data:', finalInvoiceData);
       setInvoiceData(finalInvoiceData);
       setStep(3);
     } catch (error) {
@@ -103,15 +104,12 @@ const OtherInvoicePage = () => {
           <OtherInvoicePreviewForm
             previewData={invoiceData.loads}
             formData={invoiceData}
-            onFormUpdate={handleFormUpdate}
-            onVatRateUpdate={handleVatRateUpdate}
             onGenerate={handleGenerate}
           />
           <OtherInvoicePreviewTable data={invoiceData.loads} />
         </>
       ) : (
         <>
-          {console.log('Invoice Data before rendering:', invoiceData)}
           <InvoicePDFViewer invoiceData={invoiceData} />
         </>
       )}

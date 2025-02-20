@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { Box, Button, TextField, Grid, Autocomplete } from '@mui/material';
 import config from '../../config';
 
-const AddLinkLoadForm = ({ loadID, jobID, permitNo, weightDocNo, deliveryDate, unitQuantity, origin, destination, handleCloseModal }) => {
+const AddLinkLoadForm = ({ loadID, handleCloseModal }) => {
   const [companyName, setCompanyName] = useState('');
   const [linkNo, setLinkNo] = useState('');
   const [rate, setRate] = useState('');
@@ -37,7 +37,7 @@ const AddLinkLoadForm = ({ loadID, jobID, permitNo, weightDocNo, deliveryDate, u
         body: JSON.stringify({
           loadID,
           companyName,
-          linkNo,
+          linkNo: linkNo || null,
           rate
         })
       });
@@ -115,13 +115,6 @@ const AddLinkLoadForm = ({ loadID, jobID, permitNo, weightDocNo, deliveryDate, u
 
 AddLinkLoadForm.propTypes = {
   loadID: PropTypes.number.isRequired,
-  jobID: PropTypes.string.isRequired,
-  permitNo: PropTypes.string,
-  weightDocNo: PropTypes.string,
-  deliveryDate: PropTypes.string.isRequired,
-  unitQuantity: PropTypes.string.isRequired,
-  origin: PropTypes.string.isRequired,
-  destination: PropTypes.string.isRequired,
   handleCloseModal: PropTypes.func.isRequired
 };
 

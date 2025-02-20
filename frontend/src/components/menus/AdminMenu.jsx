@@ -48,7 +48,8 @@ function AdminMenu() {
 
   const invoicingSubmenuItems = [
     { text: 'Create Invoice', path: '/admin/invoicing/create' },
-    { text: 'Search Invoice', path: '/admin/invoicing/search' }
+    { text: 'Search Invoice', path: '/admin/invoicing/search' },
+    { text: 'Other Invoice', path: '/admin/invoicing/other' } // New submenu item for Other Invoice
   ];
 
   const companiesSubmenuItems = [

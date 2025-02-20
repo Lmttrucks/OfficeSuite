@@ -11,6 +11,8 @@ import {
 } from '@mui/material';
 
 const OtherInvoicePreviewTable = ({ data }) => {
+  console.log('Preview Table Data:', data); // Log the table data
+
   if (!data || data.length === 0) {
     return <div>No data available</div>;
   }
@@ -21,12 +23,14 @@ const OtherInvoicePreviewTable = ({ data }) => {
         <TableHead>
           <TableRow>
             <TableCell>ID</TableCell>
+            <TableCell>Load ID</TableCell>
             <TableCell>Permit No</TableCell>
             <TableCell>Weight Doc No</TableCell>
             <TableCell>Origin</TableCell>
             <TableCell>Destination</TableCell>
             <TableCell>Rate</TableCell>
             <TableCell>Unit Quantity</TableCell>
+            <TableCell>Delivery Date</TableCell>
             <TableCell>Load Total</TableCell>
           </TableRow>
         </TableHead>
@@ -34,12 +38,14 @@ const OtherInvoicePreviewTable = ({ data }) => {
           {data.map((row) => (
             <TableRow key={row.ID}>
               <TableCell>{row.ID}</TableCell>
+              <TableCell>{row.LoadID}</TableCell>
               <TableCell>{row.PermitNo}</TableCell>
               <TableCell>{row.WeightDocNo}</TableCell>
               <TableCell>{row.Origin}</TableCell>
               <TableCell>{row.Destination}</TableCell>
               <TableCell>{row.Rate}</TableCell>
               <TableCell>{row.UnitQuantity}</TableCell>
+              <TableCell>{row.DeliveryDate}</TableCell>
               <TableCell>{(row.Rate * row.UnitQuantity).toFixed(2)}</TableCell>
             </TableRow>
           ))}
@@ -53,12 +59,14 @@ OtherInvoicePreviewTable.propTypes = {
   data: PropTypes.arrayOf(
     PropTypes.shape({
       ID: PropTypes.string,
+      LoadID: PropTypes.string,
       PermitNo: PropTypes.string,
       WeightDocNo: PropTypes.string,
       Origin: PropTypes.string,
       Destination: PropTypes.string,
       Rate: PropTypes.number,
-      UnitQuantity: PropTypes.number
+      UnitQuantity: PropTypes.number,
+      DeliveryDate: PropTypes.string
     })
   ).isRequired
 };

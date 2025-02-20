@@ -180,19 +180,22 @@ exports.previewLinkedLoadsInvoice = async (req, res) => {
 
         const loadsResult = await sql.query`
         SELECT 
-            l.ID,
-            l.JobID,
+            ll.ID,
+            ll.LoadID,
+            ll.Rate,
             l.PermitNo,
             l.WeightDocNo,
             l.Origin,
             l.Destination,
-            l.Rate,
-            l.UnitQuantity
-        FROM tblLinkLoads l
-        INNER JOIN tblCompanies c ON l.CompanyID = c.CompanyID
+            l.UnitQuantity,
+            l.DeliveryDate
+        FROM tblLinkLoads ll
+        INNER JOIN tblCompanies c ON ll.CompanyID = c.CompanyID
+        INNER JOIN tblLoads l ON ll.LoadID = l.ID
         WHERE c.CompanyName = ${CompanyName}
           AND l.DeliveryDate BETWEEN ${StartDate} AND ${EndDate}
-          AND l.OutgoingInvoiceNo IS NULL`;
+          AND ll.Paid = 0
+          AND ll.Deleted = 0`;
 
         if (loadsResult.recordset.length === 0) {
             return res.status(404).json({ message: 'No linked loads found for the specified company and date range' });

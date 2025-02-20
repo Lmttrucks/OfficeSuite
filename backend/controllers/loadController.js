@@ -416,7 +416,7 @@ exports.getAllNonArchivedLoads = async (req, res) => {
 };
 
 exports.addLinkLoad = async (req, res) => {
-    const { loadID, companyName, linkNo, rate, invoiceNo, paid, deleted } = req.body;
+    const { loadID, companyName, linkNo, rate } = req.body;
 
     try {
         // Get CompanyID from companyName
@@ -430,8 +430,8 @@ exports.addLinkLoad = async (req, res) => {
 
         // Insert into tblLinkLoads
         await sql.query`
-            INSERT INTO tblLinkLoads (LoadID, CompanyID, LinkNo, Rate, InvoiceNo, Paid, Deleted)
-            VALUES (${loadID}, ${companyID}, ${linkNo}, ${rate}, ${invoiceNo}, ${paid}, ${deleted})`;
+            INSERT INTO tblLinkLoads (LoadID, CompanyID, LinkNo, Rate)
+            VALUES (${loadID}, ${companyID}, ${linkNo || null}, ${rate})`;
 
         res.status(201).json({ message: 'Link load added successfully' });
     } catch (err) {
@@ -440,7 +440,7 @@ exports.addLinkLoad = async (req, res) => {
 };
 
 exports.updateLinkLoad = async (req, res) => {
-    const { loadID } = req.params;
+    const { ID } = req.params;
     const { linkNo, rate, invoiceNo, paid, deleted } = req.body;
 
     try {
@@ -475,13 +475,13 @@ exports.updateLinkLoad = async (req, res) => {
         const updateQuery = `
             UPDATE tblLinkLoads
             SET ${updateFields.join(', ')}
-            WHERE LoadID = @LoadID`;
+            WHERE ID = @ID`;
 
         const request = new sql.Request();
         Object.keys(updateValues).forEach(key => {
             request.input(key, updateValues[key]);
         });
-        request.input('LoadID', loadID);
+        request.input('ID', ID);
 
         const result = await request.query(updateQuery);
 

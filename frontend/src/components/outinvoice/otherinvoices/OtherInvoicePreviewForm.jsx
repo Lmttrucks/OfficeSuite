@@ -3,8 +3,10 @@ import PropTypes from 'prop-types';
 import { Box, Button, TextField, Grid } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 
-const OtherInvoicePreviewForm = ({ previewData, formData, onGenerate }) => {
+const OtherInvoicePreviewForm = ({ previewData, formData = {}, onGenerate }) => {
   const navigate = useNavigate();
+
+  console.log('Preview Form Data:', formData); // Log the form data
 
   const handleClear = () => {
     navigate('/admin/invoicing/other/generate');
@@ -16,7 +18,7 @@ const OtherInvoicePreviewForm = ({ previewData, formData, onGenerate }) => {
         <Grid item xs={12} sm={6}>
           <TextField
             label="Company Name"
-            value={formData.companyName}
+            value={formData.companyName || ''}
             fullWidth
             InputProps={{
               readOnly: true
@@ -24,7 +26,7 @@ const OtherInvoicePreviewForm = ({ previewData, formData, onGenerate }) => {
           />
           <TextField
             label="Company Address"
-            value={formData.companyAddress}
+            value={formData.companyAddress || ''}
             fullWidth
             InputProps={{
               readOnly: true
@@ -32,7 +34,7 @@ const OtherInvoicePreviewForm = ({ previewData, formData, onGenerate }) => {
           />
           <TextField
             label="Start Date"
-            value={formData.startDate}
+            value={formData.startDate || ''}
             fullWidth
             InputProps={{
               readOnly: true
@@ -40,7 +42,7 @@ const OtherInvoicePreviewForm = ({ previewData, formData, onGenerate }) => {
           />
           <TextField
             label="End Date"
-            value={formData.endDate}
+            value={formData.endDate || ''}
             fullWidth
             InputProps={{
               readOnly: true
@@ -48,7 +50,7 @@ const OtherInvoicePreviewForm = ({ previewData, formData, onGenerate }) => {
           />
           <TextField
             label="VAT Rate"
-            value={formData.vatRate}
+            value={formData.vatRate || ''}
             fullWidth
             InputProps={{
               readOnly: true
@@ -58,7 +60,15 @@ const OtherInvoicePreviewForm = ({ previewData, formData, onGenerate }) => {
         <Grid item xs={12} sm={6}>
           <TextField
             label="Load Count"
-            value={formData.loadCount}
+            value={formData.loadCount || ''}
+            fullWidth
+            InputProps={{
+              readOnly: true
+            }}
+          />
+          <TextField
+            label="Total Quantity"
+            value={formData.totalQuantity || ''}
             fullWidth
             InputProps={{
               readOnly: true
@@ -66,7 +76,7 @@ const OtherInvoicePreviewForm = ({ previewData, formData, onGenerate }) => {
           />
           <TextField
             label="Total Amount"
-            value={formData.totalAmount}
+            value={formData.totalAmount || ''}
             fullWidth
             InputProps={{
               readOnly: true
@@ -74,7 +84,7 @@ const OtherInvoicePreviewForm = ({ previewData, formData, onGenerate }) => {
           />
           <TextField
             label="VAT Amount"
-            value={formData.vatAmount}
+            value={formData.vatAmount || ''}
             fullWidth
             InputProps={{
               readOnly: true
@@ -82,7 +92,7 @@ const OtherInvoicePreviewForm = ({ previewData, formData, onGenerate }) => {
           />
           <TextField
             label="Payment Amount"
-            value={formData.paymentAmount}
+            value={formData.paymentAmount || ''}
             fullWidth
             InputProps={{
               readOnly: true
@@ -118,7 +128,7 @@ const OtherInvoicePreviewForm = ({ previewData, formData, onGenerate }) => {
 };
 
 OtherInvoicePreviewForm.propTypes = {
-  previewData: PropTypes.object.isRequired,
+  previewData: PropTypes.array.isRequired,
   formData: PropTypes.shape({
     companyName: PropTypes.string,
     companyAddress: PropTypes.string,
@@ -126,6 +136,7 @@ OtherInvoicePreviewForm.propTypes = {
     endDate: PropTypes.string,
     vatRate: PropTypes.number,
     loadCount: PropTypes.number,
+    totalQuantity: PropTypes.number,
     totalAmount: PropTypes.number,
     vatAmount: PropTypes.number,
     paymentAmount: PropTypes.number

@@ -2,8 +2,8 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { Box, Button, TextField, Autocomplete, Grid } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import config from '../../../config';
-import OtherInvoicePreviewTable from './OtherInvoicePreviewTable'; // Correct import path
-import axios from 'axios'; // Import axios
+import OtherInvoicePreviewTable from './OtherInvoicePreviewTable';
+import axios from 'axios';
 import PropTypes from 'prop-types';
 
 const OtherInvoiceGenFrm = ({
@@ -11,7 +11,6 @@ const OtherInvoiceGenFrm = ({
   onFormUpdate = () => {},
   onPreview = () => {}
 }) => {
-  // Set default value for initialData and onFormUpdate
   const [displayFormData, setDisplayFormData] = useState({
     companyName: initialData.companyName || '',
     startDate: initialData.startDate || '',
@@ -88,6 +87,7 @@ const OtherInvoiceGenFrm = ({
 
       // Compute values
       const loadCount = loads.length;
+      const totalQuantity = loads.reduce((acc, row) => acc + row.UnitQuantity, 0);
       const totalAmount = loads.reduce(
         (acc, row) => acc + row.Rate * row.UnitQuantity,
         0
@@ -104,11 +104,14 @@ const OtherInvoiceGenFrm = ({
         companyEmail: companyInfo.CompanyEmail,
         loads: loads,
         loadCount: loadCount,
+        totalQuantity: totalQuantity,
         totalAmount: totalAmount.toFixed(2),
         vatRate: vatRate,
         vatAmount: vatAmount.toFixed(2),
         paymentAmount: paymentAmount.toFixed(2)
       };
+
+      console.log('Updated Form Data:', updatedFormData); // Log the updated form data
 
       onPreview(updatedFormData);
       navigate('/admin/invoicing/other/preview', {
@@ -135,7 +138,7 @@ const OtherInvoiceGenFrm = ({
               getOptionLabel={(option) => option.CompanyName || ''}
               isOptionEqualToValue={(option, value) =>
                 option.CompanyID === value.CompanyID
-              } // Correct equality check
+              }
               value={
                 localCompanies.find(
                   (c) => c.CompanyName === displayFormData.companyName
