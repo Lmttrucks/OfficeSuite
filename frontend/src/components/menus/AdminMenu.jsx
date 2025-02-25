@@ -22,34 +22,35 @@ import {
   Build,
   ExpandLess,
   ExpandMore,
-  Description, // Import icon for Invoicing
-  Business // Import icon for Companies
+  Description,
+  Business
 } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 
-const drawerWidthExpanded = 240; // Expanded drawer width
-const drawerWidthCollapsed = 60; // Collapsed drawer width
+const drawerWidthExpanded = 240;
+const drawerWidthCollapsed = 60;
 
 function AdminMenu() {
   const navigate = useNavigate();
   const [loadsMenuOpen, setLoadsMenuOpen] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
-  const [invoicingMenuOpen, setInvoicingMenuOpen] = useState(false); // State for Invoicing submenu
-  const [companiesMenuOpen, setCompaniesMenuOpen] = useState(false); // State for Companies submenu
-  const [jobsMenuOpen, setJobsMenuOpen] = useState(false); // State for Jobs submenu
-  const [usersMenuOpen, setUsersMenuOpen] = useState(false); // State for Users submenu
+  const [invoicingMenuOpen, setInvoicingMenuOpen] = useState(false);
+  const [companiesMenuOpen, setCompaniesMenuOpen] = useState(false);
+  const [jobsMenuOpen, setJobsMenuOpen] = useState(false);
+  const [usersMenuOpen, setUsersMenuOpen] = useState(false);
 
   const loadsSubmenuItems = [
     { text: 'Load Search', path: '/admin/loads/search' },
-    { text: 'Add Load', path: '/admin/loads/addloadpage' }, // Updated path to AddLoadPage.jsx
-    { text: 'Edit Load', path: '/admin/loads/editloadpage' }, // New submenu item
-    { text: 'Link Load', path: '/admin/loads/link-load' } // New submenu item for Link Load
+    { text: 'Add Load', path: '/admin/loads/addloadpage' },
+    { text: 'Edit Load', path: '/admin/loads/editloadpage' },
+    { text: 'Link Load', path: '/admin/loads/link-load' }
   ];
 
   const invoicingSubmenuItems = [
     { text: 'Create Invoice', path: '/admin/invoicing/create' },
     { text: 'Search Invoice', path: '/admin/invoicing/search' },
-    { text: 'Other Invoice', path: '/admin/invoicing/other' } // New submenu item for Other Invoice
+    { text: 'Other Invoice', path: '/admin/invoicing/other' },
+    { text: 'Linked Invoice', path: '/admin/invoicing/link-invoice' } // New submenu item for Linked Invoice
   ];
 
   const companiesSubmenuItems = [
@@ -81,6 +82,14 @@ function AdminMenu() {
     setJobsMenuOpen(!jobsMenuOpen);
   };
 
+  const resetMenuState = () => {
+    setLoadsMenuOpen(false);
+    setInvoicingMenuOpen(false);
+    setCompaniesMenuOpen(false);
+    setJobsMenuOpen(false);
+    setUsersMenuOpen(false);
+  };
+
   return (
     <Drawer
       variant="permanent"
@@ -89,25 +98,26 @@ function AdminMenu() {
         flexShrink: 0,
         '& .MuiDrawer-paper': {
           width: isExpanded ? drawerWidthExpanded : drawerWidthCollapsed,
-          transition: 'width 0.3s', // **Smooth transition**
+          transition: 'width 0.3s',
           overflowX: 'hidden',
-          top: '1px' // Snap to the bottom of the header
+          top: '1px'
         }
       }}
       onMouseEnter={() => setIsExpanded(true)}
-      onMouseLeave={() => setIsExpanded(false)}
+      onMouseLeave={() => {
+        setIsExpanded(false);
+        resetMenuState();
+      }}
     >
       <Toolbar />
       <Divider />
       <List>
-        {/* Loads Menu with Submenu */}
         <ListItem disablePadding>
           <ListItemButton onClick={handleLoadsClick}>
             <ListItemIcon>
               <LocalShipping />
             </ListItemIcon>
-            {isExpanded && <ListItemText primary="Loads" />}{' '}
-            {/* **Conditionally show text** */}
+            {isExpanded && <ListItemText primary="Loads" />}
             {isExpanded && (loadsMenuOpen ? <ExpandLess /> : <ExpandMore />)}
           </ListItemButton>
         </ListItem>
@@ -125,7 +135,6 @@ function AdminMenu() {
           </List>
         </Collapse>
 
-        {/* Invoicing Menu with Submenu */}
         <ListItem disablePadding>
           <ListItemButton onClick={handleInvoicingClick}>
             <ListItemIcon>
@@ -150,7 +159,6 @@ function AdminMenu() {
           </List>
         </Collapse>
 
-        {/* Companies Menu with Submenu */}
         <ListItem disablePadding>
           <ListItemButton
             onClick={() => setCompaniesMenuOpen(!companiesMenuOpen)}
@@ -177,7 +185,6 @@ function AdminMenu() {
           </List>
         </Collapse>
 
-        {/* Jobs Menu with Submenu */}
         <ListItem disablePadding>
           <ListItemButton onClick={handleJobsClick}>
             <ListItemIcon>
@@ -201,7 +208,6 @@ function AdminMenu() {
           </List>
         </Collapse>
 
-        {/* Users Menu with Submenu */}
         <ListItem disablePadding>
           <ListItemButton onClick={() => setUsersMenuOpen(!usersMenuOpen)}>
             <ListItemIcon>

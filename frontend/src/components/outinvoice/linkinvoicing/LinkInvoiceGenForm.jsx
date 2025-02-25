@@ -1,12 +1,11 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Box, Button, TextField, Autocomplete, Grid } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
-import config from '../../config';
-import InvoicePreviewTable from './InvoicePreviewTable'; // Correct import path
-import axios from 'axios'; // Import axios
+import config from '../../../config';
+import axios from 'axios';
 import PropTypes from 'prop-types';
 
-const InvoiceGenFrm = ({
+const LinkInvoiceGenForm = ({
   initialData = {},
   onFormUpdate = () => {},
   onPreview = () => {}
@@ -77,9 +76,9 @@ const InvoiceGenFrm = ({
       );
       const companyInfo = companyInfoResponse.data;
 
-      // Fetch loads for preview
+      // Fetch linked loads for preview
       const loadsResponse = await axios.post(
-        `${config.apiBaseUrl}/invoices/previewOutInvoice`,
+        `${config.apiBaseUrl}/invoices/previewLinkedLoadsInvoice`,
         dataToSend,
         config.getAuthHeaders()
       );
@@ -91,6 +90,7 @@ const InvoiceGenFrm = ({
         (acc, row) => acc + row.Rate * row.UnitQuantity,
         0
       );
+      const totalQuantity = loads.reduce((acc, row) => acc + row.UnitQuantity, 0); // Compute total quantity
       const vatRate = parseFloat(displayFormData.vatRate);
       const vatAmount = totalAmount * (vatRate / 100);
       const paymentAmount = totalAmount + vatAmount;
@@ -104,18 +104,21 @@ const InvoiceGenFrm = ({
         loads: loads,
         loadCount: loadCount,
         totalAmount: totalAmount.toFixed(2),
+        totalQuantity: totalQuantity.toFixed(2), // Add total quantity
         vatRate: vatRate,
         vatAmount: vatAmount.toFixed(2),
         paymentAmount: paymentAmount.toFixed(2)
       };
 
+      console.log('Updated Form Data:', updatedFormData); // Add this line
+
       onPreview(updatedFormData);
-      navigate('/admin/invoicing/preview', {
+      navigate('/admin/invoicing/link-invoice', {
         state: { formData: updatedFormData }
       });
     } catch (error) {
       console.error(error);
-      alert('Error fetching company info or loads');
+      alert('Error fetching company info or linked loads');
     }
   }, [displayFormData, localCompanies, navigate, onPreview]);
 
@@ -194,17 +197,14 @@ const InvoiceGenFrm = ({
           </Grid>
         </Grid>
       </form>
-      {displayFormData.loads && displayFormData.loads.length > 0 && (
-        <InvoicePreviewTable data={displayFormData.loads} />
-      )}
     </Box>
   );
 };
 
-InvoiceGenFrm.propTypes = {
+LinkInvoiceGenForm.propTypes = {
   initialData: PropTypes.object.isRequired,
   onFormUpdate: PropTypes.func.isRequired,
   onPreview: PropTypes.func.isRequired
 };
 
-export default InvoiceGenFrm;
+export default LinkInvoiceGenForm;

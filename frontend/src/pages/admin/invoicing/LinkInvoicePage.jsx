@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
-import OtherInvoiceGenFrm from '../../../components/outinvoice/otherinvoices/OtherInvoiceGenFrm';
-import OtherInvoicePreviewTable from '../../../components/outinvoice/otherinvoices/OtherInvoicePreviewTable';
-import OtherInvoicePreviewForm from '../../../components/outinvoice/otherinvoices/OtherInvoicePreviewForm';
-import InvoicePDFViewer from '../../../components/outinvoice/InvoicePDFViewer';
+import LinkInvoiceGenForm from '../../../components/outinvoice/linkinvoicing/LinkInvoiceGenForm';
+import LinkInvoicePreviewForm from '../../../components/outinvoice/linkinvoicing/LinkInvoicePreviewForm';
+import LinkInvoicePreviewTable from '../../../components/outinvoice/linkinvoicing/LinkInvoicePreviewTable';
+import LinkInvoicePDFViewer from '../../../components/outinvoice/linkinvoicing/LinkInvoicePDFViewer';
 import axios from 'axios';
 import config from '../../../config';
 
-const OtherInvoicePage = () => {
+const LinkInvoicePage = () => {
   const location = useLocation();
   const { previewData, formData } = location.state || {
     previewData: [],
@@ -17,22 +17,36 @@ const OtherInvoicePage = () => {
   const [step, setStep] = useState(1);
 
   useEffect(() => {
-    console.log('Invoice Data:', invoiceData); // Log the invoice data
-  }, [invoiceData]);
+    if (formData && Object.keys(formData).length > 0) {
+      setInvoiceData(formData);
+      setStep(2);
+    }
+  }, [formData]);
 
   const handleFormUpdate = (newData) => {
     setInvoiceData((prevData) => ({ ...prevData, ...newData }));
     setStep(2);
   };
 
-  const handleVatRateUpdate = (vatRate) => {
-    setInvoiceData((prevData) => ({ ...prevData, vatRate }));
-  };
+  const handlePreview = async (updatedFormData) => {
+    try {
+      const response = await axios.post(
+        `${config.apiBaseUrl}/invoices/previewLinkedLoadsInvoice`,
+        {
+          CompanyName: updatedFormData.companyName,
+          StartDate: updatedFormData.startDate,
+          EndDate: updatedFormData.endDate
+        },
+        config.getAuthHeaders()
+      );
 
-  const handlePreview = (updatedFormData) => {
-    console.log('Updated Form Data in handlePreview:', updatedFormData); // Log the updated form data
-    setInvoiceData(updatedFormData);
-    setStep(2);
+      const loads = response.data;
+      setInvoiceData((prevData) => ({ ...prevData, loads }));
+      setStep(2);
+    } catch (error) {
+      console.error('Failed to preview linked loads invoice', error);
+      alert('Failed to preview linked loads invoice');
+    }
   };
 
   const handleGenerate = async () => {
@@ -63,16 +77,15 @@ const OtherInvoicePage = () => {
       );
 
       const invoiceNo = response.data.outvoiceNo;
-
       setInvoiceData((prevData) => ({ ...prevData, invoiceNo }));
 
       await Promise.all(
         (updatedInvoiceData.loads || []).map((load) => {
-          const id = parseInt(load.ID, 10); // Use ID instead of LoadID
+          const id = parseInt(load.ID, 10);
           const invoiceNoInt = parseInt(invoiceNo, 10);
 
           return axios.put(
-            `${config.apiBaseUrl}/loads/update-link-load`,
+            `${config.apiBaseUrl}/loads/update-outgoing-invoice-no`,
             { id, invoiceNo: invoiceNoInt },
             config.getAuthHeaders()
           );
@@ -81,7 +94,6 @@ const OtherInvoicePage = () => {
 
       const finalInvoiceData = {
         ...updatedInvoiceData,
-        loads: updatedInvoiceData.loads,
         invoiceNo
       };
       setInvoiceData(finalInvoiceData);
@@ -92,30 +104,31 @@ const OtherInvoicePage = () => {
     }
   };
 
+  console.log('Invoice Data:', invoiceData); // Add this line
+
   return (
     <div>
       {step === 1 ? (
-        <OtherInvoiceGenFrm
+        <LinkInvoiceGenForm
           initialData={invoiceData}
           onFormUpdate={handleFormUpdate}
           onPreview={handlePreview}
         />
       ) : step === 2 ? (
         <>
-          <OtherInvoicePreviewForm
-            previewData={invoiceData.loads || []}
+          <LinkInvoicePreviewForm
+            previewData={invoiceData.loads}
             formData={invoiceData}
+            onFormUpdate={handleFormUpdate}
             onGenerate={handleGenerate}
           />
-          <OtherInvoicePreviewTable data={invoiceData.loads || []} />
+          <LinkInvoicePreviewTable data={invoiceData.loads} />
         </>
       ) : (
-        <>
-          <InvoicePDFViewer invoiceData={invoiceData} />
-        </>
+        <LinkInvoicePDFViewer invoiceData={invoiceData} />
       )}
     </div>
   );
 };
 
-export default OtherInvoicePage;
+export default LinkInvoicePage;

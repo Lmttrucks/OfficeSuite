@@ -3,18 +3,14 @@ import PropTypes from 'prop-types';
 import { Box, Button, TextField, Grid } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 
-const OtherInvoicePreviewForm = ({
-  previewData = [],
-  formData = {},
-  onGenerate = () => {}
-}) => {
+const LinkInvoicePreviewForm = ({ previewData, formData, onGenerate }) => {
   const navigate = useNavigate();
 
-  console.log('Preview Form Data:', formData); // Log the form data
-
   const handleClear = () => {
-    navigate('/admin/invoicing/other/generate');
+    navigate('/admin/invoicing/generate');
   };
+
+  console.log('Form Data:', formData); // Add this line
 
   return (
     <Box>
@@ -71,14 +67,6 @@ const OtherInvoicePreviewForm = ({
             }}
           />
           <TextField
-            label="Total Quantity"
-            value={formData.totalQuantity || ''}
-            fullWidth
-            InputProps={{
-              readOnly: true
-            }}
-          />
-          <TextField
             label="Total Amount"
             value={formData.totalAmount || ''}
             fullWidth
@@ -97,6 +85,14 @@ const OtherInvoicePreviewForm = ({
           <TextField
             label="Payment Amount"
             value={formData.paymentAmount || ''}
+            fullWidth
+            InputProps={{
+              readOnly: true
+            }}
+          />
+          <TextField
+            label="Total Quantity"
+            value={formData.totalQuantity || ''}
             fullWidth
             InputProps={{
               readOnly: true
@@ -131,8 +127,8 @@ const OtherInvoicePreviewForm = ({
   );
 };
 
-OtherInvoicePreviewForm.propTypes = {
-  previewData: PropTypes.array.isRequired,
+LinkInvoicePreviewForm.propTypes = {
+  previewData: PropTypes.object.isRequired,
   formData: PropTypes.shape({
     companyName: PropTypes.string,
     companyAddress: PropTypes.string,
@@ -140,12 +136,12 @@ OtherInvoicePreviewForm.propTypes = {
     endDate: PropTypes.string,
     vatRate: PropTypes.number,
     loadCount: PropTypes.number,
-    totalQuantity: PropTypes.number,
     totalAmount: PropTypes.number,
     vatAmount: PropTypes.number,
-    paymentAmount: PropTypes.number
+    paymentAmount: PropTypes.number,
+    totalQuantity: PropTypes.number // Add total quantity
   }).isRequired,
   onGenerate: PropTypes.func.isRequired
 };
 
-export default OtherInvoicePreviewForm;
+export default LinkInvoicePreviewForm;

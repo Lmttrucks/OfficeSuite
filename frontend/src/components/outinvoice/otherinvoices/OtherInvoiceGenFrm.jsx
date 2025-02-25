@@ -21,18 +21,17 @@ const OtherInvoiceGenFrm = ({
   const [localCompanies, setLocalCompanies] = useState([]);
   const navigate = useNavigate();
 
-  const loadLocalData = (key) => {
-    const data = localStorage.getItem(key);
-    if (!data) return [];
-    try {
-      return JSON.parse(data); // Directly parse JSON without decryption
-    } catch (error) {
-      console.error(`Error parsing data for ${key}:`, error);
-      return [];
-    }
-  };
-
   useEffect(() => {
+    const loadLocalData = (key) => {
+      const data = localStorage.getItem(key);
+      if (!data) return [];
+      try {
+        return JSON.parse(data);
+      } catch (error) {
+        console.error(`Error parsing data for ${key}:`, error);
+        return [];
+      }
+    };
     setLocalCompanies(loadLocalData('localCompanies'));
   }, []);
 
@@ -53,8 +52,8 @@ const OtherInvoiceGenFrm = ({
       companyName: '',
       startDate: '',
       endDate: '',
-      vatRate: 23, // Reset VAT rate to default
-      previewData: []
+      vatRate: 23,
+      loads: [] // Ensure loads is not undefined
     });
   };
 
@@ -83,7 +82,7 @@ const OtherInvoiceGenFrm = ({
         dataToSend,
         config.getAuthHeaders()
       );
-      const loads = loadsResponse.data;
+      const loads = loadsResponse.data || []; // Ensure loads is always an array
 
       // Compute values
       const loadCount = loads.length;
@@ -115,10 +114,10 @@ const OtherInvoiceGenFrm = ({
 
       onPreview(updatedFormData);
       navigate('/admin/invoicing/other/preview', {
-        state: { formData: updatedFormData }
+        state: { formData: updatedFormData, previewData: updatedFormData.loads }
       });
     } catch (error) {
-      console.error(error);
+      console.error('Error fetching company info or loads:', error);
       alert('Error fetching company info or loads');
     }
   }, [displayFormData, localCompanies, navigate, onPreview]);
