@@ -16,7 +16,9 @@ const AddLoadForm = ({ onLoadAdded }) => {
     gross: '',
     tare: '0',
     origin: '',
-    destination: ''
+    destination: '',
+    linkedCompanyName: '',
+    linkedRate: ''
   });
 
   const [localCompanies, setLocalCompanies] = useState([]);
@@ -55,10 +57,14 @@ const AddLoadForm = ({ onLoadAdded }) => {
     e.preventDefault();
     try {
       const userID = localStorage.getItem('userID');
+      const { linkedCompanyName, linkedRate, ...loadData } = formData;
       const dataToSend = {
-        ...formData,
+        ...loadData,
         userID: userID // Include userID in the form data
       };
+
+      console.log('Data being sent:', dataToSend); // Log the data being sent
+
       const url = `${config.apiBaseUrl}/loads`;
 
       const response = await fetch(url, {
@@ -71,13 +77,34 @@ const AddLoadForm = ({ onLoadAdded }) => {
       });
 
       if (response.ok) {
+        const loadData = await response.json();
+        const loadID = loadData.loadID; // Assuming the response contains the loadID
+
+        // Add linked load if Linked Company Name or Linked Rate is provided
+        if (linkedCompanyName || linkedRate) {
+          await fetch(`${config.apiBaseUrl}/linkloads/addLinkLoad`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              ...config.getAuthHeaders().headers
+            },
+            body: JSON.stringify({
+              loadID,
+              companyName: linkedCompanyName,
+              rate: linkedRate
+            })
+          });
+        }
+
         setFormData((prev) => ({
           ...prev,
           permitNo: '',
           weightDocNo: '',
           deliveryDate: '',
           gross: '',
-          tare: '0'
+          tare: '0',
+          linkedCompanyName: '',
+          linkedRate: ''
         }));
         if (onLoadAdded) {
           onLoadAdded();
@@ -104,7 +131,9 @@ const AddLoadForm = ({ onLoadAdded }) => {
       gross: '',
       tare: '0',
       origin: '',
-      destination: ''
+      destination: '',
+      linkedCompanyName: '',
+      linkedRate: ''
     });
   };
 
@@ -172,12 +201,13 @@ const AddLoadForm = ({ onLoadAdded }) => {
           <Autocomplete
             freeSolo
             options={localJobs.map((j) => j.JobID)}
+            getOptionLabel={(option) => option || ''}
             value={formData.jobID || ''}
             onInputChange={(event, newInputValue) => {
               setFormData((prev) => ({
                 ...prev,
                 jobID: newInputValue
-              })); 
+              }));
             }}
             renderInput={(params) => (
               <TextField {...params} label="Job ID" name="jobID" />
@@ -205,7 +235,7 @@ const AddLoadForm = ({ onLoadAdded }) => {
             freeSolo
             options={localOrigins.map((o) => o.Origin)}
             getOptionLabel={(option) => option || ''}
-            value={formData.origin || ''}
+            value={formData.origin}
             onInputChange={(event, newInputValue) => {
               setFormData((prev) => ({
                 ...prev,
@@ -220,7 +250,7 @@ const AddLoadForm = ({ onLoadAdded }) => {
             freeSolo
             options={localDestinations.map((d) => d.Destination)}
             getOptionLabel={(option) => option || ''}
-            value={formData.destination || ''}
+            value={formData.destination}
             onInputChange={(event, newInputValue) => {
               setFormData((prev) => ({
                 ...prev,
@@ -262,6 +292,32 @@ const AddLoadForm = ({ onLoadAdded }) => {
             name="tare"
             onChange={handleChange}
             value={formData.tare}
+            fullWidth
+            autoComplete="off"
+          />
+          <Autocomplete
+            options={localCompanies}
+            getOptionLabel={(option) => option?.CompanyName || ''}
+            value={
+              localCompanies.find(
+                (c) => c.CompanyName === formData.linkedCompanyName
+              ) || null
+            }
+            onChange={(event, newValue) => {
+              setFormData((prev) => ({
+                ...prev,
+                linkedCompanyName: newValue ? newValue.CompanyName : ''
+              }));
+            }}
+            renderInput={(params) => (
+              <TextField {...params} label="Linked Company Name" name="linkedCompanyName" />
+            )}
+          />
+          <TextField
+            label="Linked Rate"
+            name="linkedRate"
+            onChange={handleChange}
+            value={formData.linkedRate}
             fullWidth
             autoComplete="off"
           />

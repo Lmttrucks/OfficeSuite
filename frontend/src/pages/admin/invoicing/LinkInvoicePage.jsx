@@ -3,7 +3,7 @@ import { useLocation } from 'react-router-dom';
 import LinkInvoiceGenForm from '../../../components/outinvoice/linkinvoicing/LinkInvoiceGenForm';
 import LinkInvoicePreviewForm from '../../../components/outinvoice/linkinvoicing/LinkInvoicePreviewForm';
 import LinkInvoicePreviewTable from '../../../components/outinvoice/linkinvoicing/LinkInvoicePreviewTable';
-import LinkInvoicePDFViewer from '../../../components/outinvoice/linkinvoicing/LinkInvoicePDFViewer';
+import InvoicePDFViewer from '../../../components/outinvoice/InvoicePDFViewer';
 import axios from 'axios';
 import config from '../../../config';
 
@@ -85,7 +85,7 @@ const LinkInvoicePage = () => {
           const invoiceNoInt = parseInt(invoiceNo, 10);
 
           return axios.put(
-            `${config.apiBaseUrl}/loads/update-outgoing-invoice-no`,
+            `${config.apiBaseUrl}/loads/updateLinkLoad/`,
             { id, invoiceNo: invoiceNoInt },
             config.getAuthHeaders()
           );
@@ -125,7 +125,7 @@ const LinkInvoicePage = () => {
           <LinkInvoicePreviewTable data={invoiceData.loads} />
         </>
       ) : (
-        <LinkInvoicePDFViewer invoiceData={invoiceData} />
+       <InvoicePDFViewer invoiceData={invoiceData} />
       )}
     </div>
   );
