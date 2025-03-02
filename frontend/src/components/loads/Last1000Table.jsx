@@ -222,9 +222,8 @@ const Last1000Table = ({ refresh }) => {
         }}>
           {linkingLoad && (
             <AddLinkLoadForm
-              linkingLoad={linkingLoad}
-              setLinkingLoad={setLinkingLoad}
-              handleRefreshTable={fetchRecords}
+              loadID={linkingLoad.ID}
+              handleCloseModal={() => setLinkingLoad(null)}
             />
           )}
         </Box>
@@ -234,7 +233,7 @@ const Last1000Table = ({ refresh }) => {
 };
 
 Last1000Table.propTypes = {
-  refresh: PropTypes.func.isRequired
+  refresh: PropTypes.bool.isRequired
 };
 
 export default Last1000Table;

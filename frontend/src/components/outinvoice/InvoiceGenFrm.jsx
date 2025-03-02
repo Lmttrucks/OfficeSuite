@@ -15,10 +15,12 @@ const InvoiceGenFrm = ({
     companyName: initialData.companyName || '',
     startDate: initialData.startDate || '',
     endDate: initialData.endDate || '',
-    vatRate: initialData.vatRate || 23 // Default VAT rate
+    vatRate: initialData.vatRate || 23, // Default VAT rate
+    jobID: initialData.jobID || '' // Add jobID to the state
   });
 
   const [localCompanies, setLocalCompanies] = useState([]);
+  const [localJobs, setLocalJobs] = useState([]);
   const navigate = useNavigate();
 
   const loadLocalData = (key) => {
@@ -34,6 +36,7 @@ const InvoiceGenFrm = ({
 
   useEffect(() => {
     setLocalCompanies(loadLocalData('localCompanies'));
+    setLocalJobs(loadLocalData('localJobs'));
   }, []);
 
   const handleChange = (e) => {
@@ -46,7 +49,8 @@ const InvoiceGenFrm = ({
       companyName: '',
       startDate: '',
       endDate: '',
-      vatRate: 23 // Reset VAT rate to default
+      vatRate: 23, // Reset VAT rate to default
+      jobID: '' // Reset jobID
     });
     onFormUpdate({
       companyID: '',
@@ -54,6 +58,7 @@ const InvoiceGenFrm = ({
       startDate: '',
       endDate: '',
       vatRate: 23, // Reset VAT rate to default
+      jobID: '', // Reset jobID
       previewData: []
     });
   };
@@ -67,7 +72,8 @@ const InvoiceGenFrm = ({
       const dataToSend = {
         CompanyName: company.CompanyName,
         StartDate: displayFormData.startDate,
-        EndDate: displayFormData.endDate
+        EndDate: displayFormData.endDate,
+        JobID: displayFormData.jobID // Include jobID in the request
       };
 
       // Fetch company info
@@ -177,6 +183,21 @@ const InvoiceGenFrm = ({
               onChange={handleChange}
               value={displayFormData.vatRate}
               fullWidth
+            />
+            <Autocomplete
+              freeSolo
+              options={localJobs.map((j) => j.JobID)}
+              getOptionLabel={(option) => option || ''}
+              value={displayFormData.jobID || ''}
+              onInputChange={(event, newInputValue) => {
+                setDisplayFormData((prev) => ({
+                  ...prev,
+                  jobID: newInputValue
+                }));
+              }}
+              renderInput={(params) => (
+                <TextField {...params} label="Job ID" name="jobID" />
+              )}
             />
           </Grid>
           <Grid

@@ -13,12 +13,12 @@ const dbConfig = {
 };
 
 exports.previewOutInvoice = async (req, res) => {
-    const { CompanyName, StartDate, EndDate } = req.body;
+    const { CompanyName, StartDate, EndDate, JobID } = req.body;
 
     try {
         await sql.connect(dbConfig);
 
-        const loadsResult = await sql.query`
+        const query = `
         SELECT 
             l.ID,
             l.JobID,
@@ -30,13 +30,25 @@ exports.previewOutInvoice = async (req, res) => {
             l.UnitQuantity
         FROM tblLoads l
         INNER JOIN tblCompanies c ON l.CompanyID = c.CompanyID
-        WHERE c.CompanyName = ${CompanyName}
-          AND l.DeliveryDate BETWEEN ${StartDate} AND ${EndDate}
+        WHERE c.CompanyName = @CompanyName
+          AND l.DeliveryDate BETWEEN @StartDate AND @EndDate
           AND l.OutgoingInvoiceNo IS NULL
-          AND l.Archived = 0`;
+          AND l.Archived = 0
+          ${JobID ? 'AND l.JobID = @JobID' : ''}
+        `;
+
+        const request = new sql.Request();
+        request.input('CompanyName', sql.VarChar, CompanyName);
+        request.input('StartDate', sql.Date, StartDate);
+        request.input('EndDate', sql.Date, EndDate);
+        if (JobID) {
+            request.input('JobID', sql.VarChar, JobID);
+        }
+
+        const loadsResult = await request.query(query);
 
         if (loadsResult.recordset.length === 0) {
-            return res.status(404).json({ message: 'No loads found for the specified company and date range' });
+            return res.status(404).json({ message: 'No loads found for the specified criteria' });
         }
 
         res.json(loadsResult.recordset);
