@@ -1,12 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
-import { Box, CircularProgress, Typography, Button } from '@mui/material';
+import { Box, CircularProgress, Typography, Button, Modal } from '@mui/material';
 import { DataGrid } from '@mui/x-data-grid';
 import config from '../../config';
+import EditLoadForm from './EditLoadForm';
+import AddLinkLoadForm from './AddLinkLoadForm';
 
-const Last100Table = ({ refresh }) => {
+const Last1000Table = ({ refresh }) => {
   const [records, setRecords] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [editingLoad, setEditingLoad] = useState(null);
+  const [linkingLoad, setLinkingLoad] = useState(null);
   const [selectedColumns, setSelectedColumns] = useState([
     'ID',
     'JobID',
@@ -26,7 +30,7 @@ const Last100Table = ({ refresh }) => {
   const fetchRecords = async () => {
     try {
       const response = await fetch(
-        `${config.apiBaseUrl}/loads/last-100-loads`,
+        `${config.apiBaseUrl}/loads/last-1000-loads`,
         config.getAuthHeaders()
       );
       const data = await response.json();
@@ -111,15 +115,34 @@ const Last100Table = ({ refresh }) => {
     {
       field: 'actions',
       headerName: 'Actions',
-      width: 150,
+      width: 250,
       renderCell: (params) => (
-        <Button
-          variant="contained"
-          size="small"
-          onClick={() => handleDelete(params.row.ID)}
-        >
-          Delete
-        </Button>
+        <div>
+          <Button
+            variant="contained"
+            size="small"
+            onClick={() => setEditingLoad(params.row)}
+            sx={{ mr: 1 }}
+          >
+            Edit
+          </Button>
+          <Button
+            variant="contained"
+            size="small"
+            onClick={() => setLinkingLoad(params.row)}
+            sx={{ mr: 1 }}
+          >
+            Link
+          </Button>
+          <Button
+            variant="contained"
+            size="small"
+            color="secondary"
+            onClick={() => handleDelete(params.row.ID)}
+          >
+            Delete
+          </Button>
+        </div>
       )
     }
   ];
@@ -154,12 +177,64 @@ const Last100Table = ({ refresh }) => {
         pageSize={5}
         getRowId={(row) => row.ID}
       />
+
+      <Modal
+        open={!!editingLoad}
+        onClose={() => setEditingLoad(null)}
+        aria-labelledby="edit-load-modal-title"
+        aria-describedby="edit-load-modal-description"
+      >
+        <Box sx={{ 
+          position: 'absolute', 
+          top: '50%', 
+          left: '50%', 
+          transform: 'translate(-50%, -50%)', 
+          width: 400, 
+          bgcolor: 'background.paper', 
+          boxShadow: 24, 
+          p: 4 
+        }}>
+          {editingLoad && (
+            <EditLoadForm
+              editingLoad={editingLoad}
+              setEditingLoad={setEditingLoad}
+              handleRefreshTable={fetchRecords}
+            />
+          )}
+        </Box>
+      </Modal>
+
+      <Modal
+        open={!!linkingLoad}
+        onClose={() => setLinkingLoad(null)}
+        aria-labelledby="link-load-modal-title"
+        aria-describedby="link-load-modal-description"
+      >
+        <Box sx={{ 
+          position: 'absolute', 
+          top: '50%', 
+          left: '50%', 
+          transform: 'translate(-50%, -50%)', 
+          width: 400, 
+          bgcolor: 'background.paper', 
+          boxShadow: 24, 
+          p: 4 
+        }}>
+          {linkingLoad && (
+            <AddLinkLoadForm
+              linkingLoad={linkingLoad}
+              setLinkingLoad={setLinkingLoad}
+              handleRefreshTable={fetchRecords}
+            />
+          )}
+        </Box>
+      </Modal>
     </div>
   );
 };
 
-Last100Table.propTypes = {
+Last1000Table.propTypes = {
   refresh: PropTypes.func.isRequired
 };
 
-export default Last100Table;
+export default Last1000Table;

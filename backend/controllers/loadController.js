@@ -156,10 +156,10 @@ exports.addLoad = async (req, res) => {
   }
 };
 
-exports.getLast100Loads = async (req, res) => {
+exports.getLast1000Loads = async (req, res) => {
     try {
         const result = await sql.query`
-           SELECT TOP 100 
+           SELECT TOP 1000 
     l.ID,
     l.SubmissionID,
     l.OutgoingInvoiceNo,
