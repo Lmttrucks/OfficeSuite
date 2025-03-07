@@ -18,7 +18,7 @@ const dbConfig = {
 exports.getCompanies = async (req, res) => {
     try {
         await sql.connect(dbConfig);
-        const result = await sql.query`SELECT CompanyID, CompanyName FROM tblCompanies ORDER BY CompanyID`;
+        const result = await sql.query`SELECT CompanyID, CompanyName FROM tblCompanies WHERE Void = 0 ORDER BY CompanyID`;
         res.json(result.recordset);
     } catch (err) {
         res.status(500).json({ message: 'Server error', error: err.message });
@@ -28,7 +28,7 @@ exports.getCompanies = async (req, res) => {
 exports.getEmployees = async (req, res) => {
     try {
         await sql.connect(dbConfig);
-        const result = await sql.query`SELECT EmployeeID, EmployeeName FROM tblEmployee ORDER BY EmployeeID`;
+        const result = await sql.query`SELECT EmployeeID, EmployeeName FROM tblEmployee WHERE Void = 0 ORDER BY EmployeeID`;
         res.json(result.recordset);
     } catch (err) {
         res.status(500).json({ message: 'Server error', error: err.message });
@@ -38,7 +38,7 @@ exports.getEmployees = async (req, res) => {
 exports.getVehicles = async (req, res) => {
     try {
         await sql.connect(dbConfig);
-        const result = await sql.query`SELECT VehicleID, VehicleReg FROM tblVehicle ORDER BY VehicleReg`;
+        const result = await sql.query`SELECT VehicleID, VehicleReg FROM tblVehicle WHERE Void = 0 ORDER BY VehicleReg`;
         res.json(result.recordset);
     } catch (err) {
         res.status(500).json({ message: 'Server error', error: err.message });
@@ -48,7 +48,7 @@ exports.getVehicles = async (req, res) => {
 exports.getLocations = async (req, res) => {
     try {
         await sql.connect(dbConfig);
-        const result = await sql.query`SELECT ID, Location FROM tblLocations ORDER BY Location`;
+        const result = await sql.query`SELECT ID, Location FROM tblLocations WHERE Void = 0 ORDER BY Location`;
         res.json(result.recordset);
     } catch (err) {
         res.status(500).json({ message: 'Server error', error: err.message });
@@ -58,7 +58,7 @@ exports.getLocations = async (req, res) => {
 exports.getJobs = async (req, res) => {
     try {
         await sql.connect(dbConfig);
-        const result = await sql.query`SELECT JobID, DefaultCompany, DefaultOrigin, DefaultDestination, DefaultRate FROM tblJobs ORDER BY JobID`;
+        const result = await sql.query`SELECT JobID, DefaultCompany, DefaultOrigin, DefaultDestination, DefaultRate FROM tblJobs WHERE Void = 0 ORDER BY JobID`;
         res.json(result.recordset);
     } catch (err) {
         res.status(500).json({ message: 'Server error', error: err.message });
@@ -112,6 +112,7 @@ exports.getDistinctDestinations = async (req, res) => {
                 SELECT TOP 3000 Destination 
                 FROM tblLoads 
                 WHERE Archived = 0
+                AND Void = 0
                 ORDER BY ID DESC
             ) AS RecentLoads
             ORDER BY Destination`;

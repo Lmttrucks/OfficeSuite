@@ -48,7 +48,8 @@ exports.searchLoadsByCompanyAndDate = async (req, res) => {
                 WHERE 
                     c.CompanyName = @CompanyName AND
                     l.DeliveryDate BETWEEN @StartDate AND @EndDate AND
-                    l.Archived = 0
+                    l.Archived = 0 AND
+                    l.Void = 0
             `);
 
         if (result.recordset.length === 0) {
@@ -65,7 +66,7 @@ exports.getLoads = async (req, res) => {
     try {
         const limit = parseInt(req.query.limit, 10) || 50;
         const result = await sql.query`
-            SELECT TOP (${limit}) * FROM tblLoads ORDER BY ID DESC`;
+            SELECT TOP (${limit}) * FROM tblLoads WHERE Void = 0 ORDER BY ID DESC`;
         res.json(result.recordset);
     } catch (err) {
         res.status(500).json({ message: 'Failed to fetch records', error: err.message });
@@ -162,7 +163,7 @@ exports.getLast1000Loads = async (req, res) => {
            SELECT TOP 1000 
     l.ID,
     l.SubmissionID,
-    l.OutgoingInvoiceNo,
+    l.InvoiceNo,
     l.JobID,
     c.CompanyName AS CompanyName,
     e.EmployeeName AS EmployeeName,
@@ -190,7 +191,7 @@ FROM tblLoads l
 LEFT JOIN tblCompanies c ON l.CompanyID = c.CompanyID
 LEFT JOIN tblEmployee e ON l.EmployeeID = e.EmployeeID
 LEFT JOIN tblVehicle v ON l.VehicleID = v.VehicleID
-WHERE l.Archived = 0
+WHERE l.Archived = 0 AND l.Void = 0
 ORDER BY l.ID DESC;`;
         res.json(result.recordset);
     } catch (err) {
@@ -414,15 +415,15 @@ exports.deleteLoadById = async (req, res) => {
 
     try {
         const result = await sql.query`
-            DELETE FROM tblLoads WHERE ID = ${id}`;
+            UPDATE tblLoads SET Void = 1 WHERE ID = ${id}`;
 
         if (result.rowsAffected[0] === 0) {
             return res.status(404).json({ message: "Load not found." });
         }
 
-        res.json({ message: "Load deleted successfully." });
+        res.json({ message: "Load removed successfully." });
     } catch (err) {
-        res.status(500).json({ message: 'Failed to delete load', error: err.message });
+        res.status(500).json({ message: 'Failed to mark load as void', error: err.message });
     }
 };
 
@@ -460,7 +461,7 @@ exports.getAllNonArchivedLoads = async (req, res) => {
             LEFT JOIN tblCompanies c ON l.CompanyID = c.CompanyID
             LEFT JOIN tblEmployee e ON l.EmployeeID = e.EmployeeID
             LEFT JOIN tblVehicle v ON l.VehicleID = v.VehicleID
-            WHERE l.Archived = 0
+            WHERE l.Archived = 0 AND l.Void = 0
             ORDER BY l.ID DESC;`;
         res.json(result.recordset);
     } catch (err) {
@@ -564,7 +565,7 @@ exports.getExternalLoads = async (req, res) => {
             FROM tblLoads l
             JOIN tblEmployee e ON l.EmployeeID = e.EmployeeID
             WHERE e.EmployeeName = 'External'
-            AND l.Archived = 0`;
+            AND l.Archived = 0 AND l.Void = 0`;
 
         if (result.recordset.length === 0) {
             return res.status(404).json({ message: "No loads found for the specified criteria." });

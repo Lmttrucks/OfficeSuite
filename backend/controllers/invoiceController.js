@@ -12,7 +12,7 @@ const dbConfig = {
     },
 };
 
-exports.previewOutInvoice = async (req, res) => {
+exports.previewSalesInvoice = async (req, res) => {
     const { CompanyName, StartDate, EndDate, JobID } = req.body;
 
     try {
@@ -32,7 +32,7 @@ exports.previewOutInvoice = async (req, res) => {
         INNER JOIN tblCompanies c ON l.CompanyID = c.CompanyID
         WHERE c.CompanyName = @CompanyName
           AND l.DeliveryDate BETWEEN @StartDate AND @EndDate
-          AND l.OutgoingInvoiceNo IS NULL
+          AND l.InvoiceNo IS NULL
           AND l.Archived = 0
           ${JobID ? 'AND l.JobID = @JobID' : ''}
         `;
@@ -57,14 +57,14 @@ exports.previewOutInvoice = async (req, res) => {
     }
 };
 
-exports.insertOutInvoice = async (req, res) => {
-    const { CompanyID, StartDate, EndDate, VatRate, LoadCount, PaymentAmount, OutInvoiceURL, UserID } = req.body;
+exports.insertInvoice = async (req, res) => {
+    const { CompanyID, StartDate, EndDate, VatRate, LoadCount, PaymentAmount, InvoiceURL, UserID, Purchase } = req.body;
 
     try {
         await sql.connect(dbConfig);
 
         const result = await sql.query`
-            INSERT INTO tblOutvoice (
+            INSERT INTO tblInvoice (
                 CompanyID,
                 StartDate,
                 EndDate,
@@ -72,10 +72,11 @@ exports.insertOutInvoice = async (req, res) => {
                 LoadCount,
                 Generated,
                 PaymentAmount,
-                OutInvoiceURL,
+                InvoiceURL,
                 UserID,
-                DateAdded
-            ) OUTPUT INSERTED.OutvoiceNo
+                DateAdded,
+                Purchase
+            ) OUTPUT INSERTED.InvoiceNo
             VALUES (
                 ${CompanyID},
                 ${StartDate},
@@ -84,14 +85,15 @@ exports.insertOutInvoice = async (req, res) => {
                 ${LoadCount},
                 GETDATE(),
                 ${PaymentAmount},
-                ${OutInvoiceURL},
+                ${InvoiceURL},
                 ${UserID},
-                GETDATE()
+                GETDATE(),
+                ${Purchase}
             )`;
 
-        const outvoiceNo = result.recordset[0].OutvoiceNo;
+        const invoiceNo = result.recordset[0].InvoiceNo;
 
-        res.status(201).json({ outvoiceNo });
+        res.status(201).json({ invoiceNo });
     } catch (err) {
         res.status(500).json({ message: 'Server error', error: err.message });
     }
@@ -120,8 +122,8 @@ exports.getInvoicesByCompanyName = async (req, res) => {
 
         const result = await sql.query`
         SELECT *
-        FROM tblOutvoice o
-        INNER JOIN tblCompanies c ON o.CompanyID = c.CompanyID
+        FROM tblInvoice i
+        INNER JOIN tblCompanies c ON i.CompanyID = c.CompanyID
         WHERE c.CompanyName = ${CompanyName}`;
 
         if (result.recordset.length === 0) {
@@ -134,8 +136,8 @@ exports.getInvoicesByCompanyName = async (req, res) => {
     }
 };
 
-exports.getLoadsByOutgoingInvoiceNo = async (req, res) => {
-    const { outvoiceNo } = req.query;
+exports.getLoadsByInvoiceNo = async (req, res) => {
+    const { invoiceNo } = req.query;
 
     try {
         await sql.connect(dbConfig);
@@ -151,11 +153,11 @@ exports.getLoadsByOutgoingInvoiceNo = async (req, res) => {
             l.Rate,
             l.UnitQuantity
         FROM tblLoads l
-        WHERE l.OutgoingInvoiceNo = ${outvoiceNo}
+        WHERE l.InvoiceNo = ${invoiceNo}
         AND l.Archived = 0`;
 
         if (result.recordset.length === 0) {
-            return res.status(404).json({ message: 'No loads found for the specified outgoing invoice number' });
+            return res.status(404).json({ message: 'No loads found for the specified invoice number' });
         }
 
         res.json(result.recordset);
@@ -164,18 +166,18 @@ exports.getLoadsByOutgoingInvoiceNo = async (req, res) => {
     }
 };
 
-exports.deleteInvoiceByOutgoingInvoiceNo = async (req, res) => {
-    const { outvoiceNo } = req.query;
+exports.deleteInvoiceByInvoiceNo = async (req, res) => {
+    const { invoiceNo } = req.query;
 
     try {
         await sql.connect(dbConfig);
 
         const result = await sql.query`
-        DELETE FROM tblOutvoice
-        WHERE OutvoiceNo = ${outvoiceNo}`;
+        DELETE FROM tblInvoice
+        WHERE InvoiceNo = ${invoiceNo}`;
 
         if (result.rowsAffected[0] === 0) {
-            return res.status(404).json({ message: 'No invoice found for the specified outgoing invoice number' });
+            return res.status(404).json({ message: 'No invoice found for the specified invoice number' });
         }
 
         res.status(200).json({ message: 'Invoice deleted successfully' });
@@ -207,7 +209,7 @@ exports.previewLinkedLoadsInvoice = async (req, res) => {
         WHERE c.CompanyName = ${CompanyName}
           AND l.DeliveryDate BETWEEN ${StartDate} AND ${EndDate}
           AND ll.Paid = 0
-          AND ll.Deleted = 0`;
+          AND ll.Void = 0`;
 
         if (loadsResult.recordset.length === 0) {
             return res.status(404).json({ message: 'No linked loads found for the specified company and date range' });

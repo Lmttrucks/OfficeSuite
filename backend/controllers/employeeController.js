@@ -78,7 +78,7 @@ exports.editEmployee = async (req, res) => {
 
 exports.deleteEmployee = async (req, res) => {
     const { id } = req.params;
-    const query = `DELETE FROM [dbo].[tblEmployee] WHERE EmployeeID = @EmployeeID`;
+    const query = `UPDATE [dbo].[tblEmployee] SET Void = 1 WHERE EmployeeID = @EmployeeID`;
 
     try {
         let pool = await sql.connect(dbConfig);
@@ -86,7 +86,7 @@ exports.deleteEmployee = async (req, res) => {
             .input('EmployeeID', sql.Int, id)
             .query(query);
 
-        res.status(200).json({ message: 'Employee deleted successfully' });
+        res.status(200).json({ message: 'Employee removed successfully' });
     } catch (err) {
         res.status(500).json({ error: err.message });
     }

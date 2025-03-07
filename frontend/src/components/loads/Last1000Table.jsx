@@ -22,6 +22,7 @@ const Last1000Table = ({ refresh }) => {
     'Gross',
     'Origin',
     'Destination',
+    'OutgoingInvoiceNo', // Add this line
     'WeightDocURL',
     'PermitURL',
     'actions'
@@ -75,6 +76,7 @@ const Last1000Table = ({ refresh }) => {
     { field: 'ID', headerName: 'ID', width: 70 },
     { field: 'JobID', headerName: 'Job ID', width: 100 },
     { field: 'CompanyName', headerName: 'Company Name', width: 150 },
+    { field: 'OutgoingInvoiceNo', headerName: 'Invoice No', width: 150 }, 
     { field: 'PermitNo', headerName: 'Permit No', width: 130 },
     { field: 'WeightDocNo', headerName: 'Weight Doc No', width: 130 },
     { field: 'DeliveryDate', headerName: 'Delivery Date', width: 150 },

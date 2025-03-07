@@ -12,7 +12,7 @@ const dbConfig = {
 exports.getAllCompanies = async (req, res) => {
     try {
         await sql.connect(dbConfig);
-        const result = await sql.query`SELECT * FROM tblCompanies`;
+        const result = await sql.query`SELECT * FROM tblCompanies WHERE Void = 0`;
         res.json(result.recordset);
     } catch (err) {
         res.status(500).json({ message: err.message });
@@ -23,7 +23,7 @@ exports.getCompanyById = async (req, res) => {
     const { id } = req.params;
     try {
         await sql.connect(dbConfig);
-        const result = await sql.query`SELECT * FROM tblCompanies WHERE CompanyID = ${id}`;
+        const result = await sql.query`SELECT * FROM tblCompanies WHERE CompanyID = ${id} AND Void = 0`;
         if (result.recordset.length === 0) {
             return res.status(404).json({ message: 'Company not found' });
         }
@@ -82,8 +82,8 @@ exports.deleteCompany = async (req, res) => {
             return res.status(404).json({ message: 'Company not found' });
         }
 
-        await sql.query`DELETE FROM tblCompanies WHERE CompanyID = ${id}`;
-        res.json({ message: 'Company deleted successfully' });
+        await sql.query`UPDATE tblCompanies SET Void = 1 WHERE CompanyID = ${id}`;
+        res.json({ message: 'Company marked as void successfully' });
     } catch (err) {
         res.status(500).json({ message: err.message });
     }
