@@ -13,6 +13,7 @@ const uploadRoutes = require('./routes/uploadRoutes');
 const companyRoutes = require('./routes/companyRoutes');
 const employeeRoutes = require('./routes/employeeRoutes');
 const vehicleRoutes = require('./routes/vehicleRoutes');
+const linkLoadsRoutes = require('./routes/linkLoadsRoutes'); // Import the linkLoadsRoutes
 
 dotenv.config();
 
@@ -34,6 +35,7 @@ app.use('/api/upload', uploadRoutes);
 app.use('/api/companies', companyRoutes);
 app.use('/api/employees', employeeRoutes);
 app.use('/api/vehicles', vehicleRoutes);
+app.use('/api/link-loads', linkLoadsRoutes); // Add the linkLoadsRoutes
 
 app.listen(port, () => {
     console.log(`Server running on port ${port}`);

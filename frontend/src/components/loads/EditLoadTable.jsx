@@ -53,6 +53,7 @@ const EditLoadTable = ({ setEditingLoad, refreshTable }) => {
             <TableCell>Weight Doc URL</TableCell>
             <TableCell>Paper Doc Filed</TableCell>
             <TableCell>Mobile UL</TableCell>
+            <TableCell>Purchase</TableCell> {/* Add Purchase header */}
             <TableCell>User ID</TableCell>
             <TableCell>Date Added</TableCell>
             <TableCell>Actions</TableCell>
@@ -75,12 +76,13 @@ const EditLoadTable = ({ setEditingLoad, refreshTable }) => {
               <TableCell>{load.Destination}</TableCell>
               <TableCell>{load.UnitType}</TableCell>
               <TableCell>{load.UnitQuantity}</TableCell>
-              <TableCell>{load.Paid}</TableCell>
-              <TableCell>{load.Checked}</TableCell>
+              <TableCell>{load.Paid ? 'Yes' : 'No'}</TableCell>
+              <TableCell>{load.Checked ? 'Yes' : 'No'}</TableCell>
               <TableCell>{load.PermitURL}</TableCell>
               <TableCell>{load.WeightDocURL}</TableCell>
-              <TableCell>{load.PaperDocFiled}</TableCell>
+              <TableCell>{load.PaperDocFiled ? 'Yes' : 'No'}</TableCell>
               <TableCell>{load.MobileUL}</TableCell>
+              <TableCell>{load.Purchase ? 'Yes' : 'No'}</TableCell> {/* Add Purchase cell */}
               <TableCell>{load.UserID}</TableCell>
               <TableCell>{load.DateAdded}</TableCell>
               <TableCell>

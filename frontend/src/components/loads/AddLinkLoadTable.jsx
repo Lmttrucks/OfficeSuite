@@ -47,6 +47,7 @@ const AddLinkLoadTable = ({ refreshTable }) => {
             <TableCell>Unit Quantity</TableCell>
             <TableCell>Origin</TableCell>
             <TableCell>Destination</TableCell>
+            <TableCell>Purchase</TableCell>
             <TableCell>Actions</TableCell>
           </TableRow>
         </TableHead>
@@ -61,6 +62,7 @@ const AddLinkLoadTable = ({ refreshTable }) => {
               <TableCell>{load.UnitQuantity}</TableCell>
               <TableCell>{load.Origin}</TableCell>
               <TableCell>{load.Destination}</TableCell>
+              <TableCell>{load.Purchase}</TableCell>
               <TableCell>
                 <Button onClick={() => handleLinkClick(load)}>Link</Button>
               </TableCell>
@@ -95,6 +97,7 @@ const AddLinkLoadTable = ({ refreshTable }) => {
               unitQuantity={selectedLoad.UnitQuantity}
               origin={selectedLoad.Origin}
               destination={selectedLoad.Destination}
+              purchase={selectedLoad.Purchase}
               handleCloseModal={handleCloseModal}
             />
           )}

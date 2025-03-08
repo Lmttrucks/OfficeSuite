@@ -17,7 +17,7 @@ const dbConfig = {
 sql.connect(dbConfig).catch(err => console.error('SQL connection error:', err));
 
 exports.searchLoadsByCompanyAndDate = async (req, res) => {
-    const { companyName, startDate, endDate } = req.query;
+    const { companyName, startDate, endDate, Purchase } = req.query;
 
     if (!companyName || !startDate || !endDate) {
         return res.status(400).json({ message: "Please provide companyName, startDate, and endDate." });
@@ -50,6 +50,7 @@ exports.searchLoadsByCompanyAndDate = async (req, res) => {
                     l.DeliveryDate BETWEEN @StartDate AND @EndDate AND
                     l.Archived = 0 AND
                     l.Void = 0
+                    l.Purchase = ${Purchase}
             `);
 
         if (result.recordset.length === 0) {
@@ -87,6 +88,7 @@ exports.addLoad = async (req, res) => {
     tare,
     origin,
     destination,
+    purchase,
     userID
   } = req.body;
 
@@ -126,6 +128,7 @@ exports.addLoad = async (req, res) => {
         Tare,
         Origin,
         Destination,
+        Purchase,
         UserID
       )
       OUTPUT INSERTED.ID INTO @InsertedRows
@@ -142,6 +145,7 @@ exports.addLoad = async (req, res) => {
         ${tare},
         ${origin},
         ${destination},
+        ${purchase},
         ${userID}
       );
 
@@ -186,7 +190,9 @@ exports.getLast1000Loads = async (req, res) => {
     l.MobileUL,
     l.UserID,
     l.DateAdded,
-    l.Archived
+    l.Archived,
+    l.Void,
+    l.Purchase
 FROM tblLoads l
 LEFT JOIN tblCompanies c ON l.CompanyID = c.CompanyID
 LEFT JOIN tblEmployee e ON l.EmployeeID = e.EmployeeID
@@ -223,7 +229,8 @@ exports.updateLoadById = async (req, res) => {
     PermitURL,
     WeightDocURL,
     PaperDocFiled,
-    MobileUL
+    MobileUL,
+    Purchase
   } = req.body;
 
   try {
@@ -344,6 +351,10 @@ exports.updateLoadById = async (req, res) => {
       updateFields.push('MobileUL = @MobileUL');
       updateValues.MobileUL = MobileUL;
     }
+    if (Purchase) {
+      updateFields.push('Purchase = @Purchase');
+      updateValues.Purchase = Purchase;
+    }
 
     if (updateFields.length === 0) {
       return res.status(400).json({ message: 'No fields to update.' });
@@ -372,13 +383,13 @@ exports.updateLoadById = async (req, res) => {
   }
 };
 
-exports.updateOutgoingInvoiceNo = async (req, res) => {
+exports.updateInvoiceNo = async (req, res) => {
     const { id, invoiceNo } = req.body;
 
     try {
         const result = await sql.query`
             UPDATE tblLoads
-            SET OutgoingInvoiceNo = ${invoiceNo}
+            SET InvoiceNo = ${invoiceNo}
             WHERE ID = ${id}`;
 
         if (result.rowsAffected[0] === 0) {
@@ -391,22 +402,22 @@ exports.updateOutgoingInvoiceNo = async (req, res) => {
     }
 };
 
-exports.clearOutgoingInvoiceNo = async (req, res) => {
-    const { outgoingInvoiceNo } = req.body;
+exports.clearInvoiceNo = async (req, res) => {
+    const { invoiceNo } = req.body;
 
     try {
         const result = await sql.query`
             UPDATE tblLoads
-            SET OutgoingInvoiceNo = NULL
-            WHERE OutgoingInvoiceNo = ${outvoiceNo}`;
+            SET InvoiceNo = NULL
+            WHERE InvoiceNo = ${invoiceNo}`;
 
         if (result.rowsAffected[0] === 0) {
-            return res.status(404).json({ message: "No loads found with the specified outgoing invoice number." });
+            return res.status(404).json({ message: "No loads found with the specified invoice number." });
         }
 
-        res.json({ message: "Outgoing Invoice No cleared successfully." });
+        res.json({ message: "Invoice No cleared successfully." });
     } catch (err) {
-        res.status(500).json({ message: 'Failed to clear Outgoing Invoice No', error: err.message });
+        res.status(500).json({ message: 'Failed to clear Invoice No', error: err.message });
     }
 };
 
@@ -423,7 +434,7 @@ exports.deleteLoadById = async (req, res) => {
 
         res.json({ message: "Load removed successfully." });
     } catch (err) {
-        res.status(500).json({ message: 'Failed to mark load as void', error: err.message });
+        res.status(500).json({ message: 'Failed to remove load', error: err.message });
     }
 };
 
@@ -433,7 +444,7 @@ exports.getAllNonArchivedLoads = async (req, res) => {
             SELECT 
                 l.ID,
                 l.SubmissionID,
-                l.OutgoingInvoiceNo,
+                l.InvoiceNo,
                 l.JobID,
                 c.CompanyName AS CompanyName,
                 e.EmployeeName AS EmployeeName,
@@ -456,7 +467,8 @@ exports.getAllNonArchivedLoads = async (req, res) => {
                 l.MobileUL,
                 l.UserID,
                 l.DateAdded,
-                l.Archived
+                l.Archived,
+                l.Purchase
             FROM tblLoads l
             LEFT JOIN tblCompanies c ON l.CompanyID = c.CompanyID
             LEFT JOIN tblEmployee e ON l.EmployeeID = e.EmployeeID
@@ -470,7 +482,7 @@ exports.getAllNonArchivedLoads = async (req, res) => {
 };
 
 exports.addLinkLoad = async (req, res) => {
-    const { loadID, companyName, linkNo, rate } = req.body;
+    const { loadID, companyName, linkNo, rate, purchase } = req.body;
 
     try {
         // Get CompanyID from companyName
@@ -484,8 +496,8 @@ exports.addLinkLoad = async (req, res) => {
 
         // Insert into tblLinkLoads
         await sql.query`
-            INSERT INTO tblLinkLoads (LoadID, CompanyID, LinkNo, Rate)
-            VALUES (${loadID}, ${companyID}, ${linkNo || null}, ${rate})`;
+            INSERT INTO tblLinkLoads (LoadID, CompanyID, LinkNo, Rate, Purchase)
+            VALUES (${loadID}, ${companyID}, ${linkNo || null}, ${rate}), ${purchase}`;
 
         res.status(201).json({ message: 'Link load added successfully' });
     } catch (err) {
@@ -495,7 +507,7 @@ exports.addLinkLoad = async (req, res) => {
 
 exports.updateLinkLoad = async (req, res) => {
     const { ID } = req.params;
-    const { linkNo, rate, invoiceNo, paid, deleted } = req.body;
+    const { linkNo, rate, invoiceNo, paid, deleted, purchase } = req.body;
 
     try {
         const updateFields = [];
@@ -521,6 +533,10 @@ exports.updateLinkLoad = async (req, res) => {
             updateFields.push('Deleted = @Deleted');
             updateValues.Deleted = deleted;
         }
+        if (purchase !== undefined) {
+          updateFields.push('Purchase = @Purchase');
+          updateValues.Purchase = purchase;
+      }
 
         if (updateFields.length === 0) {
             return res.status(400).json({ message: 'No fields to update.' });
@@ -561,7 +577,8 @@ exports.getExternalLoads = async (req, res) => {
                 l.UnitQuantity,
                 l.Origin,
                 l.Destination,
-                l.Archived
+                l.Archived,
+                l.Purchase
             FROM tblLoads l
             JOIN tblEmployee e ON l.EmployeeID = e.EmployeeID
             WHERE e.EmployeeName = 'External'

@@ -168,6 +168,7 @@ const InvoiceDetails = ({ invoiceData }) => {
   return (
     <View style={styles.invoiceDetails}>
       {[
+        ['Invoice Type:', invoiceData.purchase ? 'Purchase' : 'Sales'],
         ['Invoice No:', invoiceData.invoiceNo],
         ['Date Generated:', today],
         ['Company ID:', invoiceData.companyID],
@@ -194,7 +195,8 @@ InvoiceDetails.propTypes = {
     endDate: PropTypes.string,
     vatRate: PropTypes.number,
     paymentAmount: PropTypes.number,
-    loadCount: PropTypes.number
+    loadCount: PropTypes.number,
+    purchase: PropTypes.bool // Add purchase
   }).isRequired
 };
 
@@ -362,7 +364,8 @@ InvoiceStructure.propTypes = {
         Rate: PropTypes.number,
         UnitQuantity: PropTypes.number
       })
-    ).isRequired
+    ).isRequired,
+    purchase: PropTypes.bool // Add purchase
   }).isRequired
 };
 

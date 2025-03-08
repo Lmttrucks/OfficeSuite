@@ -1,13 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
-import { Box, Button, TextField, Grid, Autocomplete } from '@mui/material';
+import { Box, Button, TextField, Grid, Autocomplete, FormControlLabel, Checkbox, Typography, List, ListItem, ListItemText } from '@mui/material';
 import config from '../../config';
 
 const AddLinkLoadForm = ({ loadID, handleCloseModal }) => {
   const [companyName, setCompanyName] = useState('');
   const [linkNo, setLinkNo] = useState('');
   const [rate, setRate] = useState('');
+  const [purchase, setPurchase] = useState(true); // Set to purchase by default
   const [localCompanies, setLocalCompanies] = useState([]);
+  const [linkedLoads, setLinkedLoads] = useState([]); // State to store linked loads
 
   useEffect(() => {
     const loadLocalData = (key) => {
@@ -22,7 +24,20 @@ const AddLinkLoadForm = ({ loadID, handleCloseModal }) => {
     };
 
     setLocalCompanies(loadLocalData('localCompanies'));
-  }, []);
+
+    // Fetch linked loads for the given LoadID
+    const fetchLinkedLoads = async () => {
+      try {
+        const response = await fetch(`${config.apiBaseUrl}/loads/linked-loads/${loadID}`, config.getAuthHeaders());
+        const data = await response.json();
+        setLinkedLoads(data);
+      } catch (error) {
+        console.error('Error fetching linked loads:', error);
+      }
+    };
+
+    fetchLinkedLoads();
+  }, [loadID]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -38,7 +53,8 @@ const AddLinkLoadForm = ({ loadID, handleCloseModal }) => {
           loadID,
           companyName,
           linkNo: linkNo || null,
-          rate
+          rate,
+          purchase
         })
       });
 
@@ -100,6 +116,17 @@ const AddLinkLoadForm = ({ loadID, handleCloseModal }) => {
             required
           />
         </Grid>
+        <Grid item xs={12}>
+          <FormControlLabel
+            control={
+              <Checkbox
+                checked={purchase}
+                onChange={(e) => setPurchase(e.target.checked)}
+              />
+            }
+            label="Purchase"
+          />
+        </Grid>
         <Grid item xs={12} sx={{ display: 'flex', justifyContent: 'flex-end' }}>
           <Button type="submit" variant="contained" sx={{ mr: 2 }}>
             Submit
@@ -107,6 +134,18 @@ const AddLinkLoadForm = ({ loadID, handleCloseModal }) => {
           <Button type="button" variant="outlined" onClick={handleCloseModal}>
             Cancel
           </Button>
+        </Grid>
+        <Grid item xs={12}>
+          <Typography variant="h6">Linked Loads</Typography>
+          <List>
+            {linkedLoads.map((linkedLoad) => (
+              <ListItem key={linkedLoad.ID}>
+                <ListItemText
+                  primary={`Link No: ${linkedLoad.LinkNo}, Rate: ${linkedLoad.Rate}, Purchase: ${linkedLoad.Purchase ? 'Yes' : 'No'}`}
+                />
+              </ListItem>
+            ))}
+          </List>
         </Grid>
       </Grid>
     </Box>

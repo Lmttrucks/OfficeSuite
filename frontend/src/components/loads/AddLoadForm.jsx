@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
-import { Box, Button, TextField, Autocomplete, Grid } from '@mui/material';
+import { Box, Button, TextField, Autocomplete, Grid, FormControlLabel, Checkbox } from '@mui/material';
 import config from '../../config';
 
 const AddLoadForm = ({ onLoadAdded }) => {
@@ -16,10 +16,9 @@ const AddLoadForm = ({ onLoadAdded }) => {
     gross: '',
     tare: '0',
     origin: '',
-    destination: '',
-    linkedCompanyName: '',
-    linkedRate: ''
+    destination: ''
   });
+  const [purchase, setPurchase] = useState(false); // Set to false by default
 
   const [localCompanies, setLocalCompanies] = useState([]);
   const [localEmployees, setLocalEmployees] = useState([]);
@@ -57,10 +56,10 @@ const AddLoadForm = ({ onLoadAdded }) => {
     e.preventDefault();
     try {
       const userID = localStorage.getItem('userID');
-      const { linkedCompanyName, linkedRate, ...loadData } = formData;
       const dataToSend = {
-        ...loadData,
-        userID: userID // Include userID in the form data
+        ...formData,
+        purchase,
+        userID // Include userID in the form data
       };
 
       console.log('Data being sent:', dataToSend); // Log the data being sent
@@ -77,38 +76,14 @@ const AddLoadForm = ({ onLoadAdded }) => {
       });
 
       if (response.ok) {
-        const loadData = await response.json();
-        const loadID = loadData.loadID; // Assuming the response contains the loadID
-
-        // Add linked load if Linked Company Name or Linked Rate is provided
-        if (linkedCompanyName || linkedRate) {
-          await fetch(`${config.apiBaseUrl}/linkloads/addLinkLoad`, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              ...config.getAuthHeaders().headers
-            },
-            body: JSON.stringify({
-              loadID,
-              companyName: linkedCompanyName,
-              rate: linkedRate
-            })
-          });
-        }
-
-        setFormData((prev) => ({
+     setFormData((prev) => ({
           ...prev,
           permitNo: '',
           weightDocNo: '',
           deliveryDate: '',
           gross: '',
-          tare: '0',
-          linkedCompanyName: '',
-          linkedRate: ''
+          tare: '0'
         }));
-        if (onLoadAdded) {
-          onLoadAdded();
-        }
       } else {
         alert('Failed to submit load');
       }
@@ -131,10 +106,9 @@ const AddLoadForm = ({ onLoadAdded }) => {
       gross: '',
       tare: '0',
       origin: '',
-      destination: '',
-      linkedCompanyName: '',
-      linkedRate: ''
+      destination: ''
     });
+    setPurchase(false); // Reset purchase to false
   };
 
   return (
@@ -295,31 +269,14 @@ const AddLoadForm = ({ onLoadAdded }) => {
             fullWidth
             autoComplete="off"
           />
-          <Autocomplete
-            options={localCompanies}
-            getOptionLabel={(option) => option?.CompanyName || ''}
-            value={
-              localCompanies.find(
-                (c) => c.CompanyName === formData.linkedCompanyName
-              ) || null
+          <FormControlLabel
+            control={
+              <Checkbox
+                checked={purchase}
+                onChange={(e) => setPurchase(e.target.checked)}
+              />
             }
-            onChange={(event, newValue) => {
-              setFormData((prev) => ({
-                ...prev,
-                linkedCompanyName: newValue ? newValue.CompanyName : ''
-              }));
-            }}
-            renderInput={(params) => (
-              <TextField {...params} label="Linked Company Name" name="linkedCompanyName" />
-            )}
-          />
-          <TextField
-            label="Linked Rate"
-            name="linkedRate"
-            onChange={handleChange}
-            value={formData.linkedRate}
-            fullWidth
-            autoComplete="off"
+            label="Purchase"
           />
         </Grid>
         <Grid

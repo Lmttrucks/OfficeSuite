@@ -64,7 +64,7 @@ const getJobById = async (req, res) => {
                    RoadCondition, EstSize, DefaultCompany, DefaultOrigin, DefaultDestination, DefaultRate,
                    PlantPassportLink, FellingLicenceLink, Comments, CleanUp, Started, Complete, UserID, DateAdded
             FROM tblJobs
-            WHERE JobID = ${jobID}
+            WHERE JobID = ${jobID} AND Void = 0
         `;
         if (result.recordset.length === 0) {
             return res.status(404).json({ message: 'Job not found' });

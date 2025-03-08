@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { useLocation } from 'react-router-dom';
-import InvoiceGenFrm from '../../../components/outinvoice/InvoiceGenFrm';
-import InvoicePreviewTable from '../../../components/outinvoice/InvoicePreviewTable';
-import InvoicePreviewForm from '../../../components/outinvoice/InvoicePreviewForm';
-import InvoicePDFViewer from '../../../components/outinvoice/InvoicePDFViewer';
+import InvoiceGenFrm from '../../../components/invoice/InvoiceGenFrm';
+import InvoicePreviewTable from '../../../components/invoice/InvoicePreviewTable';
+import InvoicePreviewForm from '../../../components/invoice/InvoicePreviewForm';
+import InvoicePDFViewer from '../../../components/invoice/InvoicePDFViewer';
 import axios from 'axios';
 import config from '../../../config';
 
@@ -44,7 +44,7 @@ const InvoicePreviewPage = () => {
       };
 
       const response = await axios.post(
-        `${config.apiBaseUrl}/invoices/insertOutInvoice`,
+        `${config.apiBaseUrl}/invoices/insertInvoice`,
         {
           CompanyID: updatedInvoiceData.companyID,
           StartDate: updatedInvoiceData.startDate,
@@ -52,13 +52,15 @@ const InvoicePreviewPage = () => {
           VatRate: updatedInvoiceData.vatRate,
           LoadCount: updatedInvoiceData.loadCount,
           PaymentAmount: updatedInvoiceData.paymentAmount,
-          UserID: localStorage.getItem('userID')
+          UserID: localStorage.getItem('userID'),
+          Purchase: updatedInvoiceData.purchase // Include Purchase in the request
         },
         config.getAuthHeaders()
       );
 
-      console.log('API response:', response);
-      const invoiceNo = response.data.outvoiceNo;
+      console.log('API response:', response); // Log the entire response
+
+      const invoiceNo = response.data.invoiceNo; // Correctly access invoiceNo
       console.log('invoiceNo:', invoiceNo, typeof invoiceNo);
 
       setInvoiceData((prevData) => ({ ...prevData, invoiceNo }));
@@ -69,7 +71,7 @@ const InvoicePreviewPage = () => {
           const invoiceNoInt = parseInt(invoiceNo, 10);
 
           return axios.put(
-            `${config.apiBaseUrl}/loads/update-outgoing-invoice-no`,
+            `${config.apiBaseUrl}/loads/update-invoice-no`,
             { id, invoiceNo: invoiceNoInt },
             config.getAuthHeaders()
           );

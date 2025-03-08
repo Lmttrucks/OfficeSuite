@@ -56,6 +56,14 @@ const LinkInvoicePreviewForm = ({ previewData, formData, onGenerate }) => {
               readOnly: true
             }}
           />
+          <TextField
+            label="Invoice Type"
+            value={formData.purchase ? 'Purchase' : 'Sales'}
+            fullWidth
+            InputProps={{
+              readOnly: true
+            }}
+          />
         </Grid>
         <Grid item xs={12} sm={6}>
           <TextField
@@ -139,7 +147,8 @@ LinkInvoicePreviewForm.propTypes = {
     totalAmount: PropTypes.number,
     vatAmount: PropTypes.number,
     paymentAmount: PropTypes.number,
-    totalQuantity: PropTypes.number // Add total quantity
+    totalQuantity: PropTypes.number, // Add total quantity
+    purchase: PropTypes.bool // Add purchase
   }).isRequired,
   onGenerate: PropTypes.func.isRequired
 };

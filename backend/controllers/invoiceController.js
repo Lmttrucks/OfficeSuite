@@ -12,8 +12,8 @@ const dbConfig = {
     },
 };
 
-exports.previewSalesInvoice = async (req, res) => {
-    const { CompanyName, StartDate, EndDate, JobID } = req.body;
+exports.previewInvoice = async (req, res) => {
+    const { CompanyName, StartDate, EndDate, JobID, Purchase } = req.body;
 
     try {
         await sql.connect(dbConfig);
@@ -34,6 +34,7 @@ exports.previewSalesInvoice = async (req, res) => {
           AND l.DeliveryDate BETWEEN @StartDate AND @EndDate
           AND l.InvoiceNo IS NULL
           AND l.Archived = 0
+          AND l.Purchase = @Purchase
           ${JobID ? 'AND l.JobID = @JobID' : ''}
         `;
 
@@ -41,6 +42,7 @@ exports.previewSalesInvoice = async (req, res) => {
         request.input('CompanyName', sql.VarChar, CompanyName);
         request.input('StartDate', sql.Date, StartDate);
         request.input('EndDate', sql.Date, EndDate);
+        request.input('Purchase', sql.Bit, Purchase); // Add Purchase parameter
         if (JobID) {
             request.input('JobID', sql.VarChar, JobID);
         }
@@ -124,7 +126,7 @@ exports.getInvoicesByCompanyName = async (req, res) => {
         SELECT *
         FROM tblInvoice i
         INNER JOIN tblCompanies c ON i.CompanyID = c.CompanyID
-        WHERE c.CompanyName = ${CompanyName}`;
+        WHERE c.CompanyName = ${CompanyName} AND i.Void = 0`;
 
         if (result.recordset.length === 0) {
             return res.status(404).json({ message: 'No invoices found for the specified company' });
@@ -154,7 +156,8 @@ exports.getLoadsByInvoiceNo = async (req, res) => {
             l.UnitQuantity
         FROM tblLoads l
         WHERE l.InvoiceNo = ${invoiceNo}
-        AND l.Archived = 0`;
+        AND l.Archived = 0
+        WHERE l.Void = 0`;
 
         if (result.recordset.length === 0) {
             return res.status(404).json({ message: 'No loads found for the specified invoice number' });
@@ -173,7 +176,7 @@ exports.deleteInvoiceByInvoiceNo = async (req, res) => {
         await sql.connect(dbConfig);
 
         const result = await sql.query`
-        DELETE FROM tblInvoice
+        UPDATE [dbo].[tblInvoice] SET Void = 1 
         WHERE InvoiceNo = ${invoiceNo}`;
 
         if (result.rowsAffected[0] === 0) {
@@ -187,7 +190,7 @@ exports.deleteInvoiceByInvoiceNo = async (req, res) => {
 };
 
 exports.previewLinkedLoadsInvoice = async (req, res) => {
-    const { CompanyName, StartDate, EndDate } = req.body;
+    const { CompanyName, StartDate, EndDate, Purchase } = req.body;
 
     try {
         await sql.connect(dbConfig);
@@ -208,8 +211,10 @@ exports.previewLinkedLoadsInvoice = async (req, res) => {
         INNER JOIN tblLoads l ON ll.LoadID = l.ID
         WHERE c.CompanyName = ${CompanyName}
           AND l.DeliveryDate BETWEEN ${StartDate} AND ${EndDate}
+          AND l.Void = 0
           AND ll.Paid = 0
-          AND ll.Void = 0`;
+          AND ll.Void = 0
+          AND ll.Purchase = ${Purchase}`;
 
         if (loadsResult.recordset.length === 0) {
             return res.status(404).json({ message: 'No linked loads found for the specified company and date range' });

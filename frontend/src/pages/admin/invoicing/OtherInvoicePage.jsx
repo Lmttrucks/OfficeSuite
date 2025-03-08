@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
-import OtherInvoiceGenFrm from '../../../components/outinvoice/otherinvoices/OtherInvoiceGenFrm';
-import OtherInvoicePreviewTable from '../../../components/outinvoice/otherinvoices/OtherInvoicePreviewTable';
-import OtherInvoicePreviewForm from '../../../components/outinvoice/otherinvoices/OtherInvoicePreviewForm';
-import InvoicePDFViewer from '../../../components/outinvoice/InvoicePDFViewer';
+import OtherInvoiceGenFrm from '../../../components/invoice/otherinvoices/OtherInvoiceGenFrm';
+import OtherInvoicePreviewTable from '../../../components/invoice/otherinvoices/OtherInvoicePreviewTable';
+import OtherInvoicePreviewForm from '../../../components/invoice/otherinvoices/OtherInvoicePreviewForm';
+import InvoicePDFViewer from '../../../components/invoice/InvoicePDFViewer';
 import axios from 'axios';
 import config from '../../../config';
 
@@ -49,7 +49,7 @@ const OtherInvoicePage = () => {
       };
 
       const response = await axios.post(
-        `${config.apiBaseUrl}/invoices/insertOutInvoice`,
+        `${config.apiBaseUrl}/invoices/insertInvoice`,
         {
           CompanyID: updatedInvoiceData.companyID,
           StartDate: updatedInvoiceData.startDate,

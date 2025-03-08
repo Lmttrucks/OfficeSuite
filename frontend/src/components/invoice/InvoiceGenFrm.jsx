@@ -1,11 +1,12 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Box, Button, TextField, Autocomplete, Grid } from '@mui/material';
+import { Box, Button, TextField, Autocomplete, Grid, FormControlLabel, Checkbox } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
-import config from '../../../config';
-import axios from 'axios';
+import config from '../../config';
+import InvoicePreviewTable from './InvoicePreviewTable'; // Correct import path
+import axios from 'axios'; // Import axios
 import PropTypes from 'prop-types';
 
-const LinkInvoiceGenForm = ({
+const InvoiceGenFrm = ({
   initialData = {},
   onFormUpdate = () => {},
   onPreview = () => {}
@@ -14,10 +15,13 @@ const LinkInvoiceGenForm = ({
     companyName: initialData.companyName || '',
     startDate: initialData.startDate || '',
     endDate: initialData.endDate || '',
-    vatRate: initialData.vatRate || 23 // Default VAT rate
+    vatRate: initialData.vatRate || 23, // Default VAT rate
+    jobID: initialData.jobID || '' // Add jobID to the state
   });
+  const [purchase, setPurchase] = useState(false); // Set to false by default
 
   const [localCompanies, setLocalCompanies] = useState([]);
+  const [localJobs, setLocalJobs] = useState([]);
   const navigate = useNavigate();
 
   const loadLocalData = (key) => {
@@ -33,6 +37,7 @@ const LinkInvoiceGenForm = ({
 
   useEffect(() => {
     setLocalCompanies(loadLocalData('localCompanies'));
+    setLocalJobs(loadLocalData('localJobs'));
   }, []);
 
   const handleChange = (e) => {
@@ -45,15 +50,19 @@ const LinkInvoiceGenForm = ({
       companyName: '',
       startDate: '',
       endDate: '',
-      vatRate: 23 // Reset VAT rate to default
+      vatRate: 23, // Reset VAT rate to default
+      jobID: '' // Reset jobID
     });
+    setPurchase(false); // Reset purchase to false
     onFormUpdate({
       companyID: '',
       companyName: '',
       startDate: '',
       endDate: '',
       vatRate: 23, // Reset VAT rate to default
-      previewData: []
+      jobID: '', // Reset jobID
+      previewData: [],
+      purchase: false // Reset purchase to false
     });
   };
 
@@ -66,7 +75,9 @@ const LinkInvoiceGenForm = ({
       const dataToSend = {
         CompanyName: company.CompanyName,
         StartDate: displayFormData.startDate,
-        EndDate: displayFormData.endDate
+        EndDate: displayFormData.endDate,
+        JobID: displayFormData.jobID, // Include jobID in the request
+        Purchase: purchase // Include purchase in the request
       };
 
       // Fetch company info
@@ -76,9 +87,9 @@ const LinkInvoiceGenForm = ({
       );
       const companyInfo = companyInfoResponse.data;
 
-      // Fetch linked loads for preview
+      // Fetch loads for preview
       const loadsResponse = await axios.post(
-        `${config.apiBaseUrl}/invoices/previewLinkedLoadsInvoice`,
+        `${config.apiBaseUrl}/invoices/previewInvoice`,
         dataToSend,
         config.getAuthHeaders()
       );
@@ -90,7 +101,6 @@ const LinkInvoiceGenForm = ({
         (acc, row) => acc + row.Rate * row.UnitQuantity,
         0
       );
-      const totalQuantity = loads.reduce((acc, row) => acc + row.UnitQuantity, 0); // Compute total quantity
       const vatRate = parseFloat(displayFormData.vatRate);
       const vatAmount = totalAmount * (vatRate / 100);
       const paymentAmount = totalAmount + vatAmount;
@@ -104,23 +114,21 @@ const LinkInvoiceGenForm = ({
         loads: loads,
         loadCount: loadCount,
         totalAmount: totalAmount.toFixed(2),
-        totalQuantity: totalQuantity.toFixed(2), // Add total quantity
         vatRate: vatRate,
         vatAmount: vatAmount.toFixed(2),
-        paymentAmount: paymentAmount.toFixed(2)
+        paymentAmount: paymentAmount.toFixed(2),
+        purchase: purchase // Include purchase in the updated form data
       };
 
-      console.log('Updated Form Data:', updatedFormData); // Add this line
-
       onPreview(updatedFormData);
-      navigate('/admin/invoicing/link-invoice', {
+      navigate('/admin/invoicing/preview', {
         state: { formData: updatedFormData }
       });
     } catch (error) {
       console.error(error);
-      alert('Error fetching company info or linked loads');
+      alert('Error fetching company info or loads');
     }
-  }, [displayFormData, localCompanies, navigate, onPreview]);
+  }, [displayFormData, localCompanies, navigate, onPreview, purchase]);
 
   return (
     <Box>
@@ -181,6 +189,30 @@ const LinkInvoiceGenForm = ({
               value={displayFormData.vatRate}
               fullWidth
             />
+            <Autocomplete
+              freeSolo
+              options={localJobs.map((j) => j.JobID)}
+              getOptionLabel={(option) => option || ''}
+              value={displayFormData.jobID || ''}
+              onInputChange={(event, newInputValue) => {
+                setDisplayFormData((prev) => ({
+                  ...prev,
+                  jobID: newInputValue
+                }));
+              }}
+              renderInput={(params) => (
+                <TextField {...params} label="Job ID" name="jobID" />
+              )}
+            />
+            <FormControlLabel
+              control={
+                <Checkbox
+                  checked={purchase}
+                  onChange={(e) => setPurchase(e.target.checked)}
+                />
+              }
+              label="Purchase"
+            />
           </Grid>
           <Grid
             item
@@ -197,14 +229,17 @@ const LinkInvoiceGenForm = ({
           </Grid>
         </Grid>
       </form>
+      {displayFormData.loads && displayFormData.loads.length > 0 && (
+        <InvoicePreviewTable data={displayFormData.loads} />
+      )}
     </Box>
   );
 };
 
-LinkInvoiceGenForm.propTypes = {
+InvoiceGenFrm.propTypes = {
   initialData: PropTypes.object.isRequired,
   onFormUpdate: PropTypes.func.isRequired,
   onPreview: PropTypes.func.isRequired
 };
 
-export default LinkInvoiceGenForm;
+export default InvoiceGenFrm;

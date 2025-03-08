@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
-import LinkInvoiceGenForm from '../../../components/outinvoice/linkinvoicing/LinkInvoiceGenForm';
-import LinkInvoicePreviewForm from '../../../components/outinvoice/linkinvoicing/LinkInvoicePreviewForm';
-import LinkInvoicePreviewTable from '../../../components/outinvoice/linkinvoicing/LinkInvoicePreviewTable';
-import InvoicePDFViewer from '../../../components/outinvoice/InvoicePDFViewer';
+import LinkInvoiceGenForm from '../../../components/invoice/linkinvoicing/LinkInvoiceGenForm';
+import LinkInvoicePreviewForm from '../../../components/invoice/linkinvoicing/LinkInvoicePreviewForm';
+import LinkInvoicePreviewTable from '../../../components/invoice/linkinvoicing/LinkInvoicePreviewTable';
+import InvoicePDFViewer from '../../../components/invoice/InvoicePDFViewer';
 import axios from 'axios';
 import config from '../../../config';
 
@@ -35,7 +35,8 @@ const LinkInvoicePage = () => {
         {
           CompanyName: updatedFormData.companyName,
           StartDate: updatedFormData.startDate,
-          EndDate: updatedFormData.endDate
+          EndDate: updatedFormData.endDate,
+          Purchase: updatedFormData.purchase // Include Purchase in the request
         },
         config.getAuthHeaders()
       );
@@ -63,7 +64,7 @@ const LinkInvoicePage = () => {
       };
 
       const response = await axios.post(
-        `${config.apiBaseUrl}/invoices/insertOutInvoice`,
+        `${config.apiBaseUrl}/invoices/insertInvoice`,
         {
           CompanyID: updatedInvoiceData.companyID,
           StartDate: updatedInvoiceData.startDate,
@@ -71,7 +72,8 @@ const LinkInvoicePage = () => {
           VatRate: updatedInvoiceData.vatRate,
           LoadCount: updatedInvoiceData.loadCount,
           PaymentAmount: updatedInvoiceData.paymentAmount,
-          UserID: localStorage.getItem('userID')
+          UserID: localStorage.getItem('userID'),
+          Purchase: updatedInvoiceData.purchase // Include Purchase in the request
         },
         config.getAuthHeaders()
       );
