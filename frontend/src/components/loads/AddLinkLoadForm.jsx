@@ -10,6 +10,8 @@ const AddLinkLoadForm = ({ loadID, handleCloseModal }) => {
   const [purchase, setPurchase] = useState(true); // Set to purchase by default
   const [localCompanies, setLocalCompanies] = useState([]);
   const [linkedLoads, setLinkedLoads] = useState([]); // State to store linked loads
+  const [loading, setLoading] = useState(true); // State to handle loading
+  const [error, setError] = useState(null); // State to handle errors
 
   useEffect(() => {
     const loadLocalData = (key) => {
@@ -28,11 +30,17 @@ const AddLinkLoadForm = ({ loadID, handleCloseModal }) => {
     // Fetch linked loads for the given LoadID
     const fetchLinkedLoads = async () => {
       try {
-        const response = await fetch(`${config.apiBaseUrl}/loads/linked-loads/${loadID}`, config.getAuthHeaders());
+        const response = await fetch(`${config.apiBaseUrl}/link-loads/linked-loads/${loadID}`, config.getAuthHeaders());
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
         const data = await response.json();
         setLinkedLoads(data);
       } catch (error) {
         console.error('Error fetching linked loads:', error);
+        setError(error.message);
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -43,7 +51,7 @@ const AddLinkLoadForm = ({ loadID, handleCloseModal }) => {
     e.preventDefault();
 
     try {
-      const response = await fetch(`${config.apiBaseUrl}/loads/add-link-load`, {
+      const response = await fetch(`${config.apiBaseUrl}/link-loads/add-link-load`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -137,15 +145,23 @@ const AddLinkLoadForm = ({ loadID, handleCloseModal }) => {
         </Grid>
         <Grid item xs={12}>
           <Typography variant="h6">Linked Loads</Typography>
-          <List>
-            {linkedLoads.map((linkedLoad) => (
-              <ListItem key={linkedLoad.ID}>
-                <ListItemText
-                  primary={`Link No: ${linkedLoad.LinkNo}, Rate: ${linkedLoad.Rate}, Purchase: ${linkedLoad.Purchase ? 'Yes' : 'No'}`}
-                />
-              </ListItem>
-            ))}
-          </List>
+          {loading ? (
+            <Typography>Loading...</Typography>
+          ) : error ? (
+            <Typography color="error">{error}</Typography>
+          ) : linkedLoads.length === 0 ? (
+            <Typography>No Links</Typography>
+          ) : (
+            <List>
+              {linkedLoads.map((linkedLoad) => (
+                <ListItem key={linkedLoad.ID}>
+                  <ListItemText
+                    primary={`Company: ${linkedLoad.CompanyName}, Link No: ${linkedLoad.LinkNo}, Rate: ${linkedLoad.Rate}, Purchase: ${linkedLoad.Purchase ? 'Yes' : 'No'}`}
+                  />
+                </ListItem>
+              ))}
+            </List>
+          )}
         </Grid>
       </Grid>
     </Box>

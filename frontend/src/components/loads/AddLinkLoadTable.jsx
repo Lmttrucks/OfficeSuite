@@ -11,7 +11,7 @@ const AddLinkLoadTable = ({ refreshTable }) => {
   useEffect(() => {
     const fetchLoads = async () => {
       try {
-        const response = await fetch(`${config.apiBaseUrl}/loads/external-loads`, {
+        const response = await fetch(`${config.apiBaseUrl}/link-loads/external-loads`, {
           headers: {
             ...config.getAuthHeaders().headers
           }

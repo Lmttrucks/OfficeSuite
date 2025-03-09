@@ -208,3 +208,57 @@ exports.getLinkedLoadsByLoadID = async (req, res) => {
         res.status(500).json({ message: 'Failed to fetch linked loads', error: err.message });
     }
 };
+
+exports.getLast1000LinkedLoads = async (req, res) => {
+    try {
+        const result = await sql.query`
+            SELECT 
+                ll.ID,
+                ll.LoadID,
+                ll.Rate,
+                c.CompanyName,
+                l.PermitNo,
+                l.WeightDocNo,
+                l.Origin,
+                l.Destination,
+                l.UnitQuantity,
+                l.DeliveryDate,
+                ll.Purchase,
+                ll.InvoiceNo
+            FROM tblLinkLoads ll
+            INNER JOIN tblCompanies c ON ll.CompanyID = c.CompanyID
+            INNER JOIN tblLoads l ON ll.LoadID = l.ID
+            WHERE l.Void = 0
+              AND ll.Paid = 0
+              AND ll.Void = 0
+            ORDER BY ll.ID DESC
+            OFFSET 0 ROWS FETCH NEXT 1000 ROWS ONLY`;
+
+        if (result.recordset.length === 0) {
+            return res.status(404).json({ message: 'No linked loads found' });
+        }
+
+        res.json(result.recordset);
+    } catch (err) {
+        res.status(500).json({ message: 'Failed to fetch linked loads', error: err.message });
+    }
+};
+
+exports.deleteLinkLoad = async (req, res) => {
+    const { id } = req.params;
+
+    try {
+        const result = await sql.query`
+            UPDATE tblLinkLoads
+            SET Void = 1
+            WHERE ID = ${id}`;
+
+        if (result.rowsAffected[0] === 0) {
+            return res.status(404).json({ message: "Link load not found." });
+        }
+
+        res.json({ message: "Link load marked as void successfully." });
+    } catch (err) {
+        res.status(500).json({ message: 'Failed to mark link load as void', error: err.message });
+    }
+};

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import AddLinkLoadTable from '../../../components/loads/AddLinkLoadTable';
+import LinkedLoadsTable from '../../../components/loads/LinkedLoadsTable';
 
 const LinkLoadPage = () => {
   const [refreshTable, setRefreshTable] = useState(false);
@@ -11,7 +11,7 @@ const LinkLoadPage = () => {
   return (
     <div>
       <h1>Link Load</h1>
-      <AddLinkLoadTable refreshTable={refreshTable} />
+      <LinkedLoadsTable refresh={refreshTable} />
     </div>
   );
 };

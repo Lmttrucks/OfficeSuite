@@ -7,6 +7,9 @@ router.post('/add-link-load', authenticateToken, authorizeRoles(['admin', 'manag
 router.put('/update-link-load/:ID', authenticateToken, authorizeRoles(['admin', 'manager']), linkLoadController.updateLinkLoad);
 router.put('/update-link-load-invoice-no', authenticateToken, authorizeRoles(['admin', 'manager']), linkLoadController.updateLinkLoadInvoiceNo);
 router.get('/external-loads', authenticateToken, authorizeRoles(['admin', 'manager']), linkLoadController.getExternalLoads);
-router.get('/linked-loads/:loadID', authenticateToken, authorizeRoles(['admin', 'manager']), linkLoadController.getLinkedLoadsByLoadID); // Add this line
+router.get('/linked-loads/:loadID', authenticateToken, authorizeRoles(['admin', 'manager']), linkLoadController.getLinkedLoadsByLoadID);
+router.delete('/link-loads/:id', authenticateToken, authorizeRoles(['admin', 'manager']), linkLoadController.deleteLinkLoad);
+router.put('/link-loads/:id', authenticateToken, authorizeRoles(['admin', 'manager']), linkLoadController.updateLinkLoad);
+router.get('/last-1000-linked-loads', authenticateToken, authorizeRoles(['admin', 'manager']), linkLoadController.getLast1000LinkedLoads);
 
 module.exports = router;

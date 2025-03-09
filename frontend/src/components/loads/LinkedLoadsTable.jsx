@@ -3,37 +3,17 @@ import PropTypes from 'prop-types';
 import { Box, CircularProgress, Typography, Button, Modal } from '@mui/material';
 import { DataGrid } from '@mui/x-data-grid';
 import config from '../../config';
-import EditLoadForm from './EditLoadForm';
-import AddLinkLoadForm from './AddLinkLoadForm';
+import EditLinkLoadForm from './EditLinkLoadForm';
 
-const Last1000Table = ({ refresh }) => {
+const LinkedLoadsTable = ({ refresh }) => {
   const [records, setRecords] = useState([]);
   const [loading, setLoading] = useState(true);
   const [editingLoad, setEditingLoad] = useState(null);
-  const [linkingLoad, setLinkingLoad] = useState(null);
-  const [selectedColumns, setSelectedColumns] = useState([
-    'ID',
-    'JobID',
-    'CompanyName',
-    'PermitNo',
-    'WeightDocNo',
-    'DeliveryDate',
-    'UnitQuantity',
-    'Gross',
-    'Origin',
-    'Destination',
-    'InvoiceNo',
-    'WeightDocURL',
-    'PermitURL',
-    'Purchase',
-    'Rate', // Add this line
-    'actions'
-  ]);
 
   const fetchRecords = async () => {
     try {
       const response = await fetch(
-        `${config.apiBaseUrl}/loads/last-1000-loads`,
+        `${config.apiBaseUrl}/link-loads/last-1000-linked-loads`,
         config.getAuthHeaders()
       );
       const data = await response.json();
@@ -46,7 +26,7 @@ const Last1000Table = ({ refresh }) => {
 
   const handleDelete = async (id) => {
     try {
-      const response = await fetch(`${config.apiBaseUrl}/loads/${id}`, {
+      const response = await fetch(`${config.apiBaseUrl}/link-loads/${id}`, {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',
@@ -74,59 +54,18 @@ const Last1000Table = ({ refresh }) => {
     fetchRecords();
   }, [refresh]);
 
-  const allColumns = [
+  const columns = [
     { field: 'ID', headerName: 'ID', width: 70 },
-    { field: 'JobID', headerName: 'Job ID', width: 100 },
     { field: 'CompanyName', headerName: 'Company Name', width: 150 },
-    { field: 'InvoiceNo', headerName: 'Invoice No', width: 150 },
+    { field: 'Rate', headerName: 'Rate', width: 100 },
     { field: 'PermitNo', headerName: 'Permit No', width: 130 },
     { field: 'WeightDocNo', headerName: 'Weight Doc No', width: 130 },
-    { field: 'DeliveryDate', headerName: 'Delivery Date', width: 150 },
-    { field: 'UnitQuantity', headerName: 'Net (Unit Qty)', width: 120 },
-    { field: 'Gross', headerName: 'Gross', width: 100 },
     { field: 'Origin', headerName: 'Origin', width: 100 },
     { field: 'Destination', headerName: 'Destination', width: 100 },
-    {
-      field: 'WeightDocURL',
-      headerName: 'W',
-      width: 50,
-      renderCell: (params) =>
-        params.row.WeightDocURL && (
-          <Button
-            variant="contained"
-            size="small"
-            onClick={() => window.open(params.row.WeightDocURL, '_blank')}
-          >
-            W
-          </Button>
-        )
-    },
-    {
-      field: 'PermitURL',
-      headerName: 'P',
-      width: 50,
-      renderCell: (params) =>
-        params.row.PermitURL && (
-          <Button
-            variant="contained"
-            size="small"
-            onClick={() => window.open(params.row.PermitURL, '_blank')}
-          >
-            P
-          </Button>
-        )
-    },
-    {
-      field: 'Purchase',
-      headerName: 'Purchase',
-      width: 100,
-      renderCell: (params) => (params.row.Purchase ? 'Yes' : 'No')
-    },
-    {
-      field: 'Rate', // Add this column
-      headerName: 'Rate',
-      width: 100
-    },
+    { field: 'UnitQuantity', headerName: 'Unit Quantity', width: 120 },
+    { field: 'DeliveryDate', headerName: 'Delivery Date', width: 150 },
+    { field: 'Purchase', headerName: 'Purchase', width: 100, renderCell: (params) => (params.row.Purchase ? 'Yes' : 'No') },
+    { field: 'InvoiceNo', headerName: 'Invoice No', width: 150 },
     {
       field: 'actions',
       headerName: 'Actions',
@@ -144,14 +83,6 @@ const Last1000Table = ({ refresh }) => {
           <Button
             variant="contained"
             size="small"
-            onClick={() => setLinkingLoad(params.row)}
-            sx={{ mr: 1 }}
-          >
-            Link
-          </Button>
-          <Button
-            variant="contained"
-            size="small"
             color="secondary"
             onClick={() => handleDelete(params.row.ID)}
           >
@@ -161,10 +92,6 @@ const Last1000Table = ({ refresh }) => {
       )
     }
   ];
-
-  const filteredColumns = allColumns.filter((col) =>
-    selectedColumns.includes(col.field)
-  );
 
   if (loading) {
     return (
@@ -185,19 +112,19 @@ const Last1000Table = ({ refresh }) => {
   }
 
   return (
-    <div style={{ height: 400, width: '100%' }}>
+    <div style={{ height: '80vh', width: '100%' }}> {/* Adjust the height here */}
       <DataGrid
         rows={records}
-        columns={filteredColumns}
-        pageSize={5}
+        columns={columns}
+        pageSize={10} // Increase the page size if needed
         getRowId={(row) => row.ID}
       />
 
       <Modal
         open={!!editingLoad}
         onClose={() => setEditingLoad(null)}
-        aria-labelledby="edit-load-modal-title"
-        aria-describedby="edit-load-modal-description"
+        aria-labelledby="edit-link-load-modal-title"
+        aria-describedby="edit-link-load-modal-description"
       >
         <Box sx={{ 
           position: 'absolute', 
@@ -210,35 +137,10 @@ const Last1000Table = ({ refresh }) => {
           p: 4 
         }}>
           {editingLoad && (
-            <EditLoadForm
+            <EditLinkLoadForm
               editingLoad={editingLoad}
               setEditingLoad={setEditingLoad}
               handleRefreshTable={fetchRecords}
-            />
-          )}
-        </Box>
-      </Modal>
-
-      <Modal
-        open={!!linkingLoad}
-        onClose={() => setLinkingLoad(null)}
-        aria-labelledby="link-load-modal-title"
-        aria-describedby="link-load-modal-description"
-      >
-        <Box sx={{ 
-          position: 'absolute', 
-          top: '50%', 
-          left: '50%', 
-          transform: 'translate(-50%, -50%)', 
-          width: 400, 
-          bgcolor: 'background.paper', 
-          boxShadow: 24, 
-          p: 4 
-        }}>
-          {linkingLoad && (
-            <AddLinkLoadForm
-              loadID={linkingLoad.ID}
-              handleCloseModal={() => setLinkingLoad(null)}
             />
           )}
         </Box>
@@ -247,8 +149,8 @@ const Last1000Table = ({ refresh }) => {
   );
 };
 
-Last1000Table.propTypes = {
+LinkedLoadsTable.propTypes = {
   refresh: PropTypes.bool.isRequired
 };
 
-export default Last1000Table;
+export default LinkedLoadsTable;
