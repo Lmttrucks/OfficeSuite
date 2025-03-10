@@ -38,6 +38,7 @@ function AdminMenu() {
   const [companiesMenuOpen, setCompaniesMenuOpen] = useState(false);
   const [jobsMenuOpen, setJobsMenuOpen] = useState(false);
   const [usersMenuOpen, setUsersMenuOpen] = useState(false);
+  const [employeesMenuOpen, setEmployeesMenuOpen] = useState(false); // Add this line
 
   const loadsSubmenuItems = [
     { text: 'Load Search', path: '/admin/loads/search' },
@@ -70,6 +71,11 @@ function AdminMenu() {
     { text: 'Delete User', path: '/admin/users/delete' }
   ];
 
+  const employeesSubmenuItems = [
+    { text: 'Add Employee', path: '/admin/employees/add' }, // Add this line
+    { text: 'Edit Employee', path: '/admin/employees/edit/:id' } // Add this line
+  ];
+
   const handleLoadsClick = () => {
     setLoadsMenuOpen(!loadsMenuOpen);
   };
@@ -82,12 +88,17 @@ function AdminMenu() {
     setJobsMenuOpen(!jobsMenuOpen);
   };
 
+  const handleEmployeesClick = () => {
+    setEmployeesMenuOpen(!employeesMenuOpen); // Add this line
+  };
+
   const resetMenuState = () => {
     setLoadsMenuOpen(false);
     setInvoicingMenuOpen(false);
     setCompaniesMenuOpen(false);
     setJobsMenuOpen(false);
     setUsersMenuOpen(false);
+    setEmployeesMenuOpen(false); // Add this line
   };
 
   return (
@@ -220,6 +231,29 @@ function AdminMenu() {
         <Collapse in={usersMenuOpen} timeout="auto" unmountOnExit>
           <List component="div" disablePadding>
             {usersSubmenuItems.map((submenuItem) => (
+              <ListItem key={submenuItem.text} disablePadding>
+                <ListItemButton onClick={() => navigate(submenuItem.path)}>
+                  {isExpanded && (
+                    <ListItemText primary={submenuItem.text} inset />
+                  )}
+                </ListItemButton>
+              </ListItem>
+            ))}
+          </List>
+        </Collapse>
+
+        <ListItem disablePadding>
+          <ListItemButton onClick={handleEmployeesClick}> {/* Add this block */}
+            <ListItemIcon>
+              <People />
+            </ListItemIcon>
+            {isExpanded && <ListItemText primary="Employees" />}
+            {isExpanded && (employeesMenuOpen ? <ExpandLess /> : <ExpandMore />)}
+          </ListItemButton>
+        </ListItem>
+        <Collapse in={employeesMenuOpen} timeout="auto" unmountOnExit>
+          <List component="div" disablePadding>
+            {employeesSubmenuItems.map((submenuItem) => (
               <ListItem key={submenuItem.text} disablePadding>
                 <ListItemButton onClick={() => navigate(submenuItem.path)}>
                   {isExpanded && (

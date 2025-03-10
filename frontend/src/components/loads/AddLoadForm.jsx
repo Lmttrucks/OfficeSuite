@@ -76,7 +76,7 @@ const AddLoadForm = ({ onLoadAdded }) => {
       });
 
       if (response.ok) {
-     setFormData((prev) => ({
+        setFormData((prev) => ({
           ...prev,
           permitNo: '',
           weightDocNo: '',
@@ -84,6 +84,7 @@ const AddLoadForm = ({ onLoadAdded }) => {
           gross: '',
           tare: '0'
         }));
+        onLoadAdded(); // Call onLoadAdded after successful submission
       } else {
         alert('Failed to submit load');
       }

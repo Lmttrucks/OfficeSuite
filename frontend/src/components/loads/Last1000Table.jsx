@@ -15,6 +15,8 @@ const Last1000Table = ({ refresh }) => {
     'ID',
     'JobID',
     'CompanyName',
+    'EmployeeName', // Add this line
+    'VehicleReg', // Add this line
     'PermitNo',
     'WeightDocNo',
     'DeliveryDate',
@@ -23,10 +25,8 @@ const Last1000Table = ({ refresh }) => {
     'Origin',
     'Destination',
     'InvoiceNo',
-    'WeightDocURL',
-    'PermitURL',
     'Purchase',
-    'Rate', // Add this line
+    'Rate',
     'actions'
   ]);
 
@@ -78,6 +78,8 @@ const Last1000Table = ({ refresh }) => {
     { field: 'ID', headerName: 'ID', width: 70 },
     { field: 'JobID', headerName: 'Job ID', width: 100 },
     { field: 'CompanyName', headerName: 'Company Name', width: 150 },
+    { field: 'EmployeeName', headerName: 'Employee Name', width: 150 }, // Add this column
+    { field: 'VehicleReg', headerName: 'Vehicle Reg', width: 150 }, // Add this column
     { field: 'InvoiceNo', headerName: 'Invoice No', width: 150 },
     { field: 'PermitNo', headerName: 'Permit No', width: 130 },
     { field: 'WeightDocNo', headerName: 'Weight Doc No', width: 130 },
@@ -123,7 +125,7 @@ const Last1000Table = ({ refresh }) => {
       renderCell: (params) => (params.row.Purchase ? 'Yes' : 'No')
     },
     {
-      field: 'Rate', // Add this column
+      field: 'Rate',
       headerName: 'Rate',
       width: 100
     },
@@ -185,11 +187,11 @@ const Last1000Table = ({ refresh }) => {
   }
 
   return (
-    <div style={{ height: 400, width: '100%' }}>
+    <div style={{ height: '80vh', width: '100%' }}> {/* Adjust the height here */}
       <DataGrid
         rows={records}
         columns={filteredColumns}
-        pageSize={5}
+        pageSize={10} // Increase the page size if needed
         getRowId={(row) => row.ID}
       />
 
