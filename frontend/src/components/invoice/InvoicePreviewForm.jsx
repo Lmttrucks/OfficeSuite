@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { Box, Button, TextField, Grid } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 
-const InvoicePreviewForm = ({ previewData, formData, onGenerate }) => {
+const InvoicePreviewForm = ({ previewData, formData, onGenerate, onPrintPreview }) => {
   const navigate = useNavigate();
 
   const handleClear = () => {
@@ -115,6 +115,15 @@ const InvoicePreviewForm = ({ previewData, formData, onGenerate }) => {
             type="button"
             variant="contained"
             color="primary"
+            onClick={onPrintPreview} // Add print preview button
+            sx={{ mr: 2 }}
+          >
+            Preview
+          </Button>
+          <Button
+            type="button"
+            variant="contained"
+            color="primary"
             onClick={onGenerate}
           >
             Generate Invoice
@@ -139,7 +148,8 @@ InvoicePreviewForm.propTypes = {
     paymentAmount: PropTypes.number,
     purchase: PropTypes.bool // Add purchase
   }).isRequired,
-  onGenerate: PropTypes.func.isRequired
+  onGenerate: PropTypes.func.isRequired,
+  onPrintPreview: PropTypes.func.isRequired // Add print preview prop
 };
 
 export default InvoicePreviewForm;

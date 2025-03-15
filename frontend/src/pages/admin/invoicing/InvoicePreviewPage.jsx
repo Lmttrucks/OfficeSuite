@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useLocation } from 'react-router-dom';
+import { Button } from '@mui/material';
 import InvoiceGenFrm from '../../../components/invoice/InvoiceGenFrm';
 import InvoicePreviewTable from '../../../components/invoice/InvoicePreviewTable';
 import InvoicePreviewForm from '../../../components/invoice/InvoicePreviewForm';
@@ -28,6 +29,23 @@ const InvoicePreviewPage = () => {
   const handlePreview = (updatedFormData) => {
     setInvoiceData(updatedFormData);
     setStep(2);
+  };
+
+  const handlePrintPreview = () => {
+    const updatedInvoiceData = {
+      ...invoiceData,
+      loadCount: invoiceData.loads?.length || 0,
+      paymentAmount:
+        (invoiceData.loads || []).reduce(
+          (acc, row) => acc + row.Rate * row.UnitQuantity,
+          0
+        ) *
+        (1 + (invoiceData.vatRate || 0) / 100),
+      invoiceNo: '' // Set invoice number to blank for print preview
+    };
+
+    setInvoiceData(updatedInvoiceData);
+    setStep(3); // Move to print preview step
   };
 
   const handleGenerate = async () => {
@@ -85,7 +103,7 @@ const InvoicePreviewPage = () => {
       };
       console.log('Final Invoice Data:', finalInvoiceData);
       setInvoiceData(finalInvoiceData);
-      setStep(3);
+      setStep(4); // Move to final invoice step
     } catch (error) {
       console.error('Failed to generate invoice', error);
       alert('Failed to generate invoice');
@@ -108,8 +126,20 @@ const InvoicePreviewPage = () => {
             onFormUpdate={handleFormUpdate}
             onVatRateUpdate={handleVatRateUpdate}
             onGenerate={handleGenerate}
+            onPrintPreview={handlePrintPreview} // Add print preview handler
           />
           <InvoicePreviewTable data={invoiceData.loads} />
+        </>
+      ) : step === 3 ? (
+        <>
+          <InvoicePDFViewer invoiceData={invoiceData} /> {/* Use InvoicePDFViewer for print preview */}
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={() => setStep(2)}
+          >
+            Back
+          </Button>
         </>
       ) : (
         <>
