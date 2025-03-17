@@ -8,5 +8,6 @@ router.get('/:jobID', authenticateToken, authorizeRoles(['admin', 'manager']), g
 router.post('/', authenticateToken, authorizeRoles(['admin']), createJob);
 router.put('/:jobID', authenticateToken, authorizeRoles(['admin']), updateJob);
 router.delete('/:jobID', authenticateToken, authorizeRoles(['admin']), deleteJob);
+router.get('/defaults', authenticateToken, authorizeRoles(['admin', 'manager']), JobsDefaults);
 
 module.exports = router;

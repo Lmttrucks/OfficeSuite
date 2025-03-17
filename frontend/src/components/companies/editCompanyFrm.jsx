@@ -52,6 +52,30 @@ function EditCompanyFrm() {
     }
   };
 
+  const handleDelete = async () => {
+    if (!selectedCompany) {
+      alert('Please select a company to delete');
+      return;
+    }
+
+    if (window.confirm('Are you sure you want to delete this company?')) {
+      try {
+        await api.delete(`/companies/${selectedCompany}`);
+        alert('Company deleted successfully');
+        setCompanies(companies.filter(company => company.CompanyID !== selectedCompany));
+        setSelectedCompany('');
+        setFormData({
+          CompanyName: '',
+          CompanyAddress: '',
+          CompanyPhone: '',
+          CompanyEmail: ''
+        });
+      } catch (error) {
+        console.error('There was an error deleting the company!', error);
+      }
+    }
+  };
+
   return (
     <form onSubmit={handleSubmit}>
       <div>
@@ -106,6 +130,7 @@ function EditCompanyFrm() {
         />
       </div>
       <button type="submit">Submit</button>
+      <button type="button" onClick={handleDelete} style={{ marginLeft: '10px' }}>Delete</button>
     </form>
   );
 }

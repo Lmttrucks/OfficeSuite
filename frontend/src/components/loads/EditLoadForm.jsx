@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
-import { Box, Button, TextField, Grid } from '@mui/material';
+import { Box, Button, TextField, Grid, FormControlLabel, Checkbox } from '@mui/material';
 import config from '../../config';
 
 const EditLoadForm = ({ editingLoad, setEditingLoad, handleRefreshTable }) => {
   const [originalLoad, setOriginalLoad] = useState({});
+  const [purchase, setPurchase] = useState(editingLoad.Purchase || false); // Set to false by default
 
   useEffect(() => {
     if (editingLoad && !originalLoad.ID) {
@@ -24,6 +25,11 @@ const EditLoadForm = ({ editingLoad, setEditingLoad, handleRefreshTable }) => {
     const changedData = Object.fromEntries(
       Object.entries(filteredData).filter(([key, value]) => originalLoad[key] !== value)
     );
+
+    // Include the purchase field if it has changed
+    if (originalLoad.Purchase !== purchase) {
+      changedData.Purchase = purchase;
+    }
 
     if (Object.keys(changedData).length === 0) {
       alert('No changes to save.');
@@ -53,8 +59,8 @@ const EditLoadForm = ({ editingLoad, setEditingLoad, handleRefreshTable }) => {
   };
 
   const handleChange = (e) => {
-    const { name, value } = e.target;
-    setEditingLoad({ ...editingLoad, [name]: value });
+    const { name, value, type, checked } = e.target;
+    setEditingLoad({ ...editingLoad, [name]: type === 'checkbox' ? checked : value });
   };
 
   const formatDate = (dateString) => {
@@ -158,17 +164,52 @@ const EditLoadForm = ({ editingLoad, setEditingLoad, handleRefreshTable }) => {
           />
         </Grid>
         <Grid item xs={12} sm={4}>
-          <TextField
+          <FormControlLabel
+            control={
+              <Checkbox
+                checked={editingLoad.Archived || false}
+                onChange={handleChange}
+                name="Archived"
+              />
+            }
             label="Archived"
-            name="Archived"
-            value={editingLoad.Archived || ''}
-            onChange={handleChange}
-            fullWidth
           />
+          <FormControlLabel
+            control={
+              <Checkbox
+                checked={editingLoad.Paid || false}
+                onChange={handleChange}
+                name="Paid"
+              />
+            }
+            label="Paid"
+          />
+          <FormControlLabel
+            control={
+              <Checkbox
+                checked={editingLoad.Checked || false}
+                onChange={handleChange}
+                name="Checked"
+              />
+            }
+            label="Checked"
+          />
+          <FormControlLabel
+            control={
+              <Checkbox
+                checked={editingLoad.PaperDocFiled || false}
+                onChange={handleChange}
+                name="PaperDocFiled"
+              />
+            }
+            label="Paper Doc Filed"
+          />
+        </Grid>
+        <Grid item xs={12} sm={4}>
           <TextField
-            label="Outgoing Invoice No"
-            name="OutgoingInvoiceNo"
-            value={editingLoad.OutgoingInvoiceNo || ''}
+            label="Invoice No"
+            name="InvoiceNo"
+            value={editingLoad.InvoiceNo || ''}
             onChange={handleChange}
             fullWidth
           />
@@ -189,20 +230,6 @@ const EditLoadForm = ({ editingLoad, setEditingLoad, handleRefreshTable }) => {
         </Grid>
         <Grid item xs={12} sm={4}>
           <TextField
-            label="Paid"
-            name="Paid"
-            value={editingLoad.Paid || ''}
-            onChange={handleChange}
-            fullWidth
-          />
-          <TextField
-            label="Checked"
-            name="Checked"
-            value={editingLoad.Checked || ''}
-            onChange={handleChange}
-            fullWidth
-          />
-          <TextField
             label="Permit URL"
             name="PermitURL"
             value={editingLoad.PermitURL || ''}
@@ -216,21 +243,21 @@ const EditLoadForm = ({ editingLoad, setEditingLoad, handleRefreshTable }) => {
             onChange={handleChange}
             fullWidth
           />
-        </Grid>
-        <Grid item xs={12} sm={4}>
-          <TextField
-            label="Paper Doc Filed"
-            name="PaperDocFiled"
-            value={editingLoad.PaperDocFiled || ''}
-            onChange={handleChange}
-            fullWidth
-          />
           <TextField
             label="Mobile UL"
             name="MobileUL"
             value={editingLoad.MobileUL || ''}
             onChange={handleChange}
             fullWidth
+          />
+          <FormControlLabel
+            control={
+              <Checkbox
+                checked={purchase}
+                onChange={(e) => setPurchase(e.target.checked)}
+              />
+            }
+            label="Purchase"
           />
         </Grid>
         <Grid item xs={12} sm={12} sx={{ display: 'flex', justifyContent: 'flex-end' }}>
@@ -262,7 +289,7 @@ EditLoadForm.propTypes = {
     Origin: PropTypes.string,
     Destination: PropTypes.string,
     Archived: PropTypes.bool,
-    OutgoingInvoiceNo: PropTypes.string,
+    InvoiceNo: PropTypes.string,
     UnitType: PropTypes.string,
     UnitQuantity: PropTypes.string,
     Paid: PropTypes.bool,
@@ -270,7 +297,8 @@ EditLoadForm.propTypes = {
     PermitURL: PropTypes.string,
     WeightDocURL: PropTypes.string,
     PaperDocFiled: PropTypes.bool,
-    MobileUL: PropTypes.string
+    MobileUL: PropTypes.string,
+    Purchase: PropTypes.bool
   }),
   setEditingLoad: PropTypes.func.isRequired,
   handleRefreshTable: PropTypes.func.isRequired

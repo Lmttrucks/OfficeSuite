@@ -80,7 +80,7 @@ exports.editVehicle = async (req, res) => {
 
 exports.deleteVehicle = async (req, res) => {
     const { id } = req.params;
-    const query = `DELETE FROM [dbo].[tblVehicle] WHERE VehicleID = @VehicleID`;
+    const query = `UPDATE [dbo].[tblVehicle] SET Void = 1 WHERE VehicleID = @VehicleID`;
 
     try {
         let pool = await sql.connect(dbConfig);
@@ -88,7 +88,7 @@ exports.deleteVehicle = async (req, res) => {
             .input('VehicleID', sql.Int, id)
             .query(query);
 
-        res.status(200).json({ message: 'Vehicle deleted successfully' });
+        res.status(200).json({ message: 'Vehicle removed successfully' });
     } catch (err) {
         res.status(500).json({ error: err.message });
     }

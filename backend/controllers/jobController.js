@@ -32,7 +32,8 @@ const JobsDefaults = async (req, res) => {
         const result = await sql.query`
             SELECT DefaultOrigin, DefaultDestination, DefaultRate 
             FROM tblJobs 
-            WHERE JobID = ${jobID}`;
+            WHERE JobID = ${jobID}
+            AND Void = 0`;
 
         if (result.recordset.length === 0) {
             return res.status(404).json({ message: 'Job not found' });
@@ -46,7 +47,7 @@ const JobsDefaults = async (req, res) => {
 const getAllJobs = async (req, res) => {
     try {
         await sql.connect(dbConfig);
-        const result = await sql.query`SELECT * FROM tblJobs`;
+        const result = await sql.query`SELECT * FROM tblJobs WHERE Void = 0`;
         res.json(result.recordset);
     } catch (err) {
         res.status(500).json({ message: err.message });
@@ -63,7 +64,7 @@ const getJobById = async (req, res) => {
                    RoadCondition, EstSize, DefaultCompany, DefaultOrigin, DefaultDestination, DefaultRate,
                    PlantPassportLink, FellingLicenceLink, Comments, CleanUp, Started, Complete, UserID, DateAdded
             FROM tblJobs
-            WHERE JobID = ${jobID}
+            WHERE JobID = ${jobID} AND Void = 0
         `;
         if (result.recordset.length === 0) {
             return res.status(404).json({ message: 'Job not found' });
@@ -180,7 +181,7 @@ const deleteJob = async (req, res) => {
             return res.status(404).json({ message: 'Job not found' });
         }
 
-        await sql.query`DELETE FROM tblJobs WHERE JobID = ${jobID}`;
+        await sql.query`UPDATE tblJobs SET Void = 1 WHERE JobID = ${jobID}`;
         res.json({ message: 'Job deleted successfully' });
     } catch (err) {
         res.status(500).json({ message: err.message });

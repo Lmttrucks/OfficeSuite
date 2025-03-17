@@ -155,7 +155,7 @@ exports.deleteUser = async (req, res) => {
     try {
         await sql.connect(dbConfig);
 
-        const result = await sql.query`DELETE FROM tblAppUsers WHERE UserID = ${id}`;
+        const result = await sql.query`UPDATE tblAppUsers SET Void = 1 WHERE UserID = ${id}`;
 
         if (result.rowsAffected[0] === 0) {
             return res.status(404).json({ message: 'User not found' });

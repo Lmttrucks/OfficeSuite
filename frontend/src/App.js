@@ -7,11 +7,8 @@ import PrivateRoute from './services/PrivateRoute';
 import NotFound from './pages/NotFound';
 import './styles/index.css';
 import AddLoadPage from './pages/admin/loads/AddLoadPage';
-import Loading from './pages/Loading'; // Import the Loading component
+import Loading from './pages/Loading';
 import InvoicePreviewPage from './pages/admin/invoicing/InvoicePreviewPage';
-import InvoiceGenFrm from './components/outinvoice/InvoiceGenFrm'; // Import InvoiceGenFrm component
-import InvoicePreviewForm from './components/outinvoice/InvoicePreviewForm'; // Import InvoicePreviewForm component
-import InvoicePreviewTable from './components/outinvoice/InvoicePreviewTable'; // Import InvoicePreviewTable component
 import AddCompanyPage from './pages/admin/companies/addCompanyPage';
 import EditCompanyPage from './pages/admin/companies/editCompanyPage';
 import AddJobPage from './pages/admin/jobs/AddJobPage';
@@ -21,15 +18,17 @@ import AddUserPage from './pages/admin/appusers/addUserPage';
 import EditUserPage from './pages/admin/appusers/editUserPage';
 import DeleteUserPage from './pages/admin/appusers/deleteUserPage';
 import EditLoadPage from './pages/admin/loads/EditLoadPage';
+import LinkLoadPage from './pages/admin/loads/LinkLoadPage';
+import LinkInvoicePage from './pages/admin/invoicing/LinkInvoicePage';
+import OtherInvoicePage from './pages/admin/invoicing/OtherInvoicePage';
+import AddEmployeePage from './pages/admin/employees/addEmployeePage';
+import EditEmployeePage from './pages/admin/employees/editEmployeePage';
 
 function App() {
   return (
     <Router>
       <Routes>
-        {/* Public Route: Login */}
         <Route path="/" element={<Login />} />
-
-        {/* Protected Loading Route */}
         <Route
           path="/loading"
           element={
@@ -38,14 +37,11 @@ function App() {
             </PrivateRoute>
           }
         />
-
-        {/* Protected Routes Wrapped in Layout */}
         <Route
           path="/*"
           element={
             <Layout>
               <Routes>
-                {/* Admin Dashboard Route */}
                 <Route
                   path="/admin/dashboard"
                   element={
@@ -54,7 +50,6 @@ function App() {
                     </PrivateRoute>
                   }
                 />
-
                 <Route
                   path="/admin/loads/addloadpage"
                   element={
@@ -67,7 +62,7 @@ function App() {
                   path="/admin/invoicing/create"
                   element={
                     <PrivateRoute allowedRoles={['admin']}>
-                      <InvoiceGenFrm />
+                      <InvoicePreviewPage />
                     </PrivateRoute>
                   }
                 />
@@ -159,9 +154,38 @@ function App() {
                     </PrivateRoute>
                   }
                 />
-
-                {/* Other Routes */}
-                {/* 404 Page */}
+                <Route
+                  path="/admin/loads/link-load"
+                  element={
+                    <PrivateRoute allowedRoles={['admin']}>
+                      <LinkLoadPage />
+                    </PrivateRoute>
+                  }
+                />
+                <Route
+                  path="/admin/invoicing/other"
+                  element={
+                    <PrivateRoute allowedRoles={['admin']}>
+                      <OtherInvoicePage />
+                    </PrivateRoute>
+                  }
+                />
+                <Route
+                  path="/admin/employees/add"
+                  element={
+                    <PrivateRoute allowedRoles={['admin']}>
+                      <AddEmployeePage />
+                    </PrivateRoute>
+                  }
+                />
+                <Route
+                  path="/admin/employees/edit/:id"
+                  element={
+                    <PrivateRoute allowedRoles={['admin']}>
+                      <EditEmployeePage />
+                    </PrivateRoute>
+                  }
+                />
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </Layout>

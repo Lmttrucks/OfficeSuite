@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import AddLoadForm from '../../../components/loads/AddLoadForm';
-import Last100Table from '../../../components/loads/Last100Table';
+import Last1000Table from '../../../components/loads/Last1000Table';
 
 const AddLoadPage = () => {
   const [refreshTable, setRefreshTable] = useState(false);
@@ -13,8 +13,8 @@ const AddLoadPage = () => {
     <div style={{ marginLeft: '60px' }}>
       <h1>Add Load</h1>
       <AddLoadForm onLoadAdded={handleLoadAdded} />
-      <h2>Last 100 Loads</h2>
-      <Last100Table refresh={refreshTable} />
+      <h2>Last 1000 Loads</h2>
+      <Last1000Table refresh={refreshTable} />
     </div>
   );
 };

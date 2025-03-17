@@ -1,14 +1,13 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
-import { Button } from '@mui/material';
-import InvoiceGenFrm from '../../../components/invoice/InvoiceGenFrm';
-import InvoicePreviewTable from '../../../components/invoice/InvoicePreviewTable';
-import InvoicePreviewForm from '../../../components/invoice/InvoicePreviewForm';
+import LinkInvoiceGenForm from '../../../components/invoice/linkinvoicing/LinkInvoiceGenForm';
+import LinkInvoicePreviewForm from '../../../components/invoice/linkinvoicing/LinkInvoicePreviewForm';
+import LinkInvoicePreviewTable from '../../../components/invoice/linkinvoicing/LinkInvoicePreviewTable';
 import InvoicePDFViewer from '../../../components/invoice/InvoicePDFViewer';
 import axios from 'axios';
 import config from '../../../config';
 
-const InvoicePreviewPage = () => {
+const LinkInvoicePage = () => {
   const location = useLocation();
   const { previewData, formData } = location.state || {
     previewData: [],
@@ -17,35 +16,38 @@ const InvoicePreviewPage = () => {
   const [invoiceData, setInvoiceData] = useState({ ...formData, previewData });
   const [step, setStep] = useState(1);
 
+  useEffect(() => {
+    if (formData && Object.keys(formData).length > 0) {
+      setInvoiceData(formData);
+      setStep(2);
+    }
+  }, [formData]);
+
   const handleFormUpdate = (newData) => {
     setInvoiceData((prevData) => ({ ...prevData, ...newData }));
     setStep(2);
   };
 
-  const handleVatRateUpdate = (vatRate) => {
-    setInvoiceData((prevData) => ({ ...prevData, vatRate }));
-  };
+  const handlePreview = async (updatedFormData) => {
+    try {
+      const response = await axios.post(
+        `${config.apiBaseUrl}/invoices/previewLinkedLoadsInvoice`,
+        {
+          CompanyName: updatedFormData.companyName,
+          StartDate: updatedFormData.startDate,
+          EndDate: updatedFormData.endDate,
+          Purchase: updatedFormData.purchase // Include Purchase in the request
+        },
+        config.getAuthHeaders()
+      );
 
-  const handlePreview = (updatedFormData) => {
-    setInvoiceData(updatedFormData);
-    setStep(2);
-  };
-
-  const handlePrintPreview = () => {
-    const updatedInvoiceData = {
-      ...invoiceData,
-      loadCount: invoiceData.loads?.length || 0,
-      paymentAmount:
-        (invoiceData.loads || []).reduce(
-          (acc, row) => acc + row.Rate * row.UnitQuantity,
-          0
-        ) *
-        (1 + (invoiceData.vatRate || 0) / 100),
-      invoiceNo: '' // Set invoice number to blank for print preview
-    };
-
-    setInvoiceData(updatedInvoiceData);
-    setStep(3); // Move to print preview step
+      const loads = response.data;
+      setInvoiceData((prevData) => ({ ...prevData, loads }));
+      setStep(2);
+    } catch (error) {
+      console.error('Failed to preview linked loads invoice', error);
+      alert('Failed to preview linked loads invoice');
+    }
   };
 
   const handleGenerate = async () => {
@@ -76,11 +78,7 @@ const InvoicePreviewPage = () => {
         config.getAuthHeaders()
       );
 
-      console.log('API response:', response); // Log the entire response
-
-      const invoiceNo = response.data.invoiceNo; // Correctly access invoiceNo
-      console.log('invoiceNo:', invoiceNo, typeof invoiceNo);
-
+      const invoiceNo = response.data.outvoiceNo;
       setInvoiceData((prevData) => ({ ...prevData, invoiceNo }));
 
       await Promise.all(
@@ -89,7 +87,7 @@ const InvoicePreviewPage = () => {
           const invoiceNoInt = parseInt(invoiceNo, 10);
 
           return axios.put(
-            `${config.apiBaseUrl}/loads/update-invoice-no`,
+            `${config.apiBaseUrl}/loads/updateLinkLoad/`,
             { id, invoiceNo: invoiceNoInt },
             config.getAuthHeaders()
           );
@@ -98,57 +96,41 @@ const InvoicePreviewPage = () => {
 
       const finalInvoiceData = {
         ...updatedInvoiceData,
-        loads: updatedInvoiceData.loads,
         invoiceNo
       };
-      console.log('Final Invoice Data:', finalInvoiceData);
       setInvoiceData(finalInvoiceData);
-      setStep(4); // Move to final invoice step
+      setStep(3);
     } catch (error) {
       console.error('Failed to generate invoice', error);
       alert('Failed to generate invoice');
     }
   };
 
+  console.log('Invoice Data:', invoiceData); // Add this line
+
   return (
     <div>
       {step === 1 ? (
-        <InvoiceGenFrm
+        <LinkInvoiceGenForm
           initialData={invoiceData}
           onFormUpdate={handleFormUpdate}
           onPreview={handlePreview}
         />
       ) : step === 2 ? (
         <>
-          <InvoicePreviewForm
+          <LinkInvoicePreviewForm
             previewData={invoiceData.loads}
             formData={invoiceData}
             onFormUpdate={handleFormUpdate}
-            onVatRateUpdate={handleVatRateUpdate}
             onGenerate={handleGenerate}
-            onPrintPreview={handlePrintPreview} // Add print preview handler
           />
-          <InvoicePreviewTable data={invoiceData.loads} />
-        </>
-      ) : step === 3 ? (
-        <>
-          <InvoicePDFViewer invoiceData={invoiceData} /> {/* Use InvoicePDFViewer for print preview */}
-          <Button
-            variant="contained"
-            color="primary"
-            onClick={() => setStep(2)}
-          >
-            Back
-          </Button>
+          <LinkInvoicePreviewTable data={invoiceData.loads} />
         </>
       ) : (
-        <>
-          {console.log('Invoice Data before rendering:', invoiceData)}
-          <InvoicePDFViewer invoiceData={invoiceData} />
-        </>
+       <InvoicePDFViewer invoiceData={invoiceData} />
       )}
     </div>
   );
 };
 
-export default InvoicePreviewPage;
+export default LinkInvoicePage;

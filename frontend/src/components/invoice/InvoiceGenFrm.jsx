@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Box, Button, TextField, Autocomplete, Grid } from '@mui/material';
+import { Box, Button, TextField, Autocomplete, Grid, FormControlLabel, Checkbox } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import config from '../../config';
 import InvoicePreviewTable from './InvoicePreviewTable'; // Correct import path
@@ -11,15 +11,17 @@ const InvoiceGenFrm = ({
   onFormUpdate = () => {},
   onPreview = () => {}
 }) => {
-  // Set default value for initialData and onFormUpdate
   const [displayFormData, setDisplayFormData] = useState({
     companyName: initialData.companyName || '',
     startDate: initialData.startDate || '',
     endDate: initialData.endDate || '',
-    vatRate: initialData.vatRate || 23 // Default VAT rate
+    vatRate: initialData.vatRate || 23, // Default VAT rate
+    jobID: initialData.jobID || '' // Add jobID to the state
   });
+  const [purchase, setPurchase] = useState(false); // Set to false by default
 
   const [localCompanies, setLocalCompanies] = useState([]);
+  const [localJobs, setLocalJobs] = useState([]);
   const navigate = useNavigate();
 
   const loadLocalData = (key) => {
@@ -35,6 +37,7 @@ const InvoiceGenFrm = ({
 
   useEffect(() => {
     setLocalCompanies(loadLocalData('localCompanies'));
+    setLocalJobs(loadLocalData('localJobs'));
   }, []);
 
   const handleChange = (e) => {
@@ -47,15 +50,19 @@ const InvoiceGenFrm = ({
       companyName: '',
       startDate: '',
       endDate: '',
-      vatRate: 23 // Reset VAT rate to default
+      vatRate: 23, // Reset VAT rate to default
+      jobID: '' // Reset jobID
     });
+    setPurchase(false); // Reset purchase to false
     onFormUpdate({
       companyID: '',
       companyName: '',
       startDate: '',
       endDate: '',
       vatRate: 23, // Reset VAT rate to default
-      previewData: []
+      jobID: '', // Reset jobID
+      previewData: [],
+      purchase: false // Reset purchase to false
     });
   };
 
@@ -68,7 +75,9 @@ const InvoiceGenFrm = ({
       const dataToSend = {
         CompanyName: company.CompanyName,
         StartDate: displayFormData.startDate,
-        EndDate: displayFormData.endDate
+        EndDate: displayFormData.endDate,
+        JobID: displayFormData.jobID, // Include jobID in the request
+        Purchase: purchase // Include purchase in the request
       };
 
       // Fetch company info
@@ -80,7 +89,7 @@ const InvoiceGenFrm = ({
 
       // Fetch loads for preview
       const loadsResponse = await axios.post(
-        `${config.apiBaseUrl}/invoices/previewOutInvoice`,
+        `${config.apiBaseUrl}/invoices/previewInvoice`,
         dataToSend,
         config.getAuthHeaders()
       );
@@ -107,7 +116,8 @@ const InvoiceGenFrm = ({
         totalAmount: totalAmount.toFixed(2),
         vatRate: vatRate,
         vatAmount: vatAmount.toFixed(2),
-        paymentAmount: paymentAmount.toFixed(2)
+        paymentAmount: paymentAmount.toFixed(2),
+        purchase: purchase // Include purchase in the updated form data
       };
 
       onPreview(updatedFormData);
@@ -118,7 +128,7 @@ const InvoiceGenFrm = ({
       console.error(error);
       alert('Error fetching company info or loads');
     }
-  }, [displayFormData, localCompanies, navigate, onPreview]);
+  }, [displayFormData, localCompanies, navigate, onPreview, purchase]);
 
   return (
     <Box>
@@ -178,6 +188,30 @@ const InvoiceGenFrm = ({
               onChange={handleChange}
               value={displayFormData.vatRate}
               fullWidth
+            />
+            <Autocomplete
+              freeSolo
+              options={localJobs.map((j) => j.JobID)}
+              getOptionLabel={(option) => option || ''}
+              value={displayFormData.jobID || ''}
+              onInputChange={(event, newInputValue) => {
+                setDisplayFormData((prev) => ({
+                  ...prev,
+                  jobID: newInputValue
+                }));
+              }}
+              renderInput={(params) => (
+                <TextField {...params} label="Job ID" name="jobID" />
+              )}
+            />
+            <FormControlLabel
+              control={
+                <Checkbox
+                  checked={purchase}
+                  onChange={(e) => setPurchase(e.target.checked)}
+                />
+              }
+              label="Purchase"
             />
           </Grid>
           <Grid

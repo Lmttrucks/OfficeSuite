@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { Box, Button, TextField, Grid } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 
-const InvoicePreviewForm = ({ previewData, formData, onGenerate }) => {
+const InvoicePreviewForm = ({ previewData, formData, onGenerate, onPrintPreview }) => {
   const navigate = useNavigate();
 
   const handleClear = () => {
@@ -49,6 +49,14 @@ const InvoicePreviewForm = ({ previewData, formData, onGenerate }) => {
           <TextField
             label="VAT Rate"
             value={formData.vatRate}
+            fullWidth
+            InputProps={{
+              readOnly: true
+            }}
+          />
+          <TextField
+            label="Invoice Type"
+            value={formData.purchase ? 'Purchase' : 'Sales'}
             fullWidth
             InputProps={{
               readOnly: true
@@ -107,6 +115,15 @@ const InvoicePreviewForm = ({ previewData, formData, onGenerate }) => {
             type="button"
             variant="contained"
             color="primary"
+            onClick={onPrintPreview} // Add print preview button
+            sx={{ mr: 2 }}
+          >
+            Preview
+          </Button>
+          <Button
+            type="button"
+            variant="contained"
+            color="primary"
             onClick={onGenerate}
           >
             Generate Invoice
@@ -128,9 +145,11 @@ InvoicePreviewForm.propTypes = {
     loadCount: PropTypes.number,
     totalAmount: PropTypes.number,
     vatAmount: PropTypes.number,
-    paymentAmount: PropTypes.number
+    paymentAmount: PropTypes.number,
+    purchase: PropTypes.bool // Add purchase
   }).isRequired,
-  onGenerate: PropTypes.func.isRequired
+  onGenerate: PropTypes.func.isRequired,
+  onPrintPreview: PropTypes.func.isRequired // Add print preview prop
 };
 
 export default InvoicePreviewForm;

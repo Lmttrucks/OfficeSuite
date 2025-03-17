@@ -1,32 +1,19 @@
 import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
-import { Box, CircularProgress, Typography, Button } from '@mui/material';
+import { Box, CircularProgress, Typography, Button, Modal } from '@mui/material';
 import { DataGrid } from '@mui/x-data-grid';
 import config from '../../config';
+import EditLinkLoadForm from './EditLinkLoadForm';
 
-const Last100Table = ({ refresh }) => {
+const LinkedLoadsTable = ({ refresh }) => {
   const [records, setRecords] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [selectedColumns, setSelectedColumns] = useState([
-    'ID',
-    'JobID',
-    'CompanyName',
-    'PermitNo',
-    'WeightDocNo',
-    'DeliveryDate',
-    'UnitQuantity',
-    'Gross',
-    'Origin',
-    'Destination',
-    'WeightDocURL',
-    'PermitURL',
-    'actions'
-  ]);
+  const [editingLoad, setEditingLoad] = useState(null);
 
   const fetchRecords = async () => {
     try {
       const response = await fetch(
-        `${config.apiBaseUrl}/loads/last-100-loads`,
+        `${config.apiBaseUrl}/link-loads/last-1000-linked-loads`,
         config.getAuthHeaders()
       );
       const data = await response.json();
@@ -39,7 +26,7 @@ const Last100Table = ({ refresh }) => {
 
   const handleDelete = async (id) => {
     try {
-      const response = await fetch(`${config.apiBaseUrl}/loads/${id}`, {
+      const response = await fetch(`${config.apiBaseUrl}/link-loads/${id}`, {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',
@@ -67,66 +54,44 @@ const Last100Table = ({ refresh }) => {
     fetchRecords();
   }, [refresh]);
 
-  const allColumns = [
+  const columns = [
     { field: 'ID', headerName: 'ID', width: 70 },
-    { field: 'JobID', headerName: 'Job ID', width: 100 },
     { field: 'CompanyName', headerName: 'Company Name', width: 150 },
+    { field: 'Rate', headerName: 'Rate', width: 100 },
     { field: 'PermitNo', headerName: 'Permit No', width: 130 },
     { field: 'WeightDocNo', headerName: 'Weight Doc No', width: 130 },
-    { field: 'DeliveryDate', headerName: 'Delivery Date', width: 150 },
-    { field: 'UnitQuantity', headerName: 'Net (Unit Qty)', width: 120 },
-    { field: 'Gross', headerName: 'Gross', width: 100 },
     { field: 'Origin', headerName: 'Origin', width: 100 },
     { field: 'Destination', headerName: 'Destination', width: 100 },
-    {
-      field: 'WeightDocURL',
-      headerName: 'W',
-      width: 50,
-      renderCell: (params) =>
-        params.row.WeightDocURL && (
-          <Button
-            variant="contained"
-            size="small"
-            onClick={() => window.open(params.row.WeightDocURL, '_blank')}
-          >
-            W
-          </Button>
-        )
-    },
-    {
-      field: 'PermitURL',
-      headerName: 'P',
-      width: 50,
-      renderCell: (params) =>
-        params.row.PermitURL && (
-          <Button
-            variant="contained"
-            size="small"
-            onClick={() => window.open(params.row.PermitURL, '_blank')}
-          >
-            P
-          </Button>
-        )
-    },
+    { field: 'UnitQuantity', headerName: 'Unit Quantity', width: 120 },
+    { field: 'DeliveryDate', headerName: 'Delivery Date', width: 150 },
+    { field: 'Purchase', headerName: 'Purchase', width: 100, renderCell: (params) => (params.row.Purchase ? 'Yes' : 'No') },
+    { field: 'InvoiceNo', headerName: 'Invoice No', width: 150 },
     {
       field: 'actions',
       headerName: 'Actions',
-      width: 150,
+      width: 250,
       renderCell: (params) => (
-        <Button
-          variant="contained"
-          size="small"
-          onClick={() => handleDelete(params.row.ID)}
-        >
-          Delete
-        </Button>
+        <div>
+          <Button
+            variant="contained"
+            size="small"
+            onClick={() => setEditingLoad(params.row)}
+            sx={{ mr: 1 }}
+          >
+            Edit
+          </Button>
+          <Button
+            variant="contained"
+            size="small"
+            color="secondary"
+            onClick={() => handleDelete(params.row.ID)}
+          >
+            Delete
+          </Button>
+        </div>
       )
     }
   ];
-
-  const filteredColumns = allColumns.filter((col) =>
-    selectedColumns.includes(col.field)
-  );
 
   if (loading) {
     return (
@@ -147,19 +112,45 @@ const Last100Table = ({ refresh }) => {
   }
 
   return (
-    <div style={{ height: 400, width: '100%' }}>
+    <div style={{ height: '80vh', width: '100%' }}> {/* Adjust the height here */}
       <DataGrid
         rows={records}
-        columns={filteredColumns}
-        pageSize={5}
+        columns={columns}
+        pageSize={10} // Increase the page size if needed
         getRowId={(row) => row.ID}
       />
+
+      <Modal
+        open={!!editingLoad}
+        onClose={() => setEditingLoad(null)}
+        aria-labelledby="edit-link-load-modal-title"
+        aria-describedby="edit-link-load-modal-description"
+      >
+        <Box sx={{ 
+          position: 'absolute', 
+          top: '50%', 
+          left: '50%', 
+          transform: 'translate(-50%, -50%)', 
+          width: 400, 
+          bgcolor: 'background.paper', 
+          boxShadow: 24, 
+          p: 4 
+        }}>
+          {editingLoad && (
+            <EditLinkLoadForm
+              editingLoad={editingLoad}
+              setEditingLoad={setEditingLoad}
+              handleRefreshTable={fetchRecords}
+            />
+          )}
+        </Box>
+      </Modal>
     </div>
   );
 };
 
-Last100Table.propTypes = {
-  refresh: PropTypes.func.isRequired
+LinkedLoadsTable.propTypes = {
+  refresh: PropTypes.bool.isRequired
 };
 
-export default Last100Table;
+export default LinkedLoadsTable;

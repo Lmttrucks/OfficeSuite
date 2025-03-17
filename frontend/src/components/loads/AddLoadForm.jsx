@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
-import { Box, Button, TextField, Autocomplete, Grid } from '@mui/material';
+import { Box, Button, TextField, Autocomplete, Grid, FormControlLabel, Checkbox } from '@mui/material';
 import config from '../../config';
 
 const AddLoadForm = ({ onLoadAdded }) => {
@@ -18,12 +18,14 @@ const AddLoadForm = ({ onLoadAdded }) => {
     origin: '',
     destination: ''
   });
+  const [purchase, setPurchase] = useState(false); // Set to false by default
 
   const [localCompanies, setLocalCompanies] = useState([]);
   const [localEmployees, setLocalEmployees] = useState([]);
   const [localVehicles, setLocalVehicles] = useState([]);
   const [localJobs, setLocalJobs] = useState([]);
-  const [localLocations, setLocalLocations] = useState([]);
+  const [localOrigins, setLocalOrigins] = useState([]);
+  const [localDestinations, setLocalDestinations] = useState([]);
 
   const loadLocalData = (key) => {
     const data = localStorage.getItem(key);
@@ -41,7 +43,8 @@ const AddLoadForm = ({ onLoadAdded }) => {
     setLocalEmployees(loadLocalData('localEmployees'));
     setLocalVehicles(loadLocalData('localVehicles'));
     setLocalJobs(loadLocalData('localJobs'));
-    setLocalLocations(loadLocalData('localLocations'));
+    setLocalOrigins(loadLocalData('localOrigins'));
+    setLocalDestinations(loadLocalData('localDestinations'));
   }, []);
 
   const handleChange = (e) => {
@@ -55,8 +58,12 @@ const AddLoadForm = ({ onLoadAdded }) => {
       const userID = localStorage.getItem('userID');
       const dataToSend = {
         ...formData,
-        userID: userID // Include userID in the form data
+        purchase,
+        userID // Include userID in the form data
       };
+
+      console.log('Data being sent:', dataToSend); // Log the data being sent
+
       const url = `${config.apiBaseUrl}/loads`;
 
       const response = await fetch(url, {
@@ -77,9 +84,7 @@ const AddLoadForm = ({ onLoadAdded }) => {
           gross: '',
           tare: '0'
         }));
-        if (onLoadAdded) {
-          onLoadAdded();
-        }
+        onLoadAdded(); // Call onLoadAdded after successful submission
       } else {
         alert('Failed to submit load');
       }
@@ -104,6 +109,7 @@ const AddLoadForm = ({ onLoadAdded }) => {
       origin: '',
       destination: ''
     });
+    setPurchase(false); // Reset purchase to false
   };
 
   return (
@@ -112,7 +118,7 @@ const AddLoadForm = ({ onLoadAdded }) => {
         <Grid item xs={12} sm={4}>
           <Autocomplete
             options={localEmployees}
-            getOptionLabel={(option) => option.EmployeeName || ''}
+            getOptionLabel={(option) => option?.EmployeeName || ''}
             value={
               localEmployees.find(
                 (e) => e.EmployeeName === formData.employeeName
@@ -134,7 +140,7 @@ const AddLoadForm = ({ onLoadAdded }) => {
           />
           <Autocomplete
             options={localVehicles}
-            getOptionLabel={(option) => option.VehicleReg || ''}
+            getOptionLabel={(option) => option?.VehicleReg || ''}
             value={
               localVehicles.find((v) => v.VehicleReg === formData.vehicleReg) ||
               null
@@ -151,7 +157,7 @@ const AddLoadForm = ({ onLoadAdded }) => {
           />
           <Autocomplete
             options={localCompanies}
-            getOptionLabel={(option) => option.CompanyName || ''}
+            getOptionLabel={(option) => option?.CompanyName || ''}
             value={
               localCompanies.find(
                 (c) => c.CompanyName === formData.companyName
@@ -170,6 +176,7 @@ const AddLoadForm = ({ onLoadAdded }) => {
           <Autocomplete
             freeSolo
             options={localJobs.map((j) => j.JobID)}
+            getOptionLabel={(option) => option || ''}
             value={formData.jobID || ''}
             onInputChange={(event, newInputValue) => {
               setFormData((prev) => ({
@@ -201,23 +208,13 @@ const AddLoadForm = ({ onLoadAdded }) => {
           />
           <Autocomplete
             freeSolo
-            options={localLocations}
-            getOptionLabel={(option) => option.Location || ''}
-            isOptionEqualToValue={(option, value) => option.Location === value}
-            value={
-              localLocations.find((loc) => loc.Location === formData.origin) ||
-              null
-            }
-            onChange={(event, newValue) => {
-              setFormData((prev) => ({
-                ...prev,
-                origin: newValue ? newValue.Location : ''
-              }));
-            }}
+            options={localOrigins.map((o) => o.Origin)}
+            getOptionLabel={(option) => option || ''}
+            value={formData.origin}
             onInputChange={(event, newInputValue) => {
               setFormData((prev) => ({
                 ...prev,
-                originName: newInputValue
+                origin: newInputValue
               }));
             }}
             renderInput={(params) => (
@@ -226,24 +223,13 @@ const AddLoadForm = ({ onLoadAdded }) => {
           />
           <Autocomplete
             freeSolo
-            options={localLocations}
-            getOptionLabel={(option) => option.Location || ''}
-            isOptionEqualToValue={(option, value) => option.Location === value}
-            value={
-              localLocations.find(
-                (loc) => loc.Location === formData.destination
-              ) || null
-            }
-            onChange={(event, newValue) => {
-              setFormData((prev) => ({
-                ...prev,
-                destination: newValue ? newValue.Location : ''
-              }));
-            }}
+            options={localDestinations.map((d) => d.Destination)}
+            getOptionLabel={(option) => option || ''}
+            value={formData.destination}
             onInputChange={(event, newInputValue) => {
               setFormData((prev) => ({
                 ...prev,
-                destinationName: newInputValue
+                destination: newInputValue
               }));
             }}
             renderInput={(params) => (
@@ -283,6 +269,15 @@ const AddLoadForm = ({ onLoadAdded }) => {
             value={formData.tare}
             fullWidth
             autoComplete="off"
+          />
+          <FormControlLabel
+            control={
+              <Checkbox
+                checked={purchase}
+                onChange={(e) => setPurchase(e.target.checked)}
+              />
+            }
+            label="Purchase"
           />
         </Grid>
         <Grid
