@@ -23,6 +23,7 @@ import LinkInvoicePage from './pages/admin/invoicing/LinkInvoicePage';
 import OtherInvoicePage from './pages/admin/invoicing/OtherInvoicePage';
 import AddEmployeePage from './pages/admin/employees/addEmployeePage';
 import EditEmployeePage from './pages/admin/employees/editEmployeePage';
+import SearchInvoicePage from './pages/admin/invoicing/SearchInvoicePage';
 
 function App() {
   return (
@@ -70,7 +71,7 @@ function App() {
                   path="/admin/invoicing/search"
                   element={
                     <PrivateRoute allowedRoles={['admin']}>
-                      <InvoicePreviewPage />
+                      <SearchInvoicePage />
                     </PrivateRoute>
                   }
                 />

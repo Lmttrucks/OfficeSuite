@@ -1,6 +1,7 @@
 const { app, BrowserWindow } = require('electron');
 const path = require('path');
-const { exec } = require('child_process');
+
+const mode = process.env.MODE || 'dev'; // Set the mode to 'dev' by default
 
 function createWindow() {
   const mainWindow = new BrowserWindow({
@@ -15,19 +16,12 @@ function createWindow() {
 }
 
 app.whenReady().then(() => {
-  // Start the backend server
-  exec('npm run start-backend', { cwd: path.join(__dirname, 'backend') }, (err, stdout, stderr) => {
-    if (err) {
-      console.error(`Error starting backend: ${err}`);
-      return;
-    }
-    console.log(`Backend started: ${stdout}`);
-  });
-
-  createWindow();
+  if (mode === 'pro') {
+    createWindow();
+  }
 
   app.on('activate', function () {
-    if (BrowserWindow.getAllWindows().length === 0) createWindow();
+    if (BrowserWindow.getAllWindows().length === 0 && mode === 'pro') createWindow();
   });
 });
 

@@ -123,7 +123,18 @@ exports.getInvoicesByCompanyName = async (req, res) => {
         await sql.connect(dbConfig);
 
         const result = await sql.query`
-        SELECT *
+        SELECT 
+            i.InvoiceNo,
+            c.CompanyName,
+            i.StartDate,
+            i.EndDate,
+            i.VatRate,
+            i.LoadCount,
+            i.PaymentAmount,
+            i.InvoiceURL,
+            i.UserID,
+            i.DateAdded,
+            i.Purchase
         FROM tblInvoice i
         INNER JOIN tblCompanies c ON i.CompanyID = c.CompanyID
         WHERE c.CompanyName = ${CompanyName} AND i.Void = 0`;
@@ -170,14 +181,22 @@ exports.getLoadsByInvoiceNo = async (req, res) => {
 };
 
 exports.deleteInvoiceByInvoiceNo = async (req, res) => {
-    const { invoiceNo } = req.query;
+    const { InvoiceNo } = req.params; // Change to req.params
 
     try {
         await sql.connect(dbConfig);
 
+        // Clear InvoiceNo from tblLoads
+        await sql.query`
+        UPDATE tblLoads
+        SET InvoiceNo = NULL
+        WHERE InvoiceNo = ${InvoiceNo}`;
+
+        // Set the invoice to void in tblInvoice
         const result = await sql.query`
-        UPDATE [dbo].[tblInvoice] SET Void = 1 
-        WHERE InvoiceNo = ${invoiceNo}`;
+        UPDATE tblInvoice
+        SET Void = 1
+        WHERE InvoiceNo = ${InvoiceNo}`;
 
         if (result.rowsAffected[0] === 0) {
             return res.status(404).json({ message: 'No invoice found for the specified invoice number' });
@@ -221,6 +240,75 @@ exports.previewLinkedLoadsInvoice = async (req, res) => {
         }
 
         res.json(loadsResult.recordset);
+    } catch (err) {
+        res.status(500).json({ message: 'Server error', error: err.message });
+    }
+};
+
+exports.getLast1000Invoices = async (req, res) => {
+    try {
+        await sql.connect(dbConfig);
+
+        const result = await sql.query`
+        SELECT TOP 1000 
+            i.InvoiceNo,
+            c.CompanyName,
+            i.StartDate,
+            i.EndDate,
+            i.VatRate,
+            i.LoadCount,
+            i.PaymentAmount,
+            i.InvoiceURL,
+            i.UserID,
+            i.DateAdded,
+            i.Purchase
+        FROM tblInvoice i
+        INNER JOIN tblCompanies c ON i.CompanyID = c.CompanyID
+        WHERE i.Void = 0
+        ORDER BY i.DateAdded DESC`;
+
+        res.json(result.recordset);
+    } catch (err) {
+        res.status(500).json({ message: 'Server error', error: err.message });
+    }
+};
+
+exports.updateInvoice = async (req, res) => {
+    const { InvoiceNo } = req.params;
+    const { CompanyName, StartDate, EndDate, VatRate, LoadCount, PaymentAmount, InvoiceURL, UserID, DateAdded, Purchase } = req.body;
+
+    try {
+        await sql.connect(dbConfig);
+
+        const companyResult = await sql.query`
+        SELECT CompanyID FROM tblCompanies WHERE CompanyName = ${CompanyName}`;
+
+        if (companyResult.recordset.length === 0) {
+            return res.status(404).json({ message: 'Company not found' });
+        }
+
+        const CompanyID = companyResult.recordset[0].CompanyID;
+
+        const result = await sql.query`
+        UPDATE tblInvoice
+        SET 
+            CompanyID = ${CompanyID},
+            StartDate = ${StartDate},
+            EndDate = ${EndDate},
+            VatRate = ${VatRate},
+            LoadCount = ${LoadCount},
+            PaymentAmount = ${PaymentAmount},
+            InvoiceURL = ${InvoiceURL},
+            UserID = ${UserID},
+            DateAdded = ${DateAdded},
+            Purchase = ${Purchase}
+        WHERE InvoiceNo = ${InvoiceNo}`;
+
+        if (result.rowsAffected[0] === 0) {
+            return res.status(404).json({ message: 'No invoice found for the specified invoice number' });
+        }
+
+        res.status(200).json({ message: 'Invoice updated successfully' });
     } catch (err) {
         res.status(500).json({ message: 'Server error', error: err.message });
     }
