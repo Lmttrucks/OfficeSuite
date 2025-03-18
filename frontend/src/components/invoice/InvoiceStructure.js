@@ -169,14 +169,14 @@ const InvoiceDetails = ({ invoiceData }) => {
     <View style={styles.invoiceDetails}>
       {[
         ['Invoice Type:', invoiceData.purchase ? 'Purchase' : 'Sales'],
-        ['Invoice No:', invoiceData.invoiceNo],
+        ['Invoice No:', invoiceData.invoiceNo || ''],
         ['Date Generated:', today],
-        ['Company ID:', invoiceData.companyID],
-        ['Start Date:', invoiceData.startDate],
-        ['End Date:', invoiceData.endDate],
-        ['VAT Rate:', `${invoiceData.vatRate}%`],
-        ['Payment Amount:', `Eur${invoiceData.paymentAmount.toFixed(2)}`],
-        ['Load Count:', invoiceData.loadCount]
+        ['Company ID:', invoiceData.companyID || ''],
+        ['Start Date:', invoiceData.startDate || ''],
+        ['End Date:', invoiceData.endDate || ''],
+        ['VAT Rate:', `${invoiceData.vatRate || 0}%`],
+        ['Payment Amount:', `Eur${(invoiceData.paymentAmount || 0).toFixed(2)}`],
+        ['Load Count:', invoiceData.loadCount || 0]
       ].map(([label, value], idx) => (
         <View style={styles.detailRow} key={idx}>
           <Text style={styles.detailLabel}>{label}</Text>
@@ -286,11 +286,11 @@ Footer.propTypes = {
 
 // Main Invoice Structure
 const InvoiceStructure = ({ invoiceData }) => {
-  const netTotal = invoiceData.loads.reduce(
+  const netTotal = (invoiceData.loads || []).reduce(
     (acc, load) => acc + load.Rate * load.UnitQuantity,
     0
   );
-  const vatAmount = netTotal * (invoiceData.vatRate / 100);
+  const vatAmount = netTotal * ((invoiceData.vatRate || 0) / 100);
   const grossTotal = netTotal + vatAmount;
 
   // Function to paginate records into pages
@@ -306,7 +306,7 @@ const InvoiceStructure = ({ invoiceData }) => {
   };
 
   // Paginate records: 21 for the first page, 45 for others
-  const pages = paginateRecords(invoiceData.loads, 25, 43);
+  const pages = paginateRecords(invoiceData.loads || [], 25, 43);
 
   return (
     <Document>

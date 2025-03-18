@@ -168,7 +168,7 @@ exports.getLoadsByInvoiceNo = async (req, res) => {
         FROM tblLoads l
         WHERE l.InvoiceNo = ${invoiceNo}
         AND l.Archived = 0
-        WHERE l.Void = 0`;
+        AND l.Void = 0`; // Remove the extra WHERE clause
 
         if (result.recordset.length === 0) {
             return res.status(404).json({ message: 'No loads found for the specified invoice number' });

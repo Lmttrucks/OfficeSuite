@@ -221,7 +221,7 @@ exports.updateLoadById = async (req, res) => {
     Origin,
     Destination,
     Archived,
-    OutgoingInvoiceNo,
+    InvoiceNo,
     UnitType,
     UnitQuantity,
     Paid,
@@ -315,9 +315,9 @@ exports.updateLoadById = async (req, res) => {
       updateFields.push('Archived = @Archived');
       updateValues.Archived = Archived;
     }
-    if (OutgoingInvoiceNo) {
-      updateFields.push('OutgoingInvoiceNo = @OutgoingInvoiceNo');
-      updateValues.OutgoingInvoiceNo = OutgoingInvoiceNo;
+    if (InvoiceNo) {
+      updateFields.push('InvoiceNo = @InvoiceNo');
+      updateValues.InvoiceNo = InvoiceNo;
     }
     if (UnitType) {
       updateFields.push('UnitType = @UnitType');
@@ -351,7 +351,7 @@ exports.updateLoadById = async (req, res) => {
       updateFields.push('MobileUL = @MobileUL');
       updateValues.MobileUL = MobileUL;
     }
-    if (Purchase) {
+    if (Purchase !== undefined) {
       updateFields.push('Purchase = @Purchase');
       updateValues.Purchase = Purchase;
     }
