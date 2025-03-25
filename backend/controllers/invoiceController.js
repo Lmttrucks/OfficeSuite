@@ -253,14 +253,14 @@ exports.getLast1000Invoices = async (req, res) => {
         SELECT TOP 1000 
             i.InvoiceNo,
             c.CompanyName,
-            i.StartDate,
-            i.EndDate,
+            FORMAT(i.StartDate, 'dd-MM-yyyy') AS StartDate,
+            FORMAT(i.EndDate, 'dd-MM-yyyy') AS EndDate,
             i.VatRate,
             i.LoadCount,
             i.PaymentAmount,
             i.InvoiceURL,
             i.UserID,
-            i.DateAdded,
+            FORMAT(i.DateAdded, 'dd-MM-yyyy') AS DateAdded,
             i.Purchase
         FROM tblInvoice i
         INNER JOIN tblCompanies c ON i.CompanyID = c.CompanyID

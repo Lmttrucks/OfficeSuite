@@ -71,7 +71,8 @@ exports.getCompanyInfo = async (req, res) => {
     try {
         await sql.connect(dbConfig);
         const result = await sql.query`
-            SELECT CompanyID, CompanyName, CompanyAddress, CompanyEmail
+
+        SELECT CompanyID, CompanyName, CompanyAddress, CompanyEmail
             FROM tblCompanies 
             WHERE CompanyName = ${companyName}`;
 
