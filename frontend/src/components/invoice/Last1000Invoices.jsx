@@ -107,43 +107,43 @@ const Last1000Invoices = ({ refresh }) => {
 
   const handleRefreshLoads = async (invoice) => {
     try {
-      // Fetch loads by invoice number
-      const loadsResponse = await fetch(`${config.apiBaseUrl}/invoices/getLoadsByInvoiceNo?invoiceNo=${invoice.InvoiceNo}`, config.getAuthHeaders());
-      const loadsData = await loadsResponse.json();
+        // Fetch loads by invoice number
+        const loadsResponse = await fetch(`${config.apiBaseUrl}/invoices/getLoadsByInvoiceNo?invoiceNo=${invoice.InvoiceNo}`, config.getAuthHeaders());
+        const loadsData = await loadsResponse.json();
 
-      if (!Array.isArray(loadsData)) {
-        throw new Error('Invalid loads data');
-      }
+        if (!Array.isArray(loadsData)) {
+            throw new Error('Invalid loads data');
+        }
 
-      // Recalculate LoadCount and PaymentAmount
-      const loadCount = loadsData.length;
-      const paymentAmount = loadsData.reduce((total, load) => total + load.Rate * load.UnitQuantity, 0);
+        // Recalculate LoadCount and PaymentAmount
+        const loadCount = loadsData.length;
+        const paymentAmount = loadsData.reduce((total, load) => total + load.Rate * load.UnitQuantity, 0);
 
-      // Update the invoice
-      const updatedInvoice = {
-        ...invoice,
-        LoadCount: loadCount,
-        PaymentAmount: paymentAmount
-      };
+        // Update the invoice
+        const updatedInvoice = {
+            ...invoice,
+            LoadCount: loadCount,
+            PaymentAmount: paymentAmount
+        };
 
-      const response = await fetch(`${config.apiBaseUrl}/invoices/${invoice.InvoiceNo}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          ...config.getAuthHeaders().headers
-        },
-        body: JSON.stringify(updatedInvoice)
-      });
+        const response = await fetch(`${config.apiBaseUrl}/invoices/${invoice.InvoiceNo}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                ...config.getAuthHeaders().headers
+            },
+            body: JSON.stringify(updatedInvoice)
+        });
 
-      if (response.ok) {
-        alert('Invoice updated successfully');
-        fetchRecords();
-      } else {
-        alert('Failed to update invoice');
-      }
+        if (response.ok) {
+            alert('Invoice updated successfully');
+            fetchRecords();
+        } else {
+            alert('Failed to update invoice');
+        }
     } catch (error) {
-      console.error('Error refreshing loads:', error);
-      alert('Error refreshing loads');
+        console.error('Error refreshing loads:', error);
+        alert('Error refreshing loads');
     }
   };
 

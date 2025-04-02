@@ -206,7 +206,7 @@ const Body = ({ loads }) => (
   <View style={styles.table}>
     <View style={styles.tableRow}>
       {[
-        'ID',
+        'Delivery Date', // Replace 'ID' with 'Delivery Date'
         'Permit No',
         'Weight Doc No',
         'Origin',
@@ -223,7 +223,7 @@ const Body = ({ loads }) => (
     {loads.map((load, idx) => (
       <View style={styles.tableRow} key={idx}>
         {[
-          load.ID,
+          load.DeliveryDate, // Replace load.ID with load.DeliveryDate
           load.PermitNo,
           load.WeightDocNo,
           load.Origin,
@@ -244,7 +244,7 @@ const Body = ({ loads }) => (
 Body.propTypes = {
   loads: PropTypes.arrayOf(
     PropTypes.shape({
-      ID: PropTypes.string,
+      DeliveryDate: PropTypes.string, // Add DeliveryDate to PropTypes
       PermitNo: PropTypes.string,
       WeightDocNo: PropTypes.string,
       Origin: PropTypes.string,
@@ -358,7 +358,7 @@ InvoiceStructure.propTypes = {
     loadCount: PropTypes.number,
     loads: PropTypes.arrayOf(
       PropTypes.shape({
-        ID: PropTypes.string,
+        DeliveryDate: PropTypes.string, // Add DeliveryDate to PropTypes
         PermitNo: PropTypes.string,
         WeightDocNo: PropTypes.string,
         Origin: PropTypes.string,

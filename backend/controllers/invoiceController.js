@@ -292,18 +292,6 @@ exports.updateInvoice = async (req, res) => {
 
         await sql.connect(dbConfig);
 
-        // Convert StartDate and EndDate from dd-MM-yyyy to yyyy-MM-dd
-        const formatDate = (date) => {
-            const [day, month, year] = date.split('-');
-            return `${year}-${month}-${day}`;
-        };
-
-        const formattedStartDate = formatDate(StartDate);
-        const formattedEndDate = formatDate(EndDate);
-
-        console.log('Formatted StartDate:', formattedStartDate);
-        console.log('Formatted EndDate:', formattedEndDate);
-
         // Get the CompanyID based on the CompanyName
         const companyResult = await sql.query`
         SELECT CompanyID FROM tblCompanies WHERE CompanyName = ${CompanyName}`;
@@ -320,8 +308,8 @@ exports.updateInvoice = async (req, res) => {
         UPDATE tblInvoice
         SET 
             CompanyID = ${CompanyID},
-            StartDate = ${formattedStartDate},
-            EndDate = ${formattedEndDate},
+            StartDate = ${StartDate},
+            EndDate = ${EndDate},
             VatRate = ${VatRate},
             LoadCount = ${LoadCount},
             PaymentAmount = ${PaymentAmount},
