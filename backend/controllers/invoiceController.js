@@ -34,8 +34,9 @@ exports.previewInvoice = async (req, res) => {
           AND l.DeliveryDate BETWEEN @StartDate AND @EndDate
           AND l.InvoiceNo IS NULL
           AND l.Archived = 0
-            AND l.Void = 0
+          AND l.Void = 0
           AND l.Purchase = @Purchase
+          AND l.UnitQuantity > 0
           ${JobID ? 'AND l.JobID = @JobID' : ''}
         `;
 
@@ -184,6 +185,8 @@ exports.getLoadsByInvoiceNo = async (req, res) => {
 exports.deleteInvoiceByInvoiceNo = async (req, res) => {
     const { InvoiceNo } = req.params; // Change to req.params
 
+    console.log('InvoiceNo:', req.params.InvoiceNo);
+
     try {
         await sql.connect(dbConfig);
 
@@ -279,8 +282,29 @@ exports.updateInvoice = async (req, res) => {
     const { CompanyName, StartDate, EndDate, VatRate, LoadCount, PaymentAmount, InvoiceURL, UserID, DateAdded, Purchase } = req.body;
 
     try {
+        console.log('Incoming data:', req.body);
+        console.log('InvoiceNo:', InvoiceNo);
+
+        // Validate required fields
+        if (!InvoiceNo || !CompanyName || !StartDate || !EndDate) {
+            return res.status(400).json({ message: 'Missing required fields' });
+        }
+
         await sql.connect(dbConfig);
 
+        // Convert StartDate and EndDate from dd-MM-yyyy to yyyy-MM-dd
+        const formatDate = (date) => {
+            const [day, month, year] = date.split('-');
+            return `${year}-${month}-${day}`;
+        };
+
+        const formattedStartDate = formatDate(StartDate);
+        const formattedEndDate = formatDate(EndDate);
+
+        console.log('Formatted StartDate:', formattedStartDate);
+        console.log('Formatted EndDate:', formattedEndDate);
+
+        // Get the CompanyID based on the CompanyName
         const companyResult = await sql.query`
         SELECT CompanyID FROM tblCompanies WHERE CompanyName = ${CompanyName}`;
 
@@ -289,13 +313,15 @@ exports.updateInvoice = async (req, res) => {
         }
 
         const CompanyID = companyResult.recordset[0].CompanyID;
+        console.log('CompanyID:', CompanyID);
 
+        // Update the invoice in the database
         const result = await sql.query`
         UPDATE tblInvoice
         SET 
             CompanyID = ${CompanyID},
-            StartDate = ${StartDate},
-            EndDate = ${EndDate},
+            StartDate = ${formattedStartDate},
+            EndDate = ${formattedEndDate},
             VatRate = ${VatRate},
             LoadCount = ${LoadCount},
             PaymentAmount = ${PaymentAmount},
@@ -311,6 +337,7 @@ exports.updateInvoice = async (req, res) => {
 
         res.status(200).json({ message: 'Invoice updated successfully' });
     } catch (err) {
+        console.error('Error updating invoice:', err.message);
         res.status(500).json({ message: 'Server error', error: err.message });
     }
 };
