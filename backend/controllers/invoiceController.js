@@ -34,6 +34,7 @@ exports.previewInvoice = async (req, res) => {
           AND l.DeliveryDate BETWEEN @StartDate AND @EndDate
           AND l.InvoiceNo IS NULL
           AND l.Archived = 0
+            AND l.Void = 0
           AND l.Purchase = @Purchase
           ${JobID ? 'AND l.JobID = @JobID' : ''}
         `;
