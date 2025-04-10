@@ -201,12 +201,22 @@ InvoiceDetails.propTypes = {
   }).isRequired
 };
 
+// Function to format date
+const formatDate = (dateString) => {
+  if (!dateString) return 'N/A';
+  const date = new Date(dateString);
+  const day = String(date.getDate()).padStart(2, '0');
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const year = String(date.getFullYear()).slice(-2);
+  return `${day}/${month}/${year}`;
+};
+
 // Table Body
 const Body = ({ loads }) => (
   <View style={styles.table}>
     <View style={styles.tableRow}>
       {[
-        'ID',
+        'Delivery Date',
         'Permit No',
         'Weight Doc No',
         'Origin',
@@ -223,7 +233,7 @@ const Body = ({ loads }) => (
     {loads.map((load, idx) => (
       <View style={styles.tableRow} key={idx}>
         {[
-          load.ID,
+          formatDate(load.DeliveryDate),
           load.PermitNo,
           load.WeightDocNo,
           load.Origin,
@@ -244,7 +254,7 @@ const Body = ({ loads }) => (
 Body.propTypes = {
   loads: PropTypes.arrayOf(
     PropTypes.shape({
-      ID: PropTypes.string,
+      DeliveryDate: PropTypes.string,
       PermitNo: PropTypes.string,
       WeightDocNo: PropTypes.string,
       Origin: PropTypes.string,
@@ -358,7 +368,7 @@ InvoiceStructure.propTypes = {
     loadCount: PropTypes.number,
     loads: PropTypes.arrayOf(
       PropTypes.shape({
-        ID: PropTypes.string,
+        DeliveryDate: PropTypes.string,
         PermitNo: PropTypes.string,
         WeightDocNo: PropTypes.string,
         Origin: PropTypes.string,

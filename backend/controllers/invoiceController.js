@@ -21,6 +21,7 @@ exports.previewInvoice = async (req, res) => {
         const query = `
         SELECT 
             l.ID,
+            l.DeliveryDate,
             l.JobID,
             l.PermitNo,
             l.WeightDocNo,
@@ -38,7 +39,7 @@ exports.previewInvoice = async (req, res) => {
           AND l.Purchase = @Purchase
           AND l.UnitQuantity > 0
           ${JobID ? 'AND l.JobID = @JobID' : ''}
-        `;
+        ORDER BY l.DeliveryDate`;
 
         const request = new sql.Request();
         request.input('CompanyName', sql.VarChar, CompanyName);
@@ -161,6 +162,7 @@ exports.getLoadsByInvoiceNo = async (req, res) => {
         SELECT 
             l.ID,
             l.JobID,
+            l.DeliveryDate,
             l.PermitNo,
             l.WeightDocNo,
             l.Origin,
@@ -170,7 +172,8 @@ exports.getLoadsByInvoiceNo = async (req, res) => {
         FROM tblLoads l
         WHERE l.InvoiceNo = ${invoiceNo}
         AND l.Archived = 0
-        AND l.Void = 0`; // Remove the extra WHERE clause
+        AND l.Void = 0
+        ORDER BY l.DeliveryDate`;
 
         if (result.recordset.length === 0) {
             return res.status(404).json({ message: 'No loads found for the specified invoice number' });
@@ -237,7 +240,8 @@ exports.previewLinkedLoadsInvoice = async (req, res) => {
           AND l.Void = 0
           AND ll.Paid = 0
           AND ll.Void = 0
-          AND ll.Purchase = ${Purchase}`;
+          AND ll.Purchase = ${Purchase}
+          ORDER BY l.DeliveryDate`;
 
         if (loadsResult.recordset.length === 0) {
             return res.status(404).json({ message: 'No linked loads found for the specified company and date range' });
@@ -269,7 +273,7 @@ exports.getLast1000Invoices = async (req, res) => {
         FROM tblInvoice i
         INNER JOIN tblCompanies c ON i.CompanyID = c.CompanyID
         WHERE i.Void = 0
-        ORDER BY i.DateAdded DESC`;
+        ORDER BY i.InvoiceNo DESC`;
 
         res.json(result.recordset);
     } catch (err) {
