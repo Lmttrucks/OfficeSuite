@@ -149,7 +149,9 @@ const PostBox = ({ invoiceData }) => (
   <View style={styles.postBox}>
     <Text>{invoiceData.companyName}</Text>
     <Text>{invoiceData.companyAddress}</Text>
-    <Text>{invoiceData.companyEmail}</Text>
+    {invoiceData.companyEmail !== 'email@here' && (
+      <Text>{invoiceData.companyEmail}</Text>
+    )}
   </View>
 );
 
@@ -202,44 +204,56 @@ InvoiceDetails.propTypes = {
 };
 
 // Table Body
-const Body = ({ loads }) => (
-  <View style={styles.table}>
-    <View style={styles.tableRow}>
-      {[
-        'Delivery Date', // Replace 'ID' with 'Delivery Date'
-        'Permit No',
-        'Weight Doc No',
-        'Origin',
-        'Destination',
-        'Rate',
-        'Unit Quantity',
-        'Load Total'
-      ].map((header, idx) => (
-        <View style={styles.tableCol} key={idx}>
-          <Text style={styles.tableCell}>{header}</Text>
-        </View>
-      ))}
-    </View>
-    {loads.map((load, idx) => (
-      <View style={styles.tableRow} key={idx}>
+const Body = ({ loads }) => {
+  // Helper function to format the date
+  const formatDate = (dateString) => {
+    if (!dateString) return ''; // Handle empty or null dates
+    const date = new Date(dateString);
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0'); // Months are 0-indexed
+    const year = String(date.getFullYear()).slice(-2); // Get the last two digits of the year
+    return `${day}/${month}/${year}`;
+  };
+
+  return (
+    <View style={styles.table}>
+      <View style={styles.tableRow}>
         {[
-          load.DeliveryDate, // Replace load.ID with load.DeliveryDate
-          load.PermitNo,
-          load.WeightDocNo,
-          load.Origin,
-          load.Destination,
-          load.Rate,
-          load.UnitQuantity,
-          (load.Rate * load.UnitQuantity).toFixed(2)
-        ].map((value, i) => (
-          <View style={styles.tableCol} key={i}>
-            <Text style={styles.tableCell}>{value}</Text>
+          'Delivery Date', // Replace 'ID' with 'Delivery Date'
+          'Permit No',
+          'Weight Doc No',
+          'Origin',
+          'Destination',
+          'Rate',
+          'Unit Quantity',
+          'Load Total'
+        ].map((header, idx) => (
+          <View style={styles.tableCol} key={idx}>
+            <Text style={styles.tableCell}>{header}</Text>
           </View>
         ))}
       </View>
-    ))}
-  </View>
-);
+      {loads.map((load, idx) => (
+        <View style={styles.tableRow} key={idx}>
+          {[
+            formatDate(load.DeliveryDate), // Format DeliveryDate to DD/MM/YY
+            load.PermitNo,
+            load.WeightDocNo,
+            load.Origin,
+            load.Destination,
+            load.Rate,
+            load.UnitQuantity,
+            (load.Rate * load.UnitQuantity).toFixed(2)
+          ].map((value, i) => (
+            <View style={styles.tableCol} key={i}>
+              <Text style={styles.tableCell}>{value}</Text>
+            </View>
+          ))}
+        </View>
+      ))}
+    </View>
+  );
+};
 
 Body.propTypes = {
   loads: PropTypes.arrayOf(

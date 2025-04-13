@@ -21,6 +21,7 @@ exports.previewInvoice = async (req, res) => {
         const query = `
         SELECT 
             l.ID,
+            l.DeliveryDate,
             l.JobID,
             l.PermitNo,
             l.WeightDocNo,
@@ -160,6 +161,7 @@ exports.getLoadsByInvoiceNo = async (req, res) => {
         const result = await sql.query`
         SELECT 
             l.ID,
+            l.DeliveryDate,
             l.JobID,
             l.PermitNo,
             l.WeightDocNo,
