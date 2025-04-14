@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "react-scripts start",
-    "build": "react-scripts build && mv build ../build",
+    "build": "react-scripts build && robocopy build ..\\build /E /MOVE",
     "build:dev": "cross-env NODE_ENV=development react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",

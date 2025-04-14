@@ -10,7 +10,7 @@
     "build": "npm run build-react && electron-builder",
     "dev": "SET ELECTRON_ENV=development && electron .",
     "start-react": "cd frontend && npm start",
-    "build-react": "cd frontend && npm run build",
+    "build-react": "cd frontend && npm run build && robocopy build ..\\build /E /MOVE",
     "start-electron": "wait-on http://localhost:3000 && electron .",
     "start-backend": "cd backend && npm start",
      "kill-ports": "npx kill-port 5000 3000"
