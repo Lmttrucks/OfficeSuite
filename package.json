@@ -4,22 +4,24 @@
   "description": "Mlog Office suite. Backend server and frontend app together.",
   "main": "main.js",
   "scripts": {
-    "start": "npm run start-dev",
+    "start": "npm run start-pro",
     "start-dev": "npm run kill-ports && concurrently \"npm run start-backend\" \"npm run start-react\"",
-    "start-pro": "npm run kill-ports && concurrently \"npm run start-backend\" \"npm run start-electron\"",
+    "start-pro": "npm run kill-ports && concurrently \"npm run start-backend\" \"cross-env MODE=pro npm run start-electron\"",
     "build": "npm run build-react && electron-builder",
     "dev": "SET ELECTRON_ENV=development && electron .",
     "start-react": "cd frontend && npm start",
     "build-react": "cd frontend && npm run build && robocopy build ..\\build /E /MOVE",
-    "start-electron": "wait-on http://localhost:3000 && electron .",
+    "start-electron": "electron .",
     "start-backend": "cd backend && npm start",
-     "kill-ports": "npx kill-port 5000 3000"
+    "kill-ports": "npx kill-port 5000 3000"
   },
   "keywords": [],
   "author": "Shane M",
   "license": "ISC",
+  "homepage": "./",
   "devDependencies": {
     "concurrently": "^7.0.0",
+    "cross-env": "^7.0.3",
     "electron": "^34.0.1",
     "electron-builder": "^25.1.8",
     "kill-port": "^2.0.1",
@@ -37,6 +39,7 @@
     "files": [
       "build/**/*",
       "main.js",
+      "preload.js",
       "backend/**/*"
     ],
     "extraResources": [

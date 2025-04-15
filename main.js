@@ -1,27 +1,32 @@
 const { app, BrowserWindow } = require('electron');
 const path = require('path');
 
-const mode = process.env.MODE || 'dev'; // Set the mode to 'dev' by default
+const mode = process.env.MODE || 'dev'; // Default to 'dev' mode
 
 function createWindow() {
   const mainWindow = new BrowserWindow({
-    width: 800,
-    height: 600,
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
+      zoomFactor: 0.75, // Set the zoom level to 75%
     },
   });
+  mainWindow.maximize();
 
-  mainWindow.loadURL('http://localhost:3000');
+  if (mode === 'pro') {
+    const indexPath = path.join(__dirname, 'build', 'index.html');
+    mainWindow.loadFile(indexPath).catch((err) => {
+      console.error('Failed to load index.html:', err);
+    });
+  } else {
+    mainWindow.loadURL('http://localhost:3000');
+  }
 }
 
 app.whenReady().then(() => {
-  if (mode === 'pro') {
-    createWindow();
-  }
+  createWindow();
 
   app.on('activate', function () {
-    if (BrowserWindow.getAllWindows().length === 0 && mode === 'pro') createWindow();
+    if (BrowserWindow.getAllWindows().length === 0) createWindow();
   });
 });
 
