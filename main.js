@@ -1,5 +1,6 @@
 const { app, BrowserWindow } = require('electron');
 const path = require('path');
+const { exec } = require('child_process'); // Import exec to run shell commands
 
 const mode = process.env.MODE || 'dev'; // Default to 'dev' mode
 
@@ -31,5 +32,19 @@ app.whenReady().then(() => {
 });
 
 app.on('window-all-closed', function () {
-  if (process.platform !== 'darwin') app.quit();
+  if (process.platform !== 'darwin') {
+    console.log('Closing app and stopping backend server...');
+    // Run the kill-port command to stop the backend server
+    exec('npx kill-port 5000 3000', (error, stdout, stderr) => {
+      if (error) {
+        console.error(`Error killing ports: ${error.message}`);
+      } else if (stderr) {
+        console.error(`stderr: ${stderr}`);
+      } else {
+        console.log(`stdout: ${stdout}`);
+      }
+      // Quit the app after killing the ports
+      app.quit();
+    });
+  }
 });
