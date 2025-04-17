@@ -149,7 +149,9 @@ const PostBox = ({ invoiceData }) => (
   <View style={styles.postBox}>
     <Text>{invoiceData.companyName}</Text>
     <Text>{invoiceData.companyAddress}</Text>
-    <Text>{invoiceData.companyEmail}</Text>
+    {invoiceData.companyEmail !== 'email@here' && (
+      <Text>{invoiceData.companyEmail}</Text>
+    )}
   </View>
 );
 
