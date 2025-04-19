@@ -1,6 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 const sql = require('mssql');
+const logger = require('../utils/logger'); // Import the logger utility
 require('dotenv').config();
 
 const dbConfig = {
@@ -14,12 +15,14 @@ const dbConfig = {
     },
 };
 
-sql.connect(dbConfig).catch(err => console.error('SQL connection error:', err));
+sql.connect(dbConfig).catch(err => logger.log('SQL connection error:', err));
 
 exports.searchLoadsByCompanyAndDate = async (req, res) => {
+    logger.log('Received: Search loads by company and date request with query:', req.query);
     const { companyName, startDate, endDate, Purchase } = req.query;
 
     if (!companyName || !startDate || !endDate) {
+        logger.log('Sent: Missing required query parameters');
         return res.status(400).json({ message: "Please provide companyName, startDate, and endDate." });
     }
 
@@ -49,116 +52,123 @@ exports.searchLoadsByCompanyAndDate = async (req, res) => {
                     c.CompanyName = @CompanyName AND
                     l.DeliveryDate BETWEEN @StartDate AND @EndDate AND
                     l.Archived = 0 AND
-                    l.Void = 0
+                    l.Void = 0 AND
                     l.Purchase = ${Purchase}
             `);
 
         if (result.recordset.length === 0) {
+            logger.log('Sent: No loads found for the specified criteria');
             return res.status(404).json({ message: "No loads found for the specified criteria." });
         }
 
+        logger.log('Sent:', result.recordset);
         res.json(result.recordset);
     } catch (err) {
+        logger.log('Error:', err.message);
         res.status(500).json({ message: "Server error", error: err.message });
     }
 };
 
 exports.getLoads = async (req, res) => {
+    logger.log('Received: Get loads request with query:', req.query);
     try {
         const limit = parseInt(req.query.limit, 10) || 50;
         const result = await sql.query`
             SELECT TOP (${limit}) * FROM tblLoads WHERE Void = 0 ORDER BY ID DESC`;
+        logger.log('Sent:', result.recordset);
         res.json(result.recordset);
     } catch (err) {
+        logger.log('Error:', err.message);
         res.status(500).json({ message: 'Failed to fetch records', error: err.message });
     }
 };
 
 exports.addLoad = async (req, res) => {
-  const {
-    employeeName,
-    vehicleReg,
-    companyName,
-    jobID,
-    permitNo,
-    weightDocNo,
-    deliveryDate,
-    rate,
-    gross,
-    tare,
-    origin,
-    destination,
-    purchase,
-    userID
-  } = req.body;
+    logger.log('Received: Add load request with data:', req.body);
+    const {
+        employeeName,
+        vehicleReg,
+        companyName,
+        jobID,
+        permitNo,
+        weightDocNo,
+        deliveryDate,
+        rate,
+        gross,
+        tare,
+        origin,
+        destination,
+        purchase,
+        userID
+    } = req.body;
 
-  console.log('Incoming request data:', req.body);
+    try {
+        const employeeResult = await sql.query`SELECT EmployeeID FROM tblEmployee WHERE EmployeeName = ${employeeName}`;
+        logger.log('Employee query result:', employeeResult);
 
-  try {
-    const employeeResult = await sql.query`SELECT EmployeeID FROM tblEmployee WHERE EmployeeName = ${employeeName}`;
-    console.log('Employee query result:', employeeResult);
+        const vehicleResult = await sql.query`SELECT VehicleID FROM tblVehicle WHERE VehicleReg = ${vehicleReg}`;
+        logger.log('Vehicle query result:', vehicleResult);
 
-    const vehicleResult = await sql.query`SELECT VehicleID FROM tblVehicle WHERE VehicleReg = ${vehicleReg}`;
-    console.log('Vehicle query result:', vehicleResult);
+        const companyResult = await sql.query`SELECT CompanyID FROM tblCompanies WHERE CompanyName = ${companyName}`;
+        logger.log('Company query result:', companyResult);
 
-    const companyResult = await sql.query`SELECT CompanyID FROM tblCompanies WHERE CompanyName = ${companyName}`;
-    console.log('Company query result:', companyResult);
+        if (employeeResult.recordset.length === 0 || vehicleResult.recordset.length === 0 || companyResult.recordset.length === 0) {
+            logger.log('Sent: Employee, Vehicle, or Company not found');
+            return res.status(404).json({ message: 'Employee, Vehicle, or Company not found.' });
+        }
 
-    if (employeeResult.recordset.length === 0 || vehicleResult.recordset.length === 0 || companyResult.recordset.length === 0) {
-      return res.status(404).json({ message: 'Employee, Vehicle, or Company not found.' });
+        const employeeID = employeeResult.recordset[0].EmployeeID;
+        const vehicleID = vehicleResult.recordset[0].VehicleID;
+        const companyID = companyResult.recordset[0].CompanyID;
+
+        const result = await sql.query`
+            DECLARE @InsertedRows TABLE (ID INT);
+
+            INSERT INTO tblLoads (
+                EmployeeID,
+                VehicleID,
+                CompanyID,
+                JobID,
+                PermitNo,
+                WeightDocNo,
+                DeliveryDate,
+                Rate,
+                Gross,
+                Tare,
+                Origin,
+                Destination,
+                Purchase,
+                UserID
+            )
+            OUTPUT INSERTED.ID INTO @InsertedRows
+            VALUES (
+                ${employeeID},
+                ${vehicleID},
+                ${companyID},
+                ${jobID},
+                ${permitNo},
+                ${weightDocNo},
+                ${deliveryDate},
+                ${rate},
+                ${gross},
+                ${tare},
+                ${origin},
+                ${destination},
+                ${purchase},
+                ${userID}
+            );
+
+            SELECT ID FROM @InsertedRows;`;
+
+        logger.log('Insert query result:', result);
+
+        const loadID = result.recordset[0].ID;
+        logger.log('Sent: Load added successfully with ID:', loadID);
+        res.status(201).json({ message: 'Load added successfully', loadID });
+    } catch (err) {
+        logger.log('Error:', err.message);
+        res.status(500).json({ message: 'Failed to add load', error: err.message });
     }
-
-    const employeeID = employeeResult.recordset[0].EmployeeID;
-    const vehicleID = vehicleResult.recordset[0].VehicleID;
-    const companyID = companyResult.recordset[0].CompanyID;
-
-    const result = await sql.query`
-      DECLARE @InsertedRows TABLE (ID INT);
-
-      INSERT INTO tblLoads (
-        EmployeeID,
-        VehicleID,
-        CompanyID,
-        JobID,
-        PermitNo,
-        WeightDocNo,
-        DeliveryDate,
-        Rate,
-        Gross,
-        Tare,
-        Origin,
-        Destination,
-        Purchase,
-        UserID
-      )
-      OUTPUT INSERTED.ID INTO @InsertedRows
-      VALUES (
-        ${employeeID},
-        ${vehicleID},
-        ${companyID},
-        ${jobID},
-        ${permitNo},
-        ${weightDocNo},
-        ${deliveryDate},
-        ${rate},
-        ${gross},
-        ${tare},
-        ${origin},
-        ${destination},
-        ${purchase},
-        ${userID}
-      );
-
-      SELECT ID FROM @InsertedRows;`;
-
-    console.log('Insert query result:', result);
-
-    const loadID = result.recordset[0].ID;
-    res.status(201).json({ message: 'Load added successfully', loadID });
-  } catch (err) {
-    console.error('Error adding load:', err);
-    res.status(500).json({ message: 'Failed to add load', error: err.message });
-  }
 };
 
 exports.getLast1000Loads = async (req, res) => {

@@ -1,4 +1,5 @@
 const sql = require('mssql');
+const logger = require('../utils/logger'); // Import the logger utility
 require('dotenv').config();
 
 const dbConfig = {
@@ -10,6 +11,7 @@ const dbConfig = {
 };
 
 exports.addVehicle = async (req, res) => {
+    logger.log('Received: Add vehicle request with data:', req.body);
     const { IsTruck, IsTrailer, VehicleReg, Type, Make, Model, Chassis, PurchaseDate, PurchasePrice, CurrentValue, NetWeight, CraneCert, CVRT, Tacho, Tax, Status, UserID, DateAdded } = req.body;
     const query = `INSERT INTO [dbo].[tblVehicle] (IsTruck, IsTrailer, VehicleReg, Type, Make, Model, Chassis, PurchaseDate, PurchasePrice, CurrentValue, NetWeight, CraneCert, CVRT, Tacho, Tax, Status, UserID, DateAdded) 
                    VALUES (@IsTruck, @IsTrailer, @VehicleReg, @Type, @Make, @Model, @Chassis, @PurchaseDate, @PurchasePrice, @CurrentValue, @NetWeight, @CraneCert, @CVRT, @Tacho, @Tax, @Status, @UserID, @DateAdded)`;
@@ -37,13 +39,16 @@ exports.addVehicle = async (req, res) => {
             .input('DateAdded', sql.Date, DateAdded)
             .query(query);
 
+        logger.log('Sent: Vehicle added successfully');
         res.status(201).json({ message: 'Vehicle added successfully' });
     } catch (err) {
+        logger.log('Error: Failed to add vehicle', err.message);
         res.status(500).json({ error: err.message });
     }
 };
 
 exports.editVehicle = async (req, res) => {
+    logger.log('Received: Edit vehicle request with ID:', req.params.id, 'and data:', req.body);
     const { id } = req.params;
     const { IsTruck, IsTrailer, VehicleReg, Type, Make, Model, Chassis, PurchaseDate, PurchasePrice, CurrentValue, NetWeight, CraneCert, CVRT, Tacho, Tax, Status, UserID, DateAdded } = req.body;
     const query = `UPDATE [dbo].[tblVehicle] SET IsTruck = @IsTruck, IsTrailer = @IsTrailer, VehicleReg = @VehicleReg, Type = @Type, Make = @Make, Model = @Model, Chassis = @Chassis, PurchaseDate = @PurchaseDate, PurchasePrice = @PurchasePrice, CurrentValue = @CurrentValue, NetWeight = @NetWeight, CraneCert = @CraneCert, CVRT = @CVRT, Tacho = @Tacho, Tax = @Tax, Status = @Status, UserID = @UserID, DateAdded = @DateAdded WHERE VehicleID = @VehicleID`;
@@ -72,13 +77,16 @@ exports.editVehicle = async (req, res) => {
             .input('VehicleID', sql.Int, id)
             .query(query);
 
+        logger.log('Sent: Vehicle updated successfully');
         res.status(200).json({ message: 'Vehicle updated successfully' });
     } catch (err) {
+        logger.log('Error: Failed to update vehicle', err.message);
         res.status(500).json({ error: err.message });
     }
 };
 
 exports.deleteVehicle = async (req, res) => {
+    logger.log('Received: Delete vehicle request with ID:', req.params.id);
     const { id } = req.params;
     const query = `UPDATE [dbo].[tblVehicle] SET Void = 1 WHERE VehicleID = @VehicleID`;
 
@@ -88,8 +96,10 @@ exports.deleteVehicle = async (req, res) => {
             .input('VehicleID', sql.Int, id)
             .query(query);
 
+        logger.log('Sent: Vehicle removed successfully');
         res.status(200).json({ message: 'Vehicle removed successfully' });
     } catch (err) {
+        logger.log('Error: Failed to remove vehicle', err.message);
         res.status(500).json({ error: err.message });
     }
 };

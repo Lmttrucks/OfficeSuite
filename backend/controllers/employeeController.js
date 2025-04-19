@@ -1,4 +1,5 @@
 const sql = require('mssql');
+const logger = require('../utils/logger'); // Import the logger utility
 require('dotenv').config();
 
 const dbConfig = {
@@ -10,6 +11,7 @@ const dbConfig = {
 };
 
 exports.addEmployee = async (req, res) => {
+    logger.log('Received: Add employee request with data:', req.body);
     const { AppUserID, ContactID, DOB, EmPPS, StartD, EndDD, Duties, DLNo, DLExpiry, WorkStatus, FAExpiry, MHExpiry, CCExpiry, Comments, UserID, DateAdded, EmployeeName } = req.body;
     const query = `INSERT INTO [dbo].[tblEmployee] (AppUserID, ContactID, DOB, EmPPS, StartD, EndDD, Duties, DLNo, DLExpiry, WorkStatus, FAExpiry, MHExpiry, CCExpiry, Comments, UserID, DateAdded, EmployeeName) 
                    VALUES (@AppUserID, @ContactID, @DOB, @EmPPS, @StartD, @EndDD, @Duties, @DLNo, @DLExpiry, @WorkStatus, @FAExpiry, @MHExpiry, @CCExpiry, @Comments, @UserID, @DateAdded, @EmployeeName)`;
@@ -36,13 +38,16 @@ exports.addEmployee = async (req, res) => {
             .input('EmployeeName', sql.NVarChar, EmployeeName)
             .query(query);
 
+        logger.log('Sent: Employee added successfully');
         res.status(201).json({ message: 'Employee added successfully' });
     } catch (err) {
+        logger.log('Error:', err.message);
         res.status(500).json({ error: err.message });
     }
 };
 
 exports.editEmployee = async (req, res) => {
+    logger.log('Received: Edit employee request with ID:', req.params.id, 'and data:', req.body);
     const { id } = req.params;
     const { AppUserID, ContactID, DOB, EmPPS, StartD, EndDD, Duties, DLNo, DLExpiry, WorkStatus, FAExpiry, MHExpiry, CCExpiry, Comments, UserID, DateAdded, EmployeeName } = req.body;
     const query = `UPDATE [dbo].[tblEmployee] SET AppUserID = @AppUserID, ContactID = @ContactID, DOB = @DOB, EmPPS = @EmPPS, StartD = @StartD, EndDD = @EndDD, Duties = @Duties, DLNo = @DLNo, DLExpiry = @DLExpiry, WorkStatus = @WorkStatus, FAExpiry = @FAExpiry, MHExpiry = @MHExpiry, CCExpiry = @CCExpiry, Comments = @Comments, UserID = @UserID, DateAdded = @DateAdded, EmployeeName = @EmployeeName WHERE EmployeeID = @EmployeeID`;
@@ -70,13 +75,16 @@ exports.editEmployee = async (req, res) => {
             .input('EmployeeID', sql.Int, id)
             .query(query);
 
+        logger.log('Sent: Employee updated successfully');
         res.status(200).json({ message: 'Employee updated successfully' });
     } catch (err) {
+        logger.log('Error:', err.message);
         res.status(500).json({ error: err.message });
     }
 };
 
 exports.deleteEmployee = async (req, res) => {
+    logger.log('Received: Delete employee request with ID:', req.params.id);
     const { id } = req.params;
     const query = `UPDATE [dbo].[tblEmployee] SET Void = 1 WHERE EmployeeID = @EmployeeID`;
 
@@ -86,8 +94,10 @@ exports.deleteEmployee = async (req, res) => {
             .input('EmployeeID', sql.Int, id)
             .query(query);
 
+        logger.log('Sent: Employee removed successfully');
         res.status(200).json({ message: 'Employee removed successfully' });
     } catch (err) {
+        logger.log('Error:', err.message);
         res.status(500).json({ error: err.message });
     }
 };

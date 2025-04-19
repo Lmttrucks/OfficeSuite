@@ -1,4 +1,5 @@
 const sql = require('mssql');
+const logger = require('../utils/logger'); // Import the logger utility
 require('dotenv').config();
 
 const dbConfig = {
@@ -12,33 +13,35 @@ const dbConfig = {
     },
 };
 
-sql.connect(dbConfig).catch(err => console.error('SQL connection error:', err));
+sql.connect(dbConfig).catch(err => logger.log('SQL connection error:', err));
 
 exports.addLinkLoad = async (req, res) => {
+    logger.log('Received: Add link load request with data:', req.body);
     const { loadID, companyName, linkNo, rate, purchase } = req.body;
 
     try {
-        // Get CompanyID from companyName
         const companyResult = await sql.query`SELECT CompanyID FROM tblCompanies WHERE CompanyName = ${companyName}`;
-        
         if (companyResult.recordset.length === 0) {
+            logger.log('Sent: Company not found');
             return res.status(404).json({ message: 'Company not found.' });
         }
 
         const companyID = companyResult.recordset[0].CompanyID;
 
-        // Insert into tblLinkLoads
         await sql.query`
             INSERT INTO tblLinkLoads (LoadID, CompanyID, LinkNo, Rate, Purchase)
             VALUES (${loadID}, ${companyID}, ${linkNo || null}, ${rate}, ${purchase})`;
 
+        logger.log('Sent: Link load added successfully');
         res.status(201).json({ message: 'Link load added successfully' });
     } catch (err) {
+        logger.log('Error:', err.message);
         res.status(500).json({ message: 'Failed to add link load', error: err.message });
     }
 };
 
 exports.updateLinkLoad = async (req, res) => {
+    logger.log('Received: Update link load request with ID:', req.params.ID, 'and data:', req.body);
     const { ID } = req.params;
     const { linkNo, rate, invoiceNo, paid, deleted, purchase } = req.body;
 
@@ -72,6 +75,7 @@ exports.updateLinkLoad = async (req, res) => {
         }
 
         if (updateFields.length === 0) {
+            logger.log('Sent: No fields to update');
             return res.status(400).json({ message: 'No fields to update.' });
         }
 
@@ -89,11 +93,14 @@ exports.updateLinkLoad = async (req, res) => {
         const result = await request.query(updateQuery);
 
         if (result.rowsAffected[0] === 0) {
+            logger.log('Sent: Link load not found');
             return res.status(404).json({ message: "Link load not found." });
         }
 
+        logger.log('Sent: Link load updated successfully');
         res.json({ message: "Link load updated successfully." });
     } catch (err) {
+        logger.log('Error:', err.message);
         res.status(500).json({ message: 'Failed to update link load', error: err.message });
     }
 };
@@ -118,6 +125,7 @@ exports.updateLinkLoadInvoiceNo = async (req, res) => {
 };
 
 exports.getExternalLoads = async (req, res) => {
+    logger.log('Received: Get external loads request');
     try {
         const result = await sql.query`
             SELECT 
@@ -137,14 +145,18 @@ exports.getExternalLoads = async (req, res) => {
             AND l.Archived = 0 AND l.Void = 0`;
 
         if (result.recordset.length === 0) {
+            logger.log('Sent: No loads found for the specified criteria');
             return res.status(404).json({ message: "No loads found for the specified criteria." });
         }
 
+        logger.log('Sent:', result.recordset);
         res.json(result.recordset);
     } catch (err) {
+        logger.log('Error:', err.message);
         res.status(500).json({ message: 'Failed to fetch records', error: err.message });
     }
 };
+
 exports.previewLinkedLoadsInvoice = async (req, res) => {
     const { CompanyName, StartDate, EndDate, Purchase } = req.body;
 
@@ -245,6 +257,7 @@ exports.getLast1000LinkedLoads = async (req, res) => {
 };
 
 exports.deleteLinkLoad = async (req, res) => {
+    logger.log('Received: Delete link load request with ID:', req.params.id);
     const { id } = req.params;
 
     try {
@@ -254,11 +267,14 @@ exports.deleteLinkLoad = async (req, res) => {
             WHERE ID = ${id}`;
 
         if (result.rowsAffected[0] === 0) {
+            logger.log('Sent: Link load not found');
             return res.status(404).json({ message: "Link load not found." });
         }
 
+        logger.log('Sent: Link load marked as void successfully');
         res.json({ message: "Link load marked as void successfully." });
     } catch (err) {
+        logger.log('Error:', err.message);
         res.status(500).json({ message: 'Failed to mark link load as void', error: err.message });
     }
 };

@@ -1,5 +1,6 @@
 const sql = require('mssql');
 const { BlobServiceClient } = require('@azure/storage-blob');
+const logger = require('../utils/logger'); // Import the logger utility
 require('dotenv').config();
 
 const dbConfig = {
@@ -13,6 +14,7 @@ const dbConfig = {
 };
 
 exports.previewInvoice = async (req, res) => {
+    logger.log('Received: Preview invoice request with data:', req.body);
     const { CompanyName, StartDate, EndDate, JobID, Purchase } = req.body;
 
     try {
@@ -45,7 +47,7 @@ exports.previewInvoice = async (req, res) => {
         request.input('CompanyName', sql.VarChar, CompanyName);
         request.input('StartDate', sql.Date, StartDate);
         request.input('EndDate', sql.Date, EndDate);
-        request.input('Purchase', sql.Bit, Purchase); // Add Purchase parameter
+        request.input('Purchase', sql.Bit, Purchase);
         if (JobID) {
             request.input('JobID', sql.VarChar, JobID);
         }
@@ -53,16 +55,20 @@ exports.previewInvoice = async (req, res) => {
         const loadsResult = await request.query(query);
 
         if (loadsResult.recordset.length === 0) {
+            logger.log('Sent: No loads found for the specified criteria');
             return res.status(404).json({ message: 'No loads found for the specified criteria' });
         }
 
+        logger.log('Sent:', loadsResult.recordset);
         res.json(loadsResult.recordset);
     } catch (err) {
+        logger.log('Error:', err.message);
         res.status(500).json({ message: 'Server error', error: err.message });
     }
 };
 
 exports.insertInvoice = async (req, res) => {
+    logger.log('Received: Insert invoice request with data:', req.body);
     const { CompanyID, StartDate, EndDate, VatRate, LoadCount, PaymentAmount, InvoiceURL, UserID, Purchase } = req.body;
 
     try {
@@ -98,8 +104,10 @@ exports.insertInvoice = async (req, res) => {
 
         const invoiceNo = result.recordset[0].InvoiceNo;
 
+        logger.log('Sent: Invoice inserted successfully with InvoiceNo:', invoiceNo);
         res.status(201).json({ invoiceNo });
     } catch (err) {
+        logger.log('Error:', err.message);
         res.status(500).json({ message: 'Server error', error: err.message });
     }
 };
@@ -186,9 +194,8 @@ exports.getLoadsByInvoiceNo = async (req, res) => {
 };
 
 exports.deleteInvoiceByInvoiceNo = async (req, res) => {
-    const { InvoiceNo } = req.params; // Change to req.params
-
-    console.log('InvoiceNo:', req.params.InvoiceNo);
+    logger.log('Received: Delete invoice request with InvoiceNo:', req.params.InvoiceNo);
+    const { InvoiceNo } = req.params;
 
     try {
         await sql.connect(dbConfig);
@@ -206,11 +213,14 @@ exports.deleteInvoiceByInvoiceNo = async (req, res) => {
         WHERE InvoiceNo = ${InvoiceNo}`;
 
         if (result.rowsAffected[0] === 0) {
+            logger.log('Sent: No invoice found for the specified invoice number');
             return res.status(404).json({ message: 'No invoice found for the specified invoice number' });
         }
 
+        logger.log('Sent: Invoice deleted successfully');
         res.status(200).json({ message: 'Invoice deleted successfully' });
     } catch (err) {
+        logger.log('Error:', err.message);
         res.status(500).json({ message: 'Server error', error: err.message });
     }
 };
