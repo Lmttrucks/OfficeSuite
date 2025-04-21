@@ -2,7 +2,7 @@ import axios from 'axios';
 import config from '../config';
 
 const api = axios.create({
-  baseURL: config.apiBaseUrl // ✅ This should point to port 5000
+  baseURL: config.apiBaseUrl 
 });
 
 // Inject Authorization Header dynamically
