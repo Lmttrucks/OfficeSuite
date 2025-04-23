@@ -1,6 +1,6 @@
 const config = {
-  Version: '0.0.0.8',
-  apiBaseUrl: 'https://mlogappbe-aqgmbxe6aedqd5hg.westeurope-01.azurewebsites.net/api',
+  Version: '2.0.0.1',
+  apiBaseUrl: 'http://localhost:5000/api',
   encryptionKey: 'IKBVFnsdj569684dght589dhbeubHGTG',
   getAuthHeaders: () => {
     const token = localStorage.getItem('token');
