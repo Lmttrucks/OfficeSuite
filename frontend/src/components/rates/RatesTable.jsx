@@ -1,15 +1,12 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { Table, TableBody, TableCell, TableHead, TableRow, Button, Modal, Box, TextField } from '@mui/material';
-import { useReactToPrint } from 'react-to-print';
-import RateSheet from './RateSheet';
 import config from '../../config';
 
 const RatesTable = ({ refresh, onRateEdited }) => {
   const [rates, setRates] = useState([]);
   const [selectedRate, setSelectedRate] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const rateSheetRef = useRef(); // Reference for the RateSheet component
 
   useEffect(() => {
     const fetchRates = async () => {
@@ -70,15 +67,8 @@ const RatesTable = ({ refresh, onRateEdited }) => {
     setSelectedRate({ ...selectedRate, [name]: value });
   };
 
-  const handlePrint = useReactToPrint({
-    content: () => rateSheetRef.current // Reference the RateSheet component
-  });
-
   return (
     <>
-      <Button variant="contained" onClick={handlePrint} sx={{ mb: 2 }}>
-        Print Rate Sheet
-      </Button>
       <div>
         <Table>
           <TableHead>
@@ -159,11 +149,6 @@ const RatesTable = ({ refresh, onRateEdited }) => {
           )}
         </Box>
       </Modal>
-
-      {/* Hidden RateSheet component for printing */}
-      <div style={{ display: 'none' }}>
-        <RateSheet ref={rateSheetRef} rates={rates} />
-      </div>
     </>
   );
 };

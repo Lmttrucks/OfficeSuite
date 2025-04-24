@@ -1,16 +1,15 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import AddRateForm from '../../../components/rates/AddRateForm';
 import AdjustRatesForm from '../../../components/rates/AdjustRatesForm';
 import RatesTable from '../../../components/rates/RatesTable';
-import RateSheet from '../../../components/rates/RateSheet';
-import { useReactToPrint } from 'react-to-print';
+import RateSheetPDFViewer from '../../../components/rates/RateSheetPDFViewer';
 import config from '../../../config';
-import { Button } from '@mui/material'; // Import Button from Material-UI
+import { Button } from '@mui/material';
 
 const RatesPage = () => {
   const [refreshTable, setRefreshTable] = useState(false);
-  const [rates, setRates] = useState([]); // Store rates for the RateSheet
-  const rateSheetRef = useRef(); // Reference for the RateSheet component
+  const [ratesData, setRatesData] = useState([]); // Store rates for the RateSheet
+  const [showPreview, setShowPreview] = useState(false); // Toggle PDF preview
 
   const handleRateChange = () => {
     setRefreshTable((prev) => !prev);
@@ -25,7 +24,7 @@ const RatesPage = () => {
         });
         if (response.ok) {
           const data = await response.json();
-          setRates(data);
+          setRatesData(data);
         } else {
           alert('Failed to fetch rates');
         }
@@ -38,26 +37,28 @@ const RatesPage = () => {
     fetchRates();
   }, [refreshTable]);
 
-  // Handle printing the RateSheet
-  const handlePrint = useReactToPrint({
-    content: () => rateSheetRef.current // Reference the RateSheet component
-  });
-
   return (
     <div style={{ marginLeft: '60px' }}>
       <h1>Manage Rates</h1>
       <AddRateForm onRateAdded={handleRateChange} />
       <AdjustRatesForm onRatesAdjusted={handleRateChange} />
-      <Button variant="contained" onClick={handlePrint} sx={{ mb: 2 }}>
-        Print Rate Sheet
+      <Button
+        variant="contained"
+        onClick={() => setShowPreview(true)}
+        sx={{ mb: 2 }}
+      >
+        Preview Rate Sheet
       </Button>
       <h2>All Rates</h2>
       <RatesTable refresh={refreshTable} onRateEdited={handleRateChange} />
 
-      {/* Hidden RateSheet component for printing */}
-      <div style={{ display: 'none' }}>
-        <RateSheet ref={rateSheetRef} rates={rates} />
-      </div>
+      {/* PDF Viewer for RateSheet */}
+      {showPreview && (
+        <RateSheetPDFViewer
+          ratesData={ratesData}
+          onClose={() => setShowPreview(false)}
+        />
+      )}
     </div>
   );
 };
