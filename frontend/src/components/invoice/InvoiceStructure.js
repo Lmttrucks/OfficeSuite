@@ -149,7 +149,9 @@ const PostBox = ({ invoiceData }) => (
   <View style={styles.postBox}>
     <Text>{invoiceData.companyName}</Text>
     <Text>{invoiceData.companyAddress}</Text>
-    <Text>{invoiceData.companyEmail}</Text>
+    {invoiceData.companyEmail !== 'email@here' && (
+      <Text>{invoiceData.companyEmail}</Text>
+    )}
   </View>
 );
 
@@ -169,14 +171,14 @@ const InvoiceDetails = ({ invoiceData }) => {
     <View style={styles.invoiceDetails}>
       {[
         ['Invoice Type:', invoiceData.purchase ? 'Purchase' : 'Sales'],
-        ['Invoice No:', invoiceData.invoiceNo],
-        ['Date Generated:', today],
-        ['Company ID:', invoiceData.companyID],
-        ['Start Date:', invoiceData.startDate],
-        ['End Date:', invoiceData.endDate],
-        ['VAT Rate:', `${invoiceData.vatRate}%`],
-        ['Payment Amount:', `Eur${invoiceData.paymentAmount.toFixed(2)}`],
-        ['Load Count:', invoiceData.loadCount]
+        ['Invoice No:', invoiceData.invoiceNo || ''],
+        ['Date Generated:', invoiceData.dateGenerated || today],
+        ['Company ID:', invoiceData.companyID || ''],
+        ['Start Date:', invoiceData.startDate || ''],
+        ['End Date:', invoiceData.endDate || ''],
+        ['VAT Rate:', `${invoiceData.vatRate || 0}%`],
+        ['Payment Amount:', `Eur${(invoiceData.paymentAmount || 0).toFixed(2)}`],
+        ['Load Count:', invoiceData.loadCount || 0]
       ].map(([label, value], idx) => (
         <View style={styles.detailRow} key={idx}>
           <Text style={styles.detailLabel}>{label}</Text>
@@ -192,6 +194,7 @@ InvoiceDetails.propTypes = {
     invoiceNo: PropTypes.string,
     companyID: PropTypes.string,
     startDate: PropTypes.string,
+    dateGenerated: PropTypes.string,
     endDate: PropTypes.string,
     vatRate: PropTypes.number,
     paymentAmount: PropTypes.number,
@@ -200,12 +203,22 @@ InvoiceDetails.propTypes = {
   }).isRequired
 };
 
+// Function to format date
+const formatDate = (dateString) => {
+  if (!dateString) return 'N/A';
+  const date = new Date(dateString);
+  const day = String(date.getDate()).padStart(2, '0');
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const year = String(date.getFullYear()).slice(-2);
+  return `${day}/${month}/${year}`;
+};
+
 // Table Body
 const Body = ({ loads }) => (
   <View style={styles.table}>
     <View style={styles.tableRow}>
       {[
-        'ID',
+        'Delivery Date',
         'Permit No',
         'Weight Doc No',
         'Origin',
@@ -222,7 +235,7 @@ const Body = ({ loads }) => (
     {loads.map((load, idx) => (
       <View style={styles.tableRow} key={idx}>
         {[
-          load.ID,
+          formatDate(load.DeliveryDate),
           load.PermitNo,
           load.WeightDocNo,
           load.Origin,
@@ -243,7 +256,7 @@ const Body = ({ loads }) => (
 Body.propTypes = {
   loads: PropTypes.arrayOf(
     PropTypes.shape({
-      ID: PropTypes.string,
+      DeliveryDate: PropTypes.string,
       PermitNo: PropTypes.string,
       WeightDocNo: PropTypes.string,
       Origin: PropTypes.string,
@@ -286,11 +299,11 @@ Footer.propTypes = {
 
 // Main Invoice Structure
 const InvoiceStructure = ({ invoiceData }) => {
-  const netTotal = invoiceData.loads.reduce(
+  const netTotal = (invoiceData.loads || []).reduce(
     (acc, load) => acc + load.Rate * load.UnitQuantity,
     0
   );
-  const vatAmount = netTotal * (invoiceData.vatRate / 100);
+  const vatAmount = netTotal * ((invoiceData.vatRate || 0) / 100);
   const grossTotal = netTotal + vatAmount;
 
   // Function to paginate records into pages
@@ -306,7 +319,7 @@ const InvoiceStructure = ({ invoiceData }) => {
   };
 
   // Paginate records: 21 for the first page, 45 for others
-  const pages = paginateRecords(invoiceData.loads, 25, 43);
+  const pages = paginateRecords(invoiceData.loads || [], 25, 43);
 
   return (
     <Document>
@@ -350,13 +363,14 @@ InvoiceStructure.propTypes = {
     invoiceNo: PropTypes.string,
     companyID: PropTypes.string,
     startDate: PropTypes.string,
+    dateGenerated: PropTypes.string,
     endDate: PropTypes.string,
     vatRate: PropTypes.number,
     paymentAmount: PropTypes.number,
     loadCount: PropTypes.number,
     loads: PropTypes.arrayOf(
       PropTypes.shape({
-        ID: PropTypes.string,
+        DeliveryDate: PropTypes.string,
         PermitNo: PropTypes.string,
         WeightDocNo: PropTypes.string,
         Origin: PropTypes.string,

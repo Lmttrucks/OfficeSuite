@@ -1,7 +1,8 @@
+require('dotenv').config(); // Load environment variables first
 process.chdir(__dirname);
 const express = require('express');
 const cors = require('cors');
-const dotenv = require('dotenv');
+const logger = require('./utils/logger'); // Import logger after dotenv
 const authRoutes = require('./routes/authRoutes');
 const protectedRoutes = require('./routes/protectedRoutes');
 const loadRoutes = require('./routes/loadRoutes');
@@ -13,9 +14,8 @@ const uploadRoutes = require('./routes/uploadRoutes');
 const companyRoutes = require('./routes/companyRoutes');
 const employeeRoutes = require('./routes/employeeRoutes');
 const vehicleRoutes = require('./routes/vehicleRoutes');
-const linkLoadsRoutes = require('./routes/linkLoadsRoutes'); // Import the linkLoadsRoutes
-
-dotenv.config();
+const linkLoadsRoutes = require('./routes/linkLoadsRoutes');
+const ratesRoute = require('./routes/ratesRoute');
 
 const app = express();
 const port = process.env.PORT || 5000;
@@ -35,8 +35,9 @@ app.use('/api/upload', uploadRoutes);
 app.use('/api/companies', companyRoutes);
 app.use('/api/employees', employeeRoutes);
 app.use('/api/vehicles', vehicleRoutes);
-app.use('/api/link-loads', linkLoadsRoutes); // Add the linkLoadsRoutes
+app.use('/api/link-loads', linkLoadsRoutes);
+app.use('/api/rates', ratesRoute);
 
 app.listen(port, () => {
-    console.log(`Server running on port ${port}`);
+    logger.log(`Server running on port ${port}`);
 });

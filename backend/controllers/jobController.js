@@ -1,4 +1,5 @@
 const sql = require('mssql');
+const logger = require('../utils/logger'); // Import the logger utility
 require('dotenv').config();
 
 const dbConfig = {
@@ -27,6 +28,7 @@ const getCompanyName = async (companyID) => {
 };
 
 const JobsDefaults = async (req, res) => {
+    logger.log('Received: Get job defaults request with JobID:', req.params.jobID);
     const { jobID } = req.params;
     try {
         const result = await sql.query`
@@ -36,25 +38,32 @@ const JobsDefaults = async (req, res) => {
             AND Void = 0`;
 
         if (result.recordset.length === 0) {
+            logger.log('Sent: Job not found');
             return res.status(404).json({ message: 'Job not found' });
         }
+        logger.log('Sent:', result.recordset[0]);
         res.json(result.recordset[0]);
     } catch (err) {
+        logger.log('Error:', err.message);
         res.status(500).json({ message: 'Failed to fetch job defaults', error: err.message });
     }
 };
 
 const getAllJobs = async (req, res) => {
+    logger.log('Received: Get all jobs request');
     try {
         await sql.connect(dbConfig);
         const result = await sql.query`SELECT * FROM tblJobs WHERE Void = 0`;
+        logger.log('Sent:', result.recordset);
         res.json(result.recordset);
     } catch (err) {
+        logger.log('Error:', err.message);
         res.status(500).json({ message: err.message });
     }
 };
 
 const getJobById = async (req, res) => {
+    logger.log('Received: Get job by ID request with JobID:', req.params.jobID);
     const { jobID } = req.params;
     try {
         await sql.connect(dbConfig);
@@ -64,9 +73,10 @@ const getJobById = async (req, res) => {
                    RoadCondition, EstSize, DefaultCompany, DefaultOrigin, DefaultDestination, DefaultRate,
                    PlantPassportLink, FellingLicenceLink, Comments, CleanUp, Started, Complete, UserID, DateAdded
             FROM tblJobs
-            WHERE JobID = ${jobID} AND Void = 0
-        `;
+            WHERE JobID = ${jobID} AND Void = 0`;
+
         if (result.recordset.length === 0) {
+            logger.log('Sent: Job not found');
             return res.status(404).json({ message: 'Job not found' });
         }
 
@@ -74,13 +84,16 @@ const getJobById = async (req, res) => {
         job.FMCompanyName = await getCompanyName(job.FMCompanyID);
         job.HarvestCompanyName = await getCompanyName(job.HarvestCompanyID);
 
+        logger.log('Sent:', job);
         res.json(job);
     } catch (err) {
+        logger.log('Error:', err.message);
         res.status(500).json({ message: err.message });
     }
 };
 
 const createJob = async (req, res) => {
+    logger.log('Received: Create job request with data:', req.body);
     const {
         JobID, HarvestDate, FellingLicenseNo, ForestName, ForestOwner, FMCompanyName, FMContactID,
         HarvestCompanyName, FWContactID, County, Town, FSC100, FSCCon, AccessType, GateLocation,
@@ -104,15 +117,17 @@ const createJob = async (req, res) => {
                 ${HarvestCompanyID}, ${FWContactID}, ${County}, ${Town}, ${FSC100}, ${FSCCon}, ${AccessType}, ${GateLocation},
                 ${RoadCondition}, ${EstSize}, ${DefaultCompany}, ${DefaultOrigin}, ${DefaultDestination}, ${DefaultRate},
                 ${PlantPassportLink}, ${FellingLicenceLink}, ${Comments}, ${CleanUp}, ${Started}, ${Complete}, ${UserID}, ${DateAdded}
-            )
-        `;
+            )`;
+        logger.log('Sent: Job created successfully');
         res.status(201).json({ message: 'Job created successfully' });
     } catch (err) {
+        logger.log('Error:', err.message);
         res.status(500).json({ message: err.message });
     }
 };
 
 const updateJob = async (req, res) => {
+    logger.log('Received: Update job request with JobID:', req.params.jobID, 'and data:', req.body);
     const { jobID } = req.params;
     const {
         JobID, HarvestDate, FellingLicenseNo, ForestName, ForestOwner, FMCompanyName, FMContactID,
@@ -125,6 +140,7 @@ const updateJob = async (req, res) => {
         await sql.connect(dbConfig);
         const result = await sql.query`SELECT * FROM tblJobs WHERE JobID = ${jobID}`;
         if (result.recordset.length === 0) {
+            logger.log('Sent: Job not found');
             return res.status(404).json({ message: 'Job not found' });
         }
 
@@ -163,27 +179,32 @@ const updateJob = async (req, res) => {
                 Complete = ${Complete},
                 UserID = ${UserID},
                 DateAdded = ${DateAdded}
-            WHERE JobID = ${jobID}
-        `;
+            WHERE JobID = ${jobID}`;
+        logger.log('Sent: Job updated successfully');
         res.json({ message: 'Job updated successfully' });
     } catch (err) {
+        logger.log('Error:', err.message);
         res.status(500).json({ message: err.message });
     }
 };
 
 const deleteJob = async (req, res) => {
+    logger.log('Received: Delete job request with JobID:', req.params.jobID);
     const { jobID } = req.params;
 
     try {
         await sql.connect(dbConfig);
         const result = await sql.query`SELECT * FROM tblJobs WHERE JobID = ${jobID}`;
         if (result.recordset.length === 0) {
+            logger.log('Sent: Job not found');
             return res.status(404).json({ message: 'Job not found' });
         }
 
         await sql.query`UPDATE tblJobs SET Void = 1 WHERE JobID = ${jobID}`;
+        logger.log('Sent: Job deleted successfully');
         res.json({ message: 'Job deleted successfully' });
     } catch (err) {
+        logger.log('Error:', err.message);
         res.status(500).json({ message: err.message });
     }
 };

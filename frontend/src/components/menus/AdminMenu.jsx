@@ -38,7 +38,8 @@ function AdminMenu() {
   const [companiesMenuOpen, setCompaniesMenuOpen] = useState(false);
   const [jobsMenuOpen, setJobsMenuOpen] = useState(false);
   const [usersMenuOpen, setUsersMenuOpen] = useState(false);
-  const [employeesMenuOpen, setEmployeesMenuOpen] = useState(false); // Add this line
+  const [employeesMenuOpen, setEmployeesMenuOpen] = useState(false);
+  const [ratesMenuOpen, setRatesMenuOpen] = useState(false); // Add state for rates menu
 
   const loadsSubmenuItems = [
     { text: 'Load Search', path: '/admin/loads/search' },
@@ -51,7 +52,7 @@ function AdminMenu() {
     { text: 'Create Invoice', path: '/admin/invoicing/create' },
     { text: 'Search Invoice', path: '/admin/invoicing/search' },
     { text: 'Other Invoice', path: '/admin/invoicing/other' },
-    { text: 'Linked Invoice', path: '/admin/invoicing/link-invoice' } // New submenu item for Linked Invoice
+    { text: 'Linked Invoice', path: '/admin/invoicing/link-invoice' }
   ];
 
   const companiesSubmenuItems = [
@@ -72,8 +73,12 @@ function AdminMenu() {
   ];
 
   const employeesSubmenuItems = [
-    { text: 'Add Employee', path: '/admin/employees/add' }, // Add this line
-    { text: 'Edit Employee', path: '/admin/employees/edit/:id' } // Add this line
+    { text: 'Add Employee', path: '/admin/employees/add' },
+    { text: 'Edit Employee', path: '/admin/employees/edit/:id' }
+  ];
+
+  const ratesSubmenuItems = [
+    { text: 'Manage Rates', path: '/admin/rates' } // Add this submenu item
   ];
 
   const handleLoadsClick = () => {
@@ -89,7 +94,11 @@ function AdminMenu() {
   };
 
   const handleEmployeesClick = () => {
-    setEmployeesMenuOpen(!employeesMenuOpen); // Add this line
+    setEmployeesMenuOpen(!employeesMenuOpen);
+  };
+
+  const handleRatesClick = () => {
+    setRatesMenuOpen(!ratesMenuOpen); // Add this handler
   };
 
   const resetMenuState = () => {
@@ -98,7 +107,8 @@ function AdminMenu() {
     setCompaniesMenuOpen(false);
     setJobsMenuOpen(false);
     setUsersMenuOpen(false);
-    setEmployeesMenuOpen(false); // Add this line
+    setEmployeesMenuOpen(false);
+    setRatesMenuOpen(false);
   };
 
   return (
@@ -243,7 +253,7 @@ function AdminMenu() {
         </Collapse>
 
         <ListItem disablePadding>
-          <ListItemButton onClick={handleEmployeesClick}> {/* Add this block */}
+          <ListItemButton onClick={handleEmployeesClick}>
             <ListItemIcon>
               <People />
             </ListItemIcon>
@@ -254,6 +264,29 @@ function AdminMenu() {
         <Collapse in={employeesMenuOpen} timeout="auto" unmountOnExit>
           <List component="div" disablePadding>
             {employeesSubmenuItems.map((submenuItem) => (
+              <ListItem key={submenuItem.text} disablePadding>
+                <ListItemButton onClick={() => navigate(submenuItem.path)}>
+                  {isExpanded && (
+                    <ListItemText primary={submenuItem.text} inset />
+                  )}
+                </ListItemButton>
+              </ListItem>
+            ))}
+          </List>
+        </Collapse>
+
+        <ListItem disablePadding>
+          <ListItemButton onClick={handleRatesClick}>
+            <ListItemIcon>
+              <Assignment />
+            </ListItemIcon>
+            {isExpanded && <ListItemText primary="Rates" />}
+            {isExpanded && (ratesMenuOpen ? <ExpandLess /> : <ExpandMore />)}
+          </ListItemButton>
+        </ListItem>
+        <Collapse in={ratesMenuOpen} timeout="auto" unmountOnExit>
+          <List component="div" disablePadding>
+            {ratesSubmenuItems.map((submenuItem) => (
               <ListItem key={submenuItem.text} disablePadding>
                 <ListItemButton onClick={() => navigate(submenuItem.path)}>
                   {isExpanded && (

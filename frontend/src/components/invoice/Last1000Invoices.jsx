@@ -51,26 +51,99 @@ const Last1000Invoices = ({ refresh }) => {
   const handleReprint = async (invoice) => {
     try {
       // Fetch loads by invoice number
-      const loadsResponse = await fetch(`${config.apiBaseUrl}/invoices/getLoadsByInvoiceNo?invoiceNo=${invoice.InvoiceNo}`, config.getAuthHeaders());
+      const loadsResponse = await fetch(
+        `${config.apiBaseUrl}/invoices/getLoadsByInvoiceNo?invoiceNo=${invoice.InvoiceNo}`,
+        config.getAuthHeaders()
+      );
       const loadsData = await loadsResponse.json();
 
       // Fetch company info by company name
-      const companyResponse = await fetch(`${config.apiBaseUrl}/lookups/getCompanyInfo/${invoice.CompanyName}`, config.getAuthHeaders());
+      const companyResponse = await fetch(
+        `${config.apiBaseUrl}/lookups/company-info/${encodeURIComponent(invoice.CompanyName)}`,
+        config.getAuthHeaders()
+      );
+      if (!companyResponse.ok) {
+        throw new Error('Failed to fetch company information');
+      }
       const companyData = await companyResponse.json();
+
+      // Compute values
+      const loadCount = loadsData.length;
+      const totalAmount = loadsData.reduce(
+        (acc, load) => acc + load.Rate * load.UnitQuantity,
+        0
+      );
+      const vatRate = parseFloat(invoice.VatRate || 0);
+      const vatAmount = totalAmount * (vatRate / 100);
+      const paymentAmount = totalAmount + vatAmount;
 
       // Prepare invoice data
       const invoiceData = {
         ...invoice,
+        invoiceNo: invoice.InvoiceNo, // Explicitly include invoiceNo
+        startDate: invoice.StartDate, // Explicitly include startDate
+        endDate: invoice.EndDate,
         loads: loadsData,
         companyName: companyData.CompanyName,
+        companyID: companyData.CompanyID,
         companyAddress: companyData.CompanyAddress,
-        companyEmail: companyData.CompanyEmail
+        companyEmail: companyData.CompanyEmail,
+        dateGenerated: invoice.DateAdded, // Set DateAdded as dateGenerated
+        loadCount: loadCount,
+        totalAmount: parseFloat(totalAmount.toFixed(2)), // Ensure it's a number
+        vatRate: vatRate,
+        vatAmount: parseFloat(vatAmount.toFixed(2)), // Ensure it's a number
+        paymentAmount: parseFloat(paymentAmount.toFixed(2)) // Ensure it's a number
       };
+
+      console.log('Invoice Data before rendering:', invoiceData); // Log the invoice data
 
       setReprintInvoice(invoiceData);
     } catch (error) {
       console.error('Error reprinting invoice:', error);
       alert('Error reprinting invoice');
+    }
+  };
+
+  const handleRefreshLoads = async (invoice) => {
+    try {
+      // Fetch loads by invoice number
+      const loadsResponse = await fetch(`${config.apiBaseUrl}/invoices/getLoadsByInvoiceNo?invoiceNo=${invoice.InvoiceNo}`, config.getAuthHeaders());
+      const loadsData = await loadsResponse.json();
+
+      if (!Array.isArray(loadsData)) {
+        throw new Error('Invalid loads data');
+      }
+
+      // Recalculate LoadCount and PaymentAmount
+      const loadCount = loadsData.length;
+      const paymentAmount = loadsData.reduce((total, load) => total + load.Rate * load.UnitQuantity, 0);
+
+      // Update the invoice
+      const updatedInvoice = {
+        ...invoice,
+        LoadCount: loadCount,
+        PaymentAmount: paymentAmount
+      };
+
+      const response = await fetch(`${config.apiBaseUrl}/invoices/${invoice.InvoiceNo}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          ...config.getAuthHeaders().headers
+        },
+        body: JSON.stringify(updatedInvoice)
+      });
+
+      if (response.ok) {
+        alert('Invoice updated successfully');
+        fetchRecords();
+      } else {
+        alert('Failed to update invoice');
+      }
+    } catch (error) {
+      console.error('Error refreshing loads:', error);
+      alert('Error refreshing loads');
     }
   };
 
@@ -83,16 +156,16 @@ const Last1000Invoices = ({ refresh }) => {
   }, [refresh]);
 
   const columns = [
-    { field: 'InvoiceNo', headerName: 'Invoice No', width: 150 },
-    { field: 'CompanyName', headerName: 'Company Name', width: 150 },
-    { field: 'StartDate', headerName: 'Start Date', width: 150 },
-    { field: 'EndDate', headerName: 'End Date', width: 150 },
-    { field: 'VatRate', headerName: 'VAT Rate', width: 100 },
+    { field: 'InvoiceNo', headerName: 'Invoice No', width: 100 },
+    { field: 'CompanyName', headerName: 'Company Name', width: 200 },
+    { field: 'StartDate', headerName: 'Start Date', width: 100 },
+    { field: 'EndDate', headerName: 'End Date', width: 100 },
+    { field: 'VatRate', headerName: 'VAT Rate', width: 80 },
     { field: 'LoadCount', headerName: 'Load Count', width: 100 },
-    { field: 'PaymentAmount', headerName: 'Payment Amount', width: 150 },
-    { field: 'InvoiceURL', headerName: 'Invoice URL', width: 200 },
+    { field: 'PaymentAmount', headerName: 'Payment Amount', width: 100 },
+    { field: 'InvoiceURL', headerName: 'Invoice URL', width: 50 },
     { field: 'UserID', headerName: 'User ID', width: 100 },
-    { field: 'DateAdded', headerName: 'Date Added', width: 150 },
+    { field: 'DateAdded', headerName: 'Date Added', width: 100 },
     { field: 'Purchase', headerName: 'Purchase', width: 100 },
     {
       field: 'actions',
@@ -122,8 +195,17 @@ const Last1000Invoices = ({ refresh }) => {
             size="small"
             color="primary"
             onClick={() => handleReprint(params.row)}
+            sx={{ mr: 1 }}
           >
             Reprint
+          </Button>
+          <Button
+            variant="contained"
+            size="small"
+            color="primary"
+            onClick={() => handleRefreshLoads(params.row)}
+          >
+            Refresh
           </Button>
         </div>
       )
