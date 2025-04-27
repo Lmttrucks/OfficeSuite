@@ -160,10 +160,12 @@ exports.addLoad = async (req, res) => {
 
             SELECT ID FROM @InsertedRows;`;
 
-        logger.log('Insert query result:', result);
+logger.log('Insert query result:', result);
+
 
         const loadID = result.recordset[0].ID;
-        logger.log('Sent: Load added successfully with ID:', loadID);
+        logger.log('Load added successfully with ID:', loadID);
+
         res.status(201).json({ message: 'Load added successfully', loadID });
     } catch (err) {
         logger.log('Error:', err.message);
