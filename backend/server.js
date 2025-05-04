@@ -1,5 +1,20 @@
 require('dotenv').config(); // Load environment variables first
 process.chdir(__dirname);
+const appInsights = require('applicationinsights');
+
+if (process.env.APPLICATIONINSIGHTS_CONNECTION_STRING || process.env.APPINSIGHTS_INSTRUMENTATIONKEY) {
+  appInsights
+    .setup(process.env.APPLICATIONINSIGHTS_CONNECTION_STRING || process.env.APPINSIGHTS_INSTRUMENTATIONKEY)
+    .setAutoCollectConsole(true, true)
+    .setAutoCollectDependencies(true)
+    .setAutoCollectExceptions(true)
+    .setAutoCollectPerformance(true)
+    .setAutoCollectRequests(true)
+    .start();
+} else {
+  console.warn("No instrumentation key or connection string provided for Application Insights.");
+}
+
 const express = require('express');
 const cors = require('cors');
 const path = require('path'); // Import path module
@@ -17,8 +32,6 @@ const employeeRoutes = require('./routes/employeeRoutes');
 const vehicleRoutes = require('./routes/vehicleRoutes');
 const linkLoadsRoutes = require('./routes/linkLoadsRoutes');
 const ratesRoute = require('./routes/ratesRoute');
-const appInsights = require('applicationinsights');
-appInsights.setup().start();
 
 const app = express();
 const port = process.env.PORT || 5000;
@@ -42,16 +55,11 @@ app.use('/api/link-loads', linkLoadsRoutes);
 app.use('/api/rates', ratesRoute);
 
 // Serve static files from the frontend's build folder
-app.use(express.static(path.join(__dirname, '../build')));
+app.use(express.static(path.join(__dirname, '../frontend/build')));
 
 // Catch-all route to serve the React app for any unmatched routes
 app.get('*', (_, res) => {
-    res.sendFile(path.join(__dirname, '../frontend/build', 'index.html'), (err) => {
-        if (err) {
-            logger.error('Error serving index.html:', err);
-            res.status(500).send('Internal Server Error');
-        }
-    });
+    res.sendFile(path.join(__dirname, '../frontend/build', 'index.html'));
 });
 
 app.listen(port, () => {
