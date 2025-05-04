@@ -81,5 +81,5 @@ jobs:
         with:
           app-name: 'MLogWebApp'
           slot-name: 'Production'
-          package: .
+          package: release.zip
 
