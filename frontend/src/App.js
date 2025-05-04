@@ -24,6 +24,7 @@ import OtherInvoicePage from './pages/admin/invoicing/OtherInvoicePage';
 import AddEmployeePage from './pages/admin/employees/addEmployeePage';
 import EditEmployeePage from './pages/admin/employees/editEmployeePage';
 import SearchInvoicePage from './pages/admin/invoicing/SearchInvoicePage';
+import RatesPage from './pages/admin/rates/RatesPage'; // Import the RatesPage
 
 function App() {
   return (
@@ -184,6 +185,14 @@ function App() {
                   element={
                     <PrivateRoute allowedRoles={['admin']}>
                       <EditEmployeePage />
+                    </PrivateRoute>
+                  }
+                />
+                <Route
+                  path="/admin/rates"
+                  element={
+                    <PrivateRoute allowedRoles={['admin']}>
+                      <RatesPage />
                     </PrivateRoute>
                   }
                 />
