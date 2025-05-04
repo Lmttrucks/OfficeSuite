@@ -38,26 +38,28 @@ jobs:
 
       - name: Prepare Deployment Package
         run: |
-          # Check if the deployment_package directory exists
-          if [ ! -d "deployment_package" ]; then
-            mkdir deployment_package
-          else
-            echo "deployment_package directory already exists. Skipping creation."
+          # Remove any existing deployment_package directory
+          if [ -d "deployment_package" ]; then
+            rm -rf deployment_package
           fi
 
-          # Copy the backend folder into the deployment package (force overwrite)
-          cp -rf backend deployment_package/
+          # Create the deployment_package directory
+          mkdir -p deployment_package/backend
+          mkdir -p deployment_package/frontend/build
 
-          # Ensure the frontend build directory exists and copy it correctly (force overwrite)
+          # Copy backend files into the deployment package
+          cp -r backend/* deployment_package/backend/
+
+          # Copy frontend build files into the deployment package
           if [ -d "frontend/build" ]; then
-            cp -rf frontend/build deployment_package/frontend/ # Correctly copy the build folder
+            cp -r frontend/build/* deployment_package/frontend/build/
           else
             echo "Error: frontend/build directory does not exist. Ensure the frontend build step is successful."
             exit 1
           fi
 
-          # Copy the root package.json into the deployment package (force overwrite)
-          cp -f package.json deployment_package/
+          # Copy the root package.json into the deployment package
+          cp package.json deployment_package/
 
           # Navigate into the deployment package directory
           cd deployment_package
