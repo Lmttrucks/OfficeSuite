@@ -45,19 +45,19 @@ jobs:
             echo "deployment_package directory already exists. Skipping creation."
           fi
 
-          # Copy the backend folder into the deployment package
-          cp -r backend deployment_package/
+          # Copy the backend folder into the deployment package (force overwrite)
+          cp -rf backend deployment_package/
 
-          # Ensure the frontend build directory exists and copy it correctly
+          # Ensure the frontend build directory exists and copy it correctly (force overwrite)
           if [ -d "frontend/build" ]; then
-            cp -r frontend/build deployment_package/frontend/ # Correctly copy the build folder
+            cp -rf frontend/build deployment_package/frontend/ # Correctly copy the build folder
           else
             echo "Error: frontend/build directory does not exist. Ensure the frontend build step is successful."
             exit 1
           fi
 
-          # Copy the root package.json into the deployment package
-          cp package.json deployment_package/
+          # Copy the root package.json into the deployment package (force overwrite)
+          cp -f package.json deployment_package/
 
           # Navigate into the deployment package directory
           cd deployment_package
@@ -88,7 +88,7 @@ jobs:
           name: deployment-package
 
       - name: Unzip Deployment Artifact
-        run: unzip release.zip
+        run: unzip -o release.zip
 
       - name: Login to Azure
         uses: azure/login@v2
