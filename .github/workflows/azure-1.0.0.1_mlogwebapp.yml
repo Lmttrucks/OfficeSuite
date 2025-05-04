@@ -33,7 +33,12 @@ jobs:
         run: |
           mkdir deployment_package
           cp -r backend deployment_package/ # Copy backend folder
-          cp -r frontend/build deployment_package/frontend/build # Copy frontend build folder
+          if [ -d "frontend/build" ]; then
+            cp -r frontend/build deployment_package/frontend/build # Copy frontend build folder
+          else
+            echo "Error: frontend/build directory does not exist. Ensure the frontend build step is successful."
+            exit 1
+          fi
           cp package.json deployment_package/ # Copy root package.json if needed
           cd deployment_package
           zip -r ../release.zip . # Zip the deployment package
