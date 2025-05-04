@@ -45,8 +45,13 @@ app.use('/api/rates', ratesRoute);
 app.use(express.static(path.join(__dirname, '../build')));
 
 // Catch-all route to serve the React app for any unmatched routes
-app.get('*', (req, res) => {
-    res.sendFile(path.join(__dirname, '../build', 'index.html'));
+app.get('*', (_, res) => {
+    res.sendFile(path.join(__dirname, '../frontend/build', 'index.html'), (err) => {
+        if (err) {
+            logger.error('Error serving index.html:', err);
+            res.status(500).send('Internal Server Error');
+        }
+    });
 });
 
 app.listen(port, () => {
