@@ -5,15 +5,12 @@
   "main": "main.js",
   "scripts": {
     "start": "npm run start-pro",
-    "start-dev": "npm run kill-ports && concurrently \"npm run start-backend\" \"npm run start-react\"",
-    "start-pro": "npm run kill-ports && concurrently \"npm run start-backend\" \"cross-env MODE=pro npm run start-electron\"",
-    "build": "npm run build-react && electron-builder",
-    "dev": "SET ELECTRON_ENV=development && electron .",
+    "start-dev": "concurrently \"npm run start-backend\" \"npm run start-react\"",
+    "start-pro": "concurrently \"npm run start-backend\" \"cross-env MODE=pro npm run start-react\"",
+    "build": "npm run build-react",
     "start-react": "cd frontend && npm start",
-    "build-react": "cd frontend && npm run build && robocopy build ..\\build /E /MOVE",
-    "start-electron": "electron .",
-    "start-backend": "cd backend && npm start",
-    "kill-ports": "npx kill-port 5000 3000"
+    "build-react": "cd frontend && npm run build",
+    "start-backend": "cd backend && npm start" 
   },
   "keywords": [],
   "author": "Shane M",
@@ -22,18 +19,14 @@
   "devDependencies": {
     "concurrently": "^7.0.0",
     "cross-env": "^7.0.3",
-    "electron": "^34.0.1",
-    "electron-builder": "^25.1.8",
-    "kill-port": "^2.0.1",
     "wait-on": "^8.0.2"
   },
   "dependencies": {
-    "applicationinsights": "^3.7.0",
-    "electron-is-dev": "^2.0.0"
+    "applicationinsights": "^3.7.0"
   },
   "build": {
     "files": [
-      "build/**/*",
+      "frontend/build/**/*",
       "main.js",
       "preload.js",
       "backend/**/*"
@@ -45,5 +38,8 @@
       "target": "nsis",
       "icon": "assets/icon.ico"
     }
+  },
+  "engines": {
+    "node": "20.x"
   }
 }

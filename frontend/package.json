@@ -13,9 +13,7 @@
     "prettify": "prettier --write ./src",
     "clean": "rm -rf build",
     "update": "npx npm-check-updates -u && npm install",
-    "deploy": "npm run build && npm run deploy-script",
-    "electron:start": "electron .",
-    "package": "electron-packager . OfficeSuite --platform=win32 --arch=x64 --out=dist --overwrite"
+    "deploy": "npm run build && npm run deploy-script"
   },
   "author": "",
   "license": "ISC",
@@ -50,8 +48,6 @@
     "@babel/preset-react": "^7.26.3",
     "babel-loader": "^9.2.1",
     "cross-env": "^7.0.3",
-    "electron": "^35.2.0",
-    "electron-packager": "^17.1.2",
     "eslint": "^8.0.0",
     "eslint-config-react-app": "^7.0.1",
     "eslint-plugin-react": "^7.37.4",
