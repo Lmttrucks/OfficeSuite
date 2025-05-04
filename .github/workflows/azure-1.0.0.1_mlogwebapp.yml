@@ -29,6 +29,13 @@ jobs:
           npm install  # Install React dependencies
           npm run build # Build the React application
 
+      - name: Clean Up Nested Build Directories
+        run: |
+          if [ -d "frontend/build/build" ]; then
+            echo "Cleaning up nested build directory..."
+            rm -rf frontend/build/build
+          fi
+
       - name: Prepare Deployment Package
         run: |
           # Check if the deployment_package directory exists
@@ -41,9 +48,9 @@ jobs:
           # Copy the backend folder into the deployment package
           cp -r backend deployment_package/
 
-          # Check if the frontend build directory exists before copying
+          # Ensure the frontend build directory exists and copy it correctly
           if [ -d "frontend/build" ]; then
-            cp -r frontend/build deployment_package/frontend/build
+            cp -r frontend/build deployment_package/frontend/ # Correctly copy the build folder
           else
             echo "Error: frontend/build directory does not exist. Ensure the frontend build step is successful."
             exit 1
