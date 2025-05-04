@@ -2,6 +2,7 @@ require('dotenv').config(); // Load environment variables first
 process.chdir(__dirname);
 const express = require('express');
 const cors = require('cors');
+const path = require('path'); // Import path module
 const logger = require('./utils/logger'); // Import logger after dotenv
 const authRoutes = require('./routes/authRoutes');
 const protectedRoutes = require('./routes/protectedRoutes');
@@ -16,6 +17,8 @@ const employeeRoutes = require('./routes/employeeRoutes');
 const vehicleRoutes = require('./routes/vehicleRoutes');
 const linkLoadsRoutes = require('./routes/linkLoadsRoutes');
 const ratesRoute = require('./routes/ratesRoute');
+const appInsights = require('applicationinsights');
+appInsights.setup().start();
 
 const app = express();
 const port = process.env.PORT || 5000;
@@ -37,6 +40,14 @@ app.use('/api/employees', employeeRoutes);
 app.use('/api/vehicles', vehicleRoutes);
 app.use('/api/link-loads', linkLoadsRoutes);
 app.use('/api/rates', ratesRoute);
+
+// Serve static files from the frontend's build folder
+app.use(express.static(path.join(__dirname, '../build')));
+
+// Catch-all route to serve the React app for any unmatched routes
+app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, '../build', 'index.html'));
+});
 
 app.listen(port, () => {
     logger.log(`Server running on port ${port}`);
