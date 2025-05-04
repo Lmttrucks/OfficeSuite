@@ -36,6 +36,12 @@ const ratesRoute = require('./routes/ratesRoute');
 const app = express();
 const port = process.env.PORT || 5000;
 
+// Middleware to log requests (optional)
+app.use((req, res, next) => {
+  console.log(`${req.method} ${req.url}`);
+  next();
+});
+
 app.use(cors({ origin: '*' }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -55,13 +61,14 @@ app.use('/api/link-loads', linkLoadsRoutes);
 app.use('/api/rates', ratesRoute);
 
 // Serve static files from the frontend's build folder
-app.use(express.static(path.join(__dirname, '../frontend/build')));
+const frontendPath = path.join(__dirname, '../frontend/build');
+app.use(express.static(frontendPath));
 
 // Catch-all route to serve the React app for any unmatched routes
-app.get('*', (_, res) => {
-    res.sendFile(path.join(__dirname, '../frontend/build', 'index.html'));
+app.get('*', (req, res) => {
+  res.sendFile(path.join(frontendPath, 'index.html'));
 });
 
 app.listen(port, () => {
-    logger.log(`Server running on port ${port}`);
+  logger.log(`Server running on port ${port}`);
 });
