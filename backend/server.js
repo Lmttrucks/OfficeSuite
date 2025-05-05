@@ -3,14 +3,18 @@ process.chdir(__dirname);
 const appInsights = require('applicationinsights');
 
 if (process.env.APPLICATIONINSIGHTS_CONNECTION_STRING || process.env.APPINSIGHTS_INSTRUMENTATIONKEY) {
-  appInsights
-    .setup(process.env.APPLICATIONINSIGHTS_CONNECTION_STRING || process.env.APPINSIGHTS_INSTRUMENTATIONKEY)
-    .setAutoCollectConsole(true, true)
-    .setAutoCollectDependencies(true)
-    .setAutoCollectExceptions(true)
-    .setAutoCollectPerformance(true)
-    .setAutoCollectRequests(true)
-    .start();
+  try {
+    appInsights
+      .setup(process.env.APPLICATIONINSIGHTS_CONNECTION_STRING || process.env.APPINSIGHTS_INSTRUMENTATIONKEY)
+      .setAutoCollectConsole(true, true)
+      .setAutoCollectDependencies(true)
+      .setAutoCollectExceptions(true)
+      .setAutoCollectPerformance(true)
+      .setAutoCollectRequests(true)
+      .start();
+  } catch (error) {
+    console.error('Application Insights initialization failed:', error.message);
+  }
 } else {
   console.warn("No instrumentation key or connection string provided for Application Insights.");
 }
@@ -34,7 +38,7 @@ const ratesRoute = require('./routes/ratesRoute');
 const axios = require('axios'); // Import axios for pinging the API
 
 const app = express();
-const port = process.env.PORT || 3000;
+const port = process.env.PORT || 8080; // Ensure the app listens on port 8080
 
 app.use(cors({ origin: '*' }));
 

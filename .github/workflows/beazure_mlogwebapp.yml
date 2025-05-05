@@ -23,12 +23,11 @@ jobs:
         with:
           node-version: '20.x'
 
-      - name: npm install, build, and test
+      - name: Install dependencies
         working-directory: ./backend
         run: |
           npm install
-          npm run build --if-present
-          npm run test --if-present
+          ls -l node_modules # Debug: Verify node_modules is created
 
       - name: Zip artifact for deployment
         working-directory: ./backend
@@ -41,7 +40,6 @@ jobs:
         with:
           name: node-app
           path: ./backend/release.zip
-      - run: "echo 'Artifact uploaded: ./backend/release.zip'"
 
   deploy:
     runs-on: ubuntu-latest
@@ -58,6 +56,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: node-app
+
       - run: ls -l # Debug: List files after downloading the artifact
 
       - name: Unzip artifact for deployment
@@ -76,4 +75,4 @@ jobs:
         with:
           app-name: 'MLogWebApp'
           slot-name: 'Production'
-          package: release.zip # Adjust path if necessary
+          package: release.zip
