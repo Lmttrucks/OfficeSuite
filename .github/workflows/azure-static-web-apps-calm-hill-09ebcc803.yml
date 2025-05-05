@@ -20,7 +20,8 @@ jobs:
       contents: read
     steps:
       # Step 1: Check out the code
-      - uses: actions/checkout@v3
+      - name: Checkout code
+        uses: actions/checkout@v3
         with:
           submodules: true
           lfs: false
@@ -32,10 +33,9 @@ jobs:
           node-version: '20.x'
 
       # Step 3: Install dependencies
-      - name: Install Dependencies
+      - name: Install dependencies
         run: |
           cd frontend
-          rm -rf node_modules package-lock.json # Clear cached dependencies
           npm ci
 
       # Step 4: Build the frontend
