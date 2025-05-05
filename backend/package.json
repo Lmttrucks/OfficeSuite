@@ -3,8 +3,6 @@
   "version": "1.0.0",
   "main": "server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "lint": "eslint .",
     "start": "node server.js"
   },
   "keywords": [],
@@ -24,9 +22,6 @@
     "jsonwebtoken": "^9.0.2",
     "mssql": "^11.0.1",
     "multer": "^1.4.5-lts.1"
-  },
-  "devDependencies": {
-    "eslint": "^9.16.0"
   },
   "engines": {
     "node": "20.x"
