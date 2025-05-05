@@ -60,6 +60,9 @@ jobs:
 
       - run: ls -l # Debug: List files after downloading the artifact
 
+      - name: Create wwwroot directory
+        run: mkdir -p /home/site/wwwroot/
+
       - name: Unzip artifact for deployment
         run: unzip release.zip -d /home/site/wwwroot/ # Extract directly to wwwroot
 
