@@ -29,19 +29,20 @@ jobs:
           npm install
           ls -l node_modules # Debug: Verify node_modules is created
 
+      - name: Verify PORT environment variable
+        run: echo "PORT=$PORT"
+
       - name: Zip artifact for deployment
         working-directory: ./backend
         run: |
-          # Change to the parent directory before zipping the 'backend' folder's content.
-          cd ..
-          zip -r release.zip backend/* # Include the contents of backend
-          ls -l release.zip
+          zip release.zip ./* -r
+          ls -l release.zip # Debug: List the created zip file
 
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v4
         with:
           name: node-app
-          path: ./release.zip
+          path: ./backend/release.zip
 
   deploy:
     runs-on: ubuntu-latest
@@ -62,8 +63,7 @@ jobs:
       - run: ls -l # Debug: List files after downloading the artifact
 
       - name: Unzip artifact for deployment
-        run: |
-          unzip release.zip -d /home/site/wwwroot/
+        run: unzip release.zip
 
       - name: Login to Azure
         uses: azure/login@v2
@@ -78,4 +78,4 @@ jobs:
         with:
           app-name: 'MLogWebApp'
           slot-name: 'Production'
-          package: /home/site/wwwroot/release.zip # Point to the zip in wwwroot
+          package: release.zip
