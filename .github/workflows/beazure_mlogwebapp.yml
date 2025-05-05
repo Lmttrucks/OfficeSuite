@@ -34,7 +34,8 @@ jobs:
         run: |
           # Change to the parent directory before zipping the 'backend' folder's content.
           cd ..
-          zip -r release.zip backend/node_modules backend/* ls -l release.zip
+          zip -r release.zip backend/* # Include the contents of backend
+          ls -l release.zip
 
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v4
