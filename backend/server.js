@@ -17,7 +17,6 @@ if (process.env.APPLICATIONINSIGHTS_CONNECTION_STRING || process.env.APPINSIGHTS
 
 const express = require('express');
 const cors = require('cors');
-const path = require('path'); // Import path module
 const logger = require('./utils/logger'); // Import logger after dotenv
 const authRoutes = require('./routes/authRoutes');
 const protectedRoutes = require('./routes/protectedRoutes');
@@ -32,20 +31,22 @@ const employeeRoutes = require('./routes/employeeRoutes');
 const vehicleRoutes = require('./routes/vehicleRoutes');
 const linkLoadsRoutes = require('./routes/linkLoadsRoutes');
 const ratesRoute = require('./routes/ratesRoute');
+const axios = require('axios'); // Import axios for pinging the API
 
 const app = express();
 const port = process.env.PORT || 5000;
 
-// Middleware to log requests (optional)
-app.use((req, res, next) => {
-  console.log(`${req.method} ${req.url}`);
-  next();
-});
+// Enable CORS for requests from the frontend
+app.use(cors({
+  origin: 'https://calm-hill-09ebcc803.6.azurestaticapps.net', 
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  credentials: true
+}));
 
-app.use(cors({ origin: '*' }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// API routes
 app.use('/api/auth', authRoutes);
 app.use('/api', protectedRoutes);
 app.use('/api/loads', loadRoutes);
@@ -60,15 +61,20 @@ app.use('/api/vehicles', vehicleRoutes);
 app.use('/api/link-loads', linkLoadsRoutes);
 app.use('/api/rates', ratesRoute);
 
-// Serve static files from the frontend's build folder
-const frontendPath = path.join(__dirname, '../frontend/build');
-app.use(express.static(frontendPath));
-
-// Catch-all route to serve the React app for any unmatched routes
-app.get('*', (req, res) => {
-  res.sendFile(path.join(frontendPath, 'index.html'));
+// Health check endpoint
+app.get('/api/ping', (req, res) => {
+  res.send('Here!');
 });
 
-app.listen(port, () => {
+// Start the server
+app.listen(port, async () => {
   logger.log(`Server running on port ${port}`);
+
+  // Ping the health check endpoint on startup
+  try {
+    const response = await axios.get(`http://localhost:${port}/api/ping`);
+    logger.log(`Health check response: ${response.data}`);
+  } catch (error) {
+    logger.error('Health check failed:', error.message);
+  }
 });
