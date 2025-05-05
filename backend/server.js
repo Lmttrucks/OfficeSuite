@@ -34,14 +34,9 @@ const ratesRoute = require('./routes/ratesRoute');
 const axios = require('axios'); // Import axios for pinging the API
 
 const app = express();
-const port = process.env.PORT || 8080;
+const port = process.env.PORT || 3000;
 
-// Enable CORS for requests from the frontend
-app.use(cors({
-  origin: 'https://calm-hill-09ebcc803.6.azurestaticapps.net', 
-  methods: ['GET', 'POST', 'PUT', 'DELETE'],
-  credentials: true
-}));
+app.use(cors({ origin: '*' }));
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
