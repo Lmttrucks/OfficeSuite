@@ -34,7 +34,7 @@ const ratesRoute = require('./routes/ratesRoute');
 const axios = require('axios'); // Import axios for pinging the API
 
 const app = express();
-const port = process.env.PORT || 5000;
+const port = process.env.PORT || 8080;
 
 // Enable CORS for requests from the frontend
 app.use(cors({
