@@ -35,6 +35,7 @@ jobs:
       - name: Install Dependencies
         run: |
           cd frontend
+          rm -rf node_modules package-lock.json # Clear cached dependencies
           npm ci
 
       # Step 4: Build the frontend
