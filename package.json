@@ -4,13 +4,7 @@
   "description": "Mlog Office suite. Backend server and frontend app together.",
   "main": "main.js",
   "scripts": {
-    "start": "node backend/server.js",
-    "start-dev": "concurrently \"npm run start-backend\" \"npm run start-react\"",
-    "start-pro": "concurrently \"npm run start-backend\" \"cross-env MODE=pro npm run start-react\"",
-    "build": "npm run build-react",
-    "start-react": "cd frontend && npm start",
-    "build-react": "cd frontend && npm run build",
-    "start-backend": "node backend/server.js"
+    "start": "node backend/server.js"
   },
   "keywords": [],
   "author": "Shane M",
