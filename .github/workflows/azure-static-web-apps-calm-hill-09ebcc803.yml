@@ -33,7 +33,7 @@ jobs:
           node-version: '20.x'
 
       # Step 3: Install dependencies
-      - name: Install dependencies
+      - name: dnstall dependencies
         run: |
           cd frontend
           npm ci
