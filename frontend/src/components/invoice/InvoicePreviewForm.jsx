@@ -48,7 +48,7 @@ const InvoicePreviewForm = ({ previewData, formData, onGenerate, onPrintPreview 
           />
           <TextField
             label="VAT Rate"
-            value={formData.vatRate}
+            value={formData.vatRate.toFixed(1)} // Display with one decimal place
             fullWidth
             InputProps={{
               readOnly: true
