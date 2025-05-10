@@ -42,7 +42,10 @@ const InvoiceGenFrm = ({
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setDisplayFormData({ ...displayFormData, [name]: value });
+    setDisplayFormData((prevData) => ({
+      ...prevData,
+      [name]: name === 'vatRate' ? parseFloat(value) : value // Parse vatRate as a float
+    }));
   };
 
   const handleClear = () => {
@@ -101,7 +104,7 @@ const InvoiceGenFrm = ({
         (acc, row) => acc + row.Rate * row.UnitQuantity,
         0
       );
-      const vatRate = parseFloat(displayFormData.vatRate);
+      const vatRate = parseFloat(displayFormData.vatRate); // Ensure it's a float
       const vatAmount = totalAmount * (vatRate / 100);
       const paymentAmount = totalAmount + vatAmount;
 
