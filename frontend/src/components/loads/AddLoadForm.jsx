@@ -16,9 +16,9 @@ const AddLoadForm = ({ onLoadAdded }) => {
     gross: '',
     tare: '0',
     origin: '',
-    destination: ''
+    destination: '',
+    purchase: false // <-- add this line
   });
-  const [purchase, setPurchase] = useState(false); // Set to false by default
 
   const [localCompanies, setLocalCompanies] = useState([]);
   const [localEmployees, setLocalEmployees] = useState([]);
@@ -58,7 +58,6 @@ const AddLoadForm = ({ onLoadAdded }) => {
       const userID = localStorage.getItem('userID');
       const dataToSend = {
         ...formData,
-        purchase,
         userID // Include userID in the form data
       };
 
@@ -107,9 +106,9 @@ const AddLoadForm = ({ onLoadAdded }) => {
       gross: '',
       tare: '0',
       origin: '',
-      destination: ''
+      destination: '',
+      purchase: false // <-- reset this too
     });
-    setPurchase(false); // Reset purchase to false
   };
 
   return (
@@ -273,8 +272,13 @@ const AddLoadForm = ({ onLoadAdded }) => {
           <FormControlLabel
             control={
               <Checkbox
-                checked={purchase}
-                onChange={(e) => setPurchase(e.target.checked)}
+                checked={formData.purchase}
+                onChange={(e) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    purchase: e.target.checked
+                  }))
+                }
               />
             }
             label="Purchase"

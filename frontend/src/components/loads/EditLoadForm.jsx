@@ -18,7 +18,7 @@ const EditLoadForm = ({ editingLoad, setEditingLoad, handleRefreshTable }) => {
 
     // Filter out null values and exclude userID and dateAdded
     const filteredData = Object.fromEntries(
-      Object.entries(editingLoad).filter(([key, value]) => value !== null && key !== 'UserID' && key !== 'DateAdded')
+      Object.entries(editingLoad).filter(([key]) => key !== 'UserID' && key !== 'DateAdded')
     );
 
     // Include only changed fields

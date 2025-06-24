@@ -31,12 +31,6 @@ const EditInvoiceForm = ({ editingInvoice, setEditingInvoice, handleRefreshTable
     }
   };
 
-  const convertDateToISO = (date) => {
-    // Convert dd-mm-yyyy to yyyy-mm-dd
-    const [day, month, year] = date.split('-');
-    return `${year}-${month}-${day}`;
-  };
-
   useEffect(() => {
     setLocalCompanies(loadLocalData('localCompanies'));
   }, []);
@@ -45,9 +39,9 @@ const EditInvoiceForm = ({ editingInvoice, setEditingInvoice, handleRefreshTable
     if (editingInvoice) {
       setFormData({
         ...editingInvoice,
-        StartDate: editingInvoice.StartDate ? convertDateToISO(editingInvoice.StartDate) : '',
-        EndDate: editingInvoice.EndDate ? convertDateToISO(editingInvoice.EndDate) : '',
-        DateAdded: editingInvoice.DateAdded ? convertDateToISO(editingInvoice.DateAdded) : ''
+        StartDate: editingInvoice.StartDate || '',
+        EndDate: editingInvoice.EndDate || '',
+        DateAdded: editingInvoice.DateAdded || ''
       });
     }
   }, [editingInvoice]);

@@ -115,15 +115,21 @@ const Last1000Invoices = ({ refresh }) => {
         throw new Error('Invalid loads data');
       }
 
-      // Recalculate LoadCount and PaymentAmount
+      // Recalculate LoadCount, TotalAmount, VatAmount, and PaymentAmount
       const loadCount = loadsData.length;
-      const paymentAmount = loadsData.reduce((total, load) => total + load.Rate * load.UnitQuantity, 0);
+      const totalAmount = loadsData.reduce((total, load) => total + load.Rate * load.UnitQuantity, 0);
+      const vatRate = parseFloat(invoice.VatRate || 0);
+      const vatAmount = totalAmount * (vatRate / 100);
+      const paymentAmount = totalAmount + vatAmount;
 
       // Update the invoice
       const updatedInvoice = {
         ...invoice,
         LoadCount: loadCount,
-        PaymentAmount: paymentAmount
+        PaymentAmount: parseFloat(paymentAmount.toFixed(2)),
+        VatAmount: parseFloat(vatAmount.toFixed(2)),
+        TotalAmount: parseFloat(totalAmount.toFixed(2)),
+        VatRate: vatRate
       };
 
       const response = await fetch(`${config.apiBaseUrl}/invoices/${invoice.InvoiceNo}`, {
