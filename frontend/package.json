@@ -5,23 +5,16 @@
   "main": "main.js",
   "scripts": {
     "start": "react-scripts start",
-    "build": "react-scripts build && robocopy build ..\\build /E /MOVE",
-    "build:dev": "cross-env NODE_ENV=development react-scripts build",
+    "build": "react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject",
-    "lint": "eslint ./src",
-    "prettify": "prettier --write ./src",
-    "clean": "rm -rf build",
-    "update": "npx npm-check-updates -u && npm install",
-    "deploy": "npm run build && npm run deploy-script",
-    "electron:start": "electron .",
-    "package": "electron-packager . OfficeSuite --platform=win32 --arch=x64 --out=dist --overwrite"
+    "eject": "react-scripts eject"
   },
   "author": "",
   "license": "ISC",
   "description": "",
-  "homepage": "./",
+  "homepage": ".",
   "dependencies": {
+    "@babel/plugin-proposal-private-property-in-object": "^7.21.0",
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.0",
     "@mui/icons-material": "^6.3.1",
@@ -38,34 +31,8 @@
     "react-scripts": "^5.0.1",
     "react-to-print": "^3.0.6"
   },
-  "devDependencies": {
-    "@babel/core": "^7.26.0",
-    "@babel/plugin-proposal-private-property-in-object": "^7.21.11",
-    "@babel/plugin-transform-class-properties": "^7.25.9",
-    "@babel/plugin-transform-nullish-coalescing-operator": "^7.25.9",
-    "@babel/plugin-transform-numeric-separator": "^7.25.9",
-    "@babel/plugin-transform-optional-chaining": "^7.25.9",
-    "@babel/plugin-transform-private-methods": "^7.25.9",
-    "@babel/preset-env": "^7.26.0",
-    "@babel/preset-react": "^7.26.3",
-    "babel-loader": "^9.2.1",
-    "cross-env": "^7.0.3",
-    "electron": "^35.2.0",
-    "electron-packager": "^17.1.2",
-    "eslint": "^8.0.0",
-    "eslint-config-react-app": "^7.0.1",
-    "eslint-plugin-react": "^7.37.4",
-    "glob": "^11.0.0",
-    "prettier": "^3.4.2",
-    "rimraf": "^6.0.1",
-    "webpack": "^5.97.1",
-    "webpack-cli": "^6.0.1"
-  },
-  "eslintConfig": {
-    "extends": [
-      "react-app",
-      "react-app/jest"
-    ]
+  "engines": {
+    "node": "20.x"
   },
   "browserslist": {
     "production": [
