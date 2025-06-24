@@ -306,17 +306,20 @@ exports.updateInvoice = async (req, res) => {
 
         await sql.connect(dbConfig);
 
-        // Convert StartDate and EndDate from dd-MM-yyyy to yyyy-MM-dd
+        // Convert StartDate, EndDate, and DateAdded from dd-MM-yyyy to yyyy-MM-dd
         const formatDate = (date) => {
+            if (!date) return null;
             const [day, month, year] = date.split('-');
             return `${year}-${month}-${day}`;
         };
 
         const formattedStartDate = formatDate(StartDate);
         const formattedEndDate = formatDate(EndDate);
+        const formattedDateAdded = formatDate(DateAdded);
 
         console.log('Formatted StartDate:', formattedStartDate);
         console.log('Formatted EndDate:', formattedEndDate);
+        console.log('Formatted DateAdded:', formattedDateAdded);
 
         // Get the CompanyID based on the CompanyName
         const companyResult = await sql.query`
@@ -341,7 +344,7 @@ exports.updateInvoice = async (req, res) => {
             PaymentAmount = ${PaymentAmount},
             InvoiceURL = ${InvoiceURL},
             UserID = ${UserID},
-            DateAdded = ${DateAdded},
+            DateAdded = ${formattedDateAdded},
             Purchase = ${Purchase}
         WHERE InvoiceNo = ${InvoiceNo}`;
 
