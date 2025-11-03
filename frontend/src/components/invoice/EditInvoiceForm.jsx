@@ -31,6 +31,16 @@ const EditInvoiceForm = ({ editingInvoice, setEditingInvoice, handleRefreshTable
         }
     };
 
+    // Helper to format date to yyyy-MM-dd for input fields
+    const toInputDate = (dateStr) => {
+        if (!dateStr) return '';
+        const d = new Date(dateStr);
+        if (isNaN(d)) return '';
+        const mm = String(d.getMonth() + 1).padStart(2, '0');
+        const dd = String(d.getDate()).padStart(2, '0');
+        return `${d.getFullYear()}-${mm}-${dd}`;
+    };
+
     useEffect(() => {
         setLocalCompanies(loadLocalData('localCompanies'));
     }, []);
@@ -39,9 +49,9 @@ const EditInvoiceForm = ({ editingInvoice, setEditingInvoice, handleRefreshTable
         if (editingInvoice) {
             setFormData({
                 ...editingInvoice,
-                StartDate: editingInvoice.StartDate || '',
-                EndDate: editingInvoice.EndDate || '',
-                DateAdded: editingInvoice.DateAdded || ''
+                StartDate: toInputDate(editingInvoice.StartDate),
+                EndDate: toInputDate(editingInvoice.EndDate),
+                DateAdded: toInputDate(editingInvoice.DateAdded)
             });
         }
     }, [editingInvoice]);
@@ -117,7 +127,7 @@ const EditInvoiceForm = ({ editingInvoice, setEditingInvoice, handleRefreshTable
                 renderInput={(params) => (
                     <TextField {...params} label="Company Name" name="CompanyName" fullWidth margin="normal" />
                 )}
-                sx={{ width: '100%' }} // Make the Autocomplete box full width
+                sx={{ width: '100%' }}
             />
             <TextField
                 label="Start Date"
