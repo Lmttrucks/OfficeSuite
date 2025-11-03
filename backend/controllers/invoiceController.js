@@ -306,11 +306,36 @@ exports.updateInvoice = async (req, res) => {
 
         await sql.connect(dbConfig);
 
-        // Convert StartDate, EndDate, and DateAdded from dd-MM-yyyy to yyyy-MM-dd
-        const formatDate = (date) => {
-            if (!date) return null;
-            const [day, month, year] = date.split('-');
-            return `${year}-${month}-${day}`;
+        // Convert date strings to proper SQL datetime format
+        const formatDate = (dateStr) => {
+            if (!dateStr) return null;
+
+            // Handle ISO-like format (yyyy-MM-ddTHH:mm:ss)
+            if (dateStr.includes('T')) {
+                return new Date(dateStr).toISOString().slice(0, 19); // Returns yyyy-MM-dd HH:mm:ss
+            }
+
+            // Handle dd-MM-yyyy format
+            if (dateStr.includes('-') && dateStr.split('-').length === 3) {
+                const parts = dateStr.split('-');
+                if (parts[0].length === 2 && parts[1].length === 2 && parts[2].length === 4) {
+                    const [day, month, year] = parts;
+                    return `${year}-${month}-${day}`;
+                }
+            }
+
+            // Handle yyyy-MM-dd format (pass through)
+            if (dateStr.match(/^\d{4}-\d{2}-\d{2}$/)) {
+                return dateStr;
+            }
+
+            // Fallback: try to parse as Date
+            const date = new Date(dateStr);
+            if (!isNaN(date)) {
+                return date.toISOString().slice(0, 19); // Returns yyyy-MM-dd HH:mm:ss
+            }
+
+            return null;
         };
 
         const formattedStartDate = formatDate(StartDate);
