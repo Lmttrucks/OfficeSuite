@@ -80,9 +80,9 @@ const EditInvoiceForm = ({ editingInvoice, setEditingInvoice, handleRefreshTable
         try {
             const formattedFormData = {
                 ...formData,
-                StartDate: formData.StartDate ? new Date(formData.StartDate).toISOString() : '',
-                EndDate: formData.EndDate ? new Date(formData.EndDate).toISOString() : '',
-                DateAdded: formData.DateAdded ? new Date(formData.DateAdded).toISOString() : ''
+                StartDate: formData.StartDate || null,
+                EndDate: formData.EndDate || null,
+                DateAdded: formData.DateAdded || null
             };
 
             const response = await fetch(`${config.apiBaseUrl}/invoices/${formData.InvoiceNo}`, {
@@ -106,6 +106,7 @@ const EditInvoiceForm = ({ editingInvoice, setEditingInvoice, handleRefreshTable
             alert('Error updating invoice');
         }
     };
+
 
     return (
         <Box component="form" onSubmit={handleSubmit} sx={{ mt: 2 }}>
