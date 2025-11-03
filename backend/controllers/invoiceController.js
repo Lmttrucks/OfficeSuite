@@ -296,8 +296,8 @@ exports.updateInvoice = async (req, res) => {
     const { CompanyName, StartDate, EndDate, VatRate, LoadCount, PaymentAmount, InvoiceURL, UserID, DateAdded, Purchase } = req.body;
 
     try {
-        console.log('Incoming data:', req.body);
-        console.log('InvoiceNo:', InvoiceNo);
+        logger.log('Incoming data:', req.body);
+        logger.log('InvoiceNo:', InvoiceNo);
 
         // Validate required fields
         if (!InvoiceNo || !CompanyName || !StartDate || !EndDate) {
@@ -342,9 +342,9 @@ exports.updateInvoice = async (req, res) => {
         const formattedEndDate = formatDate(EndDate);
         const formattedDateAdded = formatDate(DateAdded);
 
-        console.log('Formatted StartDate:', formattedStartDate);
-        console.log('Formatted EndDate:', formattedEndDate);
-        console.log('Formatted DateAdded:', formattedDateAdded);
+        logger.log('Formatted StartDate:', formattedStartDate);
+        logger.log('Formatted EndDate:', formattedEndDate);
+        logger.log('Formatted DateAdded:', formattedDateAdded);
 
         // Get the CompanyID based on the CompanyName
         const companyResult = await sql.query`
@@ -355,7 +355,7 @@ exports.updateInvoice = async (req, res) => {
         }
 
         const CompanyID = companyResult.recordset[0].CompanyID;
-        console.log('CompanyID:', CompanyID);
+        logger.log('CompanyID:', CompanyID);
 
         // Update the invoice in the database
         const result = await sql.query`
@@ -377,9 +377,10 @@ exports.updateInvoice = async (req, res) => {
             return res.status(404).json({ message: 'No invoice found for the specified invoice number' });
         }
 
+        logger.log('Invoice updated successfully');
         res.status(200).json({ message: 'Invoice updated successfully' });
     } catch (err) {
-        console.error('Error updating invoice:', err.message);
+        logger.log('Error updating invoice:', err.message);
         res.status(500).json({ message: 'Server error', error: err.message });
     }
 };
