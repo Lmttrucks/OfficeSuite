@@ -80,9 +80,9 @@ const EditInvoiceForm = ({ editingInvoice, setEditingInvoice, handleRefreshTable
         try {
             const formattedFormData = {
                 ...formData,
-                StartDate: formData.StartDate || null,
-                EndDate: formData.EndDate || null,
-                DateAdded: formData.DateAdded || null
+                StartDate: formData.StartDate ? `${formData.StartDate}T00:00:00` : null,
+                EndDate: formData.EndDate ? `${formData.EndDate}T23:59:59` : null,
+                DateAdded: formData.DateAdded ? `${formData.DateAdded}T00:00:00` : null
             };
 
             const response = await fetch(`${config.apiBaseUrl}/invoices/${formData.InvoiceNo}`, {
