@@ -34,6 +34,17 @@ const EditInvoiceForm = ({ editingInvoice, setEditingInvoice, handleRefreshTable
     // Helper to format date to yyyy-MM-dd for input fields
     const toInputDate = (dateStr) => {
         if (!dateStr) return '';
+
+        // Handle dd-MM-yyyy format (like "03-11-2025")
+        const ddmmyyyyRegex = /^(\d{2})-(\d{2})-(\d{4})$/;
+        const match = dateStr.match(ddmmyyyyRegex);
+
+        if (match) {
+            const [, day, month, year] = match;
+            return `${year}-${month}-${day}`;
+        }
+
+        // Fallback for other formats
         const d = new Date(dateStr);
         if (isNaN(d)) return '';
         const mm = String(d.getMonth() + 1).padStart(2, '0');
