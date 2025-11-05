@@ -176,7 +176,7 @@ logger.log('Insert query result:', result);
 exports.getLast1000Loads = async (req, res) => {
     try {
         const result = await sql.query`
-           SELECT TOP 1000 
+           SELECT
     l.ID,
     l.SubmissionID,
     l.InvoiceNo,
